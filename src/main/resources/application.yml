@@ -1,0 +1,19 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: "${HIBERNATE_DDL_AUTO}"
+    properties:
+      jdbc:
+        time_zone: UTC
+  datasource:
+    url: "jdbc:${DATABASE_URL}"
+    username: root
+server:
+  port: 8080
+logging:
+  level:
+    org:
+      hibernate:
+        # For the logging the sql queries
+        SQL: DEBUG
+        type.descriptor.sql.basicBinder: TRACE
