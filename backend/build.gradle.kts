@@ -28,6 +28,7 @@ configurations {
 
 repositories {
     mavenCentral()
+    @Suppress("DEPRECATION")
     jcenter()
 }
 
@@ -66,4 +67,11 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+// For Gradle applications, Heroku’s buildpack looks for a stage task to create 
+// executable artifacts from our code. Luckily for us, the already preconfigured
+// Gradle application plugin already comes with a task called installDist which does exactly that.
+tasks.create("stage") {
+    dependsOn("build", "clean")
 }
