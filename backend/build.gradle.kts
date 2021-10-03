@@ -75,3 +75,12 @@ tasks.withType<Test> {
 tasks.create("stage") {
     dependsOn("build", "clean")
 }
+
+// Disable tests during the stage task
+gradle.taskGraph.whenReady {
+    if (hasTask("stage")) {
+        tasks.test.configure { 
+            enabled = false
+        }
+    }
+}
