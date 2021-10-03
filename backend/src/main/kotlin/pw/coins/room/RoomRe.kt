@@ -5,7 +5,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 
 interface RoomRe : JpaRepository<RoomEn, Long>, JpaSpecificationExecutor<RoomEn> {
 
-    @JvmDefault
     fun generateTmpRooms(vararg roomNames: String): List<RoomEn> {
         val rooms = roomNames.map { save(RoomEn(name = it)) }
         flush()

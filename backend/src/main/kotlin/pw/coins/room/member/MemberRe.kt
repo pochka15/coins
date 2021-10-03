@@ -9,7 +9,6 @@ import pw.coins.db.specifications.fetch
 import pw.coins.room.RoomEn
 
 interface MemberRe : JpaRepository<MemberEn, Long>, JpaSpecificationExecutor<MemberEn> {
-    @JvmDefault
     fun fetchRoomMembers(roomEn: RoomEn): List<MemberEn> =
         findAll(
             where<MemberEn> { root -> equal(root.get(MemberEn::room).get(RoomEn::id), roomEn.id!!) }
