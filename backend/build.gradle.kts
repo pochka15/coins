@@ -72,9 +72,9 @@ tasks.withType<Test> {
 // For Gradle applications, Heroku’s buildpack looks for a stage task to create 
 // executable artifacts from our code. Luckily for us, the already preconfigured
 // Gradle application plugin already comes with a task called installDist which does exactly that.
-val stage = tasks.create("stage") {
-    dependsOn("build", "clean")
-}
+//val stage = tasks.create("stage") {
+//    dependsOn("build", "clean")
+//}
 
 tasks.test.configure {
     enabled = project.hasProperty("ENABLE_TESTS") 
