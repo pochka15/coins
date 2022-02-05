@@ -1,5 +1,6 @@
 package pw.coins.room
 
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.web.bind.annotation.*
 import pw.coins.room.dtos.NewRoom
 import pw.coins.room.dtos.Room
@@ -8,6 +9,7 @@ import pw.coins.room.member.dtos.NewMember
 
 @RestController
 @RequestMapping("/room")
+@Tag(name = "Room")
 class RoomCo(val roomSe: RoomSe) {
     @PostMapping
     fun createRoom(@RequestBody room: NewRoom): Room {

@@ -1,13 +1,13 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "2.4.4"
+    id("org.springframework.boot") version "2.6.3"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
-    kotlin("jvm") version "1.4.31"
-    kotlin("plugin.spring") version "1.4.31"
-    kotlin("plugin.jpa") version "1.4.31"
-    kotlin("plugin.allopen") version "1.4.32"
-    kotlin("kapt") version "1.5.31"
+    kotlin("jvm") version "1.6.10"
+    kotlin("plugin.spring") version "1.6.10"
+    kotlin("plugin.jpa") version "1.6.10"
+    kotlin("plugin.allopen") version "1.6.10"
+    kotlin("kapt") version "1.6.10"
 }
 
 allOpen {
@@ -33,28 +33,36 @@ repositories {
 }
 
 dependencies {
+//    Spring boot
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation("org.hibernate.validator:hibernate-validator:6.2.0.Final")
-    implementation("org.junit.jupiter:junit-jupiter:5.7.0")
-    implementation("au.com.console:kotlin-jpa-specification-dsl:2.0.0")
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-parent
     implementation(group = "org.springframework.boot", name = "spring-boot-starter-parent", version = "2.4.5")
-    implementation("io.springfox:springfox-boot-starter:3.0.0")
-    runtimeOnly("com.h2database:h2")
-    runtimeOnly("mysql:mysql-connector-java")
+
+//    Kotlin
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+
+//    Tests
+    testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(module = "junit")
         exclude(module = "mockito-core")
     }
     testImplementation("io.mockk:mockk:1.11.0")
-    testImplementation("org.springframework.security:spring-security-test")
     testImplementation("io.kotest:kotest-runner-junit5:4.4.3")
     testImplementation("io.kotest:kotest-assertions-core:4.0.7")
+    implementation("org.junit.jupiter:junit-jupiter:5.7.0")
+
+//    Database
+    runtimeOnly("com.h2database:h2")
+    implementation("org.hibernate.validator:hibernate-validator:6.2.0.Final")
+    implementation("au.com.console:kotlin-jpa-specification-dsl:2.0.0")
+
+//    Others
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+    implementation("org.springdoc:springdoc-openapi-ui:1.6.5")
     kapt("org.springframework.boot:spring-boot-configuration-processor")
 }
 

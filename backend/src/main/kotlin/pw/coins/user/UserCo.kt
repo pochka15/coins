@@ -1,5 +1,6 @@
 package pw.coins.user
 
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.web.bind.annotation.*
 import pw.coins.room.member.dtos.Member
 import pw.coins.user.dtos.User
@@ -9,6 +10,7 @@ import javax.validation.Valid
 
 @RestController
 @RequestMapping("/user")
+@Tag(name = "User")
 class UserCo(private val userSe: UserSe) {
     //        TODO(@pochka15): handle return validation error message if something went wrong
     @PostMapping
