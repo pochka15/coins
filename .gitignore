@@ -39,3 +39,4 @@ out/
 
 sandbox/
 /backend/.jpb/
+/backend/src/main/java/pw/coins/db/generated/

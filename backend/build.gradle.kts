@@ -1,11 +1,14 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import nu.studer.gradle.jooq.JooqEdition
+import org.jooq.meta.jaxb.ForcedType
+import org.jooq.meta.jaxb.Property
 
 plugins {
     id("org.springframework.boot") version "2.6.3"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
+    id("nu.studer.jooq") version "7.1"
     kotlin("jvm") version "1.6.10"
     kotlin("plugin.spring") version "1.6.10"
-    kotlin("plugin.jpa") version "1.6.10"
     kotlin("plugin.allopen") version "1.6.10"
     kotlin("kapt") version "1.6.10"
 }
@@ -34,7 +37,7 @@ repositories {
 
 dependencies {
 //    Spring boot
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-jooq")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-web")
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-parent
@@ -56,9 +59,10 @@ dependencies {
     implementation("org.junit.jupiter:junit-jupiter:5.7.0")
 
 //    Database
-    runtimeOnly("com.h2database:h2")
-    implementation("org.hibernate.validator:hibernate-validator:6.2.0.Final")
-    implementation("au.com.console:kotlin-jpa-specification-dsl:2.0.0")
+    implementation("org.jooq:jooq:3.16.3")
+    jooqGenerator("com.h2database:h2:1.4.200")
+    implementation("org.postgresql:postgresql")
+
 
 //    Others
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
@@ -83,10 +87,61 @@ tasks.withType<Test> {
 val stage = tasks.create("stage") {
     dependsOn("build", "clean")
 }
-tasks.build.configure { 
+tasks.build.configure {
     mustRunAfter(tasks.clean.name)
 }
 
 tasks.test.configure {
-    enabled = project.hasProperty("ENABLE_TESTS") 
+    enabled = project.hasProperty("ENABLE_TESTS")
+}
+
+jooq {
+    version.set("3.16.3")
+    edition.set(JooqEdition.OSS)
+
+    configurations {
+        create("main") {
+            jooqConfiguration.apply {
+                logging = org.jooq.meta.jaxb.Logging.DEBUG
+                jdbc.apply {
+                    driver = "org.h2.Driver"
+                    url = "jdbc:h2:~/test;AUTO_SERVER=TRUE"
+                    user = "sa"
+                    password = ""
+                    properties.add(Property().apply {
+                        key = "PAGE_SIZE"
+                        value = "2048"
+                    })
+                }
+                generator.apply {
+                    name = "org.jooq.codegen.DefaultGenerator"
+                    database.apply {
+                        name = "org.jooq.meta.h2.H2Database"
+                        forcedTypes.addAll(listOf(
+                            ForcedType().apply {
+                                name = "varchar"
+                                includeExpression = ".*"
+                                includeTypes = "JSONB?"
+                            },
+                            ForcedType().apply {
+                                name = "varchar"
+                                includeExpression = ".*"
+                                includeTypes = "INET"
+                            }
+                        ))
+                    }
+                    generate.apply {
+                        isDeprecated = false
+                        isRecords = false
+                        isImmutablePojos = false
+                        isFluentSetters = false
+                    }
+                    target.apply {
+                        packageName = "pw.coins.models"
+                    }
+                    strategy.name = "org.jooq.codegen.DefaultGeneratorStrategy"
+                }
+            }
+        }
+    }
 }
