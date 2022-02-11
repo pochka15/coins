@@ -12,17 +12,16 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.delete
-import org.springframework.test.web.servlet.get
 import pw.coins.andExpectOkJson
+import pw.coins.db.generated.public_.tables.pojos.Member
+import pw.coins.db.generated.public_.tables.pojos.Room
+import pw.coins.db.generated.public_.tables.pojos.User
 import pw.coins.jsonGet
 import pw.coins.jsonPost
 import pw.coins.room.dtos.NewRoom
-import pw.coins.room.dtos.Room
 import pw.coins.room.member.Role
-import pw.coins.room.member.dtos.Member
 import pw.coins.room.member.dtos.NewMember
 import pw.coins.user.UserSe
-import pw.coins.user.dtos.User
 import pw.coins.user.dtos.UserCredentials
 
 

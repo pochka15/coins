@@ -17,7 +17,6 @@ import pw.coins.user.dtos.UserCredentials
 internal class UserCoTest(
     @Autowired val mockMvc: MockMvc,
     @Autowired val mapper: ObjectMapper,
-    @Autowired val userSe: UserSe,
 ) {
 
     @Test

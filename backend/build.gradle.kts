@@ -60,9 +60,13 @@ dependencies {
 
 //    Database
     implementation("org.jooq:jooq:3.16.3")
-    jooqGenerator("com.h2database:h2:1.4.200")
     implementation("org.postgresql:postgresql")
 
+//    Jooq
+    // https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api
+    jooqGenerator("jakarta.xml.bind:jakarta.xml.bind-api:3.0.1")
+    jooqGenerator("org.postgresql:postgresql")
+    jooqGenerator(project(":backend:jooq-generator"))
 
 //    Others
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
@@ -102,12 +106,11 @@ jooq {
     configurations {
         create("main") {
             jooqConfiguration.apply {
-                logging = org.jooq.meta.jaxb.Logging.DEBUG
+                logging = org.jooq.meta.jaxb.Logging.WARN
                 jdbc.apply {
-                    driver = "org.h2.Driver"
-                    url = "jdbc:h2:~/test;AUTO_SERVER=TRUE"
-                    user = "sa"
-                    password = ""
+                    driver = "org.postgresql.Driver"
+                    url = "jdbc:postgresql://localhost:5432/coins"
+                    user = "pochka15"
                     properties.add(Property().apply {
                         key = "PAGE_SIZE"
                         value = "2048"
@@ -116,7 +119,7 @@ jooq {
                 generator.apply {
                     name = "org.jooq.codegen.DefaultGenerator"
                     database.apply {
-                        name = "org.jooq.meta.h2.H2Database"
+                        name = "org.jooq.meta.postgres.PostgresDatabase"
                         forcedTypes.addAll(listOf(
                             ForcedType().apply {
                                 name = "varchar"
@@ -135,11 +138,12 @@ jooq {
                         isRecords = false
                         isImmutablePojos = false
                         isFluentSetters = false
+                        isDaos = true
                     }
                     target.apply {
-                        packageName = "pw.coins.models"
+                        packageName = "pw.coins.db.generated"
                     }
-                    strategy.name = "org.jooq.codegen.DefaultGeneratorStrategy"
+                    strategy.name = "JooqGenerationStrategy"
                 }
             }
         }

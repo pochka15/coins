@@ -1,7 +1,5 @@
 package pw.coins.user.dtos
 
-import org.springframework.security.crypto.password.PasswordEncoder
-import pw.coins.user.UserEn
 import pw.coins.validation.UsernameIsFree
 import javax.validation.constraints.Email
 import javax.validation.constraints.NotEmpty
@@ -21,8 +19,4 @@ data class UserCredentials(
     @field:NotEmpty(message = "Email should not be empty")
     @field:Email(message = "Email should be in correct form")
     var email: String,
-) {
-    fun toEntity(passwordEncoder: PasswordEncoder) = UserEn(
-        name = name, password = passwordEncoder.encode(password), email = email
-    )
-}
+)
