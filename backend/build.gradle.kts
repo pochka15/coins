@@ -1,5 +1,5 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import nu.studer.gradle.jooq.JooqEdition
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jooq.meta.jaxb.ForcedType
 
 plugins {
@@ -145,4 +145,10 @@ jooq {
             }
         }
     }
+}
+
+tasks.getByName<Jar>("jar") {
+//    don't generate *.plain.jar by the spring boot
+//    https://stackoverflow.com/questions/67663728/spring-boot-2-5-0-generates-plain-jar-file-can-i-remove-it
+    enabled = false
 }

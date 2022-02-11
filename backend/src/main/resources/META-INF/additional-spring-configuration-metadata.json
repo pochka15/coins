@@ -1,8 +1,0 @@
-{
-  "properties": [
-    {
-      "name": "spring.jpa.hibernate.properties.jdbc.time_zone",
-      "type": "java.lang.String",
-      "description": "The timezone of the hibernate jdbc."
-  }
-] }
