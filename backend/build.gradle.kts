@@ -1,7 +1,6 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import nu.studer.gradle.jooq.JooqEdition
 import org.jooq.meta.jaxb.ForcedType
-import org.jooq.meta.jaxb.Property
 
 plugins {
     id("org.springframework.boot") version "2.6.3"
@@ -109,8 +108,9 @@ jooq {
                 logging = org.jooq.meta.jaxb.Logging.WARN
                 jdbc.apply {
                     driver = "org.postgresql.Driver"
-                    url = "jdbc:postgresql://localhost:5432/coins"
-                    user = "pochka15"
+                    url = "jdbc:${System.getenv("DATABASE_URL")}"
+                    user = System.getenv("DATABASE_USERNAME")
+                    password = System.getenv("DATABASE_PASSWORD")
                 }
                 generator.apply {
                     name = "org.jooq.codegen.DefaultGenerator"
