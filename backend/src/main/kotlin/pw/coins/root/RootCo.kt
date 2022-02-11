@@ -11,6 +11,6 @@ import org.springframework.web.servlet.ModelAndView
 class RootCo {
     @GetMapping
     fun redirectSwagger(model: ModelMap): ModelAndView {
-        return ModelAndView("redirect:/swagger-ui/", model)
+        return ModelAndView("redirect:/swagger-ui/index.html#/", model)
     }
 }
