@@ -2,8 +2,8 @@ package pw.coins.room
 
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.web.bind.annotation.*
-import pw.coins.db.generated.public_.tables.pojos.Member
-import pw.coins.db.generated.public_.tables.pojos.Room
+import pw.coins.db.generated.tables.pojos.Member
+import pw.coins.db.generated.tables.pojos.Room
 import pw.coins.room.dtos.NewRoom
 import pw.coins.room.member.dtos.NewMember
 

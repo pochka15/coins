@@ -2,7 +2,7 @@ package pw.coins.user.wallet
 
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.web.bind.annotation.*
-import pw.coins.db.generated.public_.tables.pojos.Wallet
+import pw.coins.db.generated.tables.pojos.Wallet
 import pw.coins.user.wallet.dtos.NewWallet
 
 @RestController

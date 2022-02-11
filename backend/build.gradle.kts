@@ -59,13 +59,13 @@ dependencies {
     implementation("org.junit.jupiter:junit-jupiter:5.7.0")
 
 //    Database
-    implementation("org.jooq:jooq:3.16.3")
-    implementation("org.postgresql:postgresql")
+    implementation("org.jooq:jooq:3.16.4")
+    implementation("org.postgresql:postgresql:42.3.2")
 
 //    Jooq
     // https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api
     jooqGenerator("jakarta.xml.bind:jakarta.xml.bind-api:3.0.1")
-    jooqGenerator("org.postgresql:postgresql")
+    jooqGenerator("org.postgresql:postgresql:42.3.2")
     jooqGenerator(project(":backend:jooq-generator"))
 
 //    Others
@@ -100,7 +100,7 @@ tasks.test.configure {
 }
 
 jooq {
-    version.set("3.16.3")
+    version.set("3.16.4")
     edition.set(JooqEdition.OSS)
 
     configurations {
@@ -111,15 +111,12 @@ jooq {
                     driver = "org.postgresql.Driver"
                     url = "jdbc:postgresql://localhost:5432/coins"
                     user = "pochka15"
-                    properties.add(Property().apply {
-                        key = "PAGE_SIZE"
-                        value = "2048"
-                    })
                 }
                 generator.apply {
                     name = "org.jooq.codegen.DefaultGenerator"
                     database.apply {
                         name = "org.jooq.meta.postgres.PostgresDatabase"
+                        inputSchema = "public"
                         forcedTypes.addAll(listOf(
                             ForcedType().apply {
                                 name = "varchar"

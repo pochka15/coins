@@ -13,9 +13,9 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.delete
 import pw.coins.andExpectOkJson
-import pw.coins.db.generated.public_.tables.pojos.Member
-import pw.coins.db.generated.public_.tables.pojos.Room
-import pw.coins.db.generated.public_.tables.pojos.User
+import pw.coins.db.generated.tables.pojos.Member
+import pw.coins.db.generated.tables.pojos.Room
+import pw.coins.db.generated.tables.pojos.User
 import pw.coins.jsonGet
 import pw.coins.jsonPost
 import pw.coins.room.dtos.NewRoom

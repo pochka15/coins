@@ -2,8 +2,8 @@ package pw.coins.user
 
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.web.bind.annotation.*
-import pw.coins.db.generated.public_.tables.pojos.Member
-import pw.coins.db.generated.public_.tables.pojos.User
+import pw.coins.db.generated.tables.pojos.Member
+import pw.coins.db.generated.tables.pojos.User
 import pw.coins.user.dtos.UserCredentials
 import javax.validation.Valid
 

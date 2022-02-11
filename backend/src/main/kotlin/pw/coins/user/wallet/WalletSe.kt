@@ -1,8 +1,8 @@
 package pw.coins.user.wallet
 
 import org.springframework.stereotype.Service
-import pw.coins.db.generated.public_.tables.daos.WalletsDao
-import pw.coins.db.generated.public_.tables.pojos.Wallet
+import pw.coins.db.generated.tables.daos.WalletsDao
+import pw.coins.db.generated.tables.pojos.Wallet
 import pw.coins.user.wallet.dtos.NewWallet
 
 @Service
@@ -12,11 +12,7 @@ class WalletSe(val walletsDao: WalletsDao) {
     }
 
     fun createWallet(newWallet: NewWallet): Wallet {
-        val wallet = Wallet().apply {
-            name = newWallet.name
-            coinsAmount = newWallet.coinsAmount
-            ownerId = newWallet.ownerId
-        }
+        val wallet = newWallet.toWallet()
         walletsDao.insert(wallet)
 
         assert(wallet.id != null) {
@@ -25,4 +21,12 @@ class WalletSe(val walletsDao: WalletsDao) {
 
         return wallet
     }
+}
+
+private fun NewWallet.toWallet(): Wallet {
+    val x = Wallet()
+    x.name = name
+    x.coinsAmount = coinsAmount
+    x.ownerId = ownerId
+    return x
 }

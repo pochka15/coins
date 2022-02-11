@@ -2,10 +2,10 @@ package pw.coins.user
 
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
-import pw.coins.db.generated.public_.tables.daos.MembersDao
-import pw.coins.db.generated.public_.tables.daos.UsersDao
-import pw.coins.db.generated.public_.tables.pojos.Member
-import pw.coins.db.generated.public_.tables.pojos.User
+import pw.coins.db.generated.tables.daos.MembersDao
+import pw.coins.db.generated.tables.daos.UsersDao
+import pw.coins.db.generated.tables.pojos.Member
+import pw.coins.db.generated.tables.pojos.User
 import pw.coins.user.dtos.UserCredentials
 
 @Service
@@ -15,12 +15,8 @@ class UserSe(
     private val usersDao: UsersDao,
 ) {
     fun createUser(credentials: UserCredentials): User {
-        val user = User().apply {
-            name = credentials.name
-            password = passwordEncoder.encode(credentials.password)
-            email = credentials.email
-            isEnabled = true
-        }
+        val user = credentials.toUser(passwordEncoder)
+
         usersDao.insert(user)
 
         assert(user.id != null) {
@@ -41,4 +37,13 @@ class UserSe(
     fun findAssociatedMembers(userId: Long): List<Member> {
         return membersDao.fetchByUserId(userId)
     }
+}
+
+private fun UserCredentials.toUser(passwordEncoder: PasswordEncoder): User {
+    val x = User()
+    x.name = name
+    x.password = passwordEncoder.encode(password)
+    x.email = email
+    x.isEnabled = true
+    return x
 }

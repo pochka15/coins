@@ -1,10 +1,10 @@
 package pw.coins.room
 
 import org.springframework.stereotype.Service
-import pw.coins.db.generated.public_.tables.daos.MembersDao
-import pw.coins.db.generated.public_.tables.daos.RoomsDao
-import pw.coins.db.generated.public_.tables.pojos.Member
-import pw.coins.db.generated.public_.tables.pojos.Room
+import pw.coins.db.generated.tables.daos.MembersDao
+import pw.coins.db.generated.tables.daos.RoomsDao
+import pw.coins.db.generated.tables.pojos.Member
+import pw.coins.db.generated.tables.pojos.Room
 import pw.coins.room.dtos.NewRoom
 import pw.coins.room.member.dtos.NewMember
 
@@ -19,11 +19,8 @@ class RoomSe(
         return room
     }
 
-    fun addMember(roomId_: Long, newMember: NewMember): Member {
-        val member = Member().apply {
-            roomId = roomId_
-            userId = newMember.associatedUserId
-        }
+    fun addMember(roomId: Long, newMember: NewMember): Member {
+        val member = newMember.toMember(roomId)
 
         membersDao.insert(member)
 
@@ -41,4 +38,11 @@ class RoomSe(
     fun removeMemberById(memberId: Long) {
         membersDao.deleteById(memberId)
     }
+}
+
+private fun NewMember.toMember(roomId: Long): Member {
+    val x = Member()
+    x.roomId = roomId
+    x.userId = associatedUserId
+    return x
 }
