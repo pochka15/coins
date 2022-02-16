@@ -1,0 +1,28 @@
+{
+    "solution": {
+        "teamsAppTenantId": "{{solution.teamsAppTenantId}}",
+        "resourceNameSuffix": "77cb81",
+        "resourceGroupName": "coins-rg",
+        "tenantId": "a91cf769-3c87-46a1-8597-0bedc9d723b2",
+        "subscriptionId": "1ddb1dd5-43f4-449d-931e-054018169f86",
+        "subscriptionName": "Azure subscription 1",
+        "location": "East US",
+        "provisionSucceeded": false
+    },
+    "fx-resource-aad-app-for-teams": {
+        "oauthHost": "https://login.microsoftonline.com",
+        "oauthAuthority": "https://login.microsoftonline.com/a91cf769-3c87-46a1-8597-0bedc9d723b2",
+        "clientId": "e56310c3-c086-4f2a-babd-8c5552494ba3",
+        "clientSecret": "{{fx-resource-aad-app-for-teams.clientSecret}}",
+        "objectId": "e4b7da18-ff8d-4d88-ad4e-c3c15a450835",
+        "oauth2PermissionScopeId": "04de0195-4a5c-4f6e-af27-4c437fcde664",
+        "tenantId": "a91cf769-3c87-46a1-8597-0bedc9d723b2",
+        "applicationIdUris": "api://botid-fa4a9a9c-3424-4ef0-9be8-fc52eccf6910"
+    },
+    "fx-resource-appstudio": {
+        "teamsAppId": "04e9388c-482a-41df-93ca-e52224a51ba7"
+    },
+    "fx-resource-bot": {
+        "wayToRegisterBot": "create-new"
+    }
+}

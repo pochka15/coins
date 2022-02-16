@@ -1,0 +1,23 @@
+{
+    "appName": "coins",
+    "projectId": "cd16eb23-721a-47ed-baae-83ae4ecd00ff",
+    "solutionSettings": {
+        "name": "fx-solution-azure",
+        "version": "1.0.0",
+        "hostType": "Azure",
+        "azureResources": [],
+        "capabilities": [
+            "Bot"
+        ],
+        "activeResourcePlugins": [
+            "fx-resource-identity",
+            "fx-resource-bot",
+            "fx-resource-aad-app-for-teams",
+            "fx-resource-local-debug",
+            "fx-resource-appstudio"
+        ]
+    },
+    "version": "2.0.0",
+    "activeEnvironment": "default",
+    "programmingLanguage": "javascript"
+}
