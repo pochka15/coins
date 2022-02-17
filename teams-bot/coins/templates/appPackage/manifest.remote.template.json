@@ -43,7 +43,7 @@
                     "commands": [
                         {
                             "title": "welcome",
-                            "description": "Resend welcome card of this Bot"
+                            "description": "Get the welcome message"
                         },
                         {
                             "title": "learn",

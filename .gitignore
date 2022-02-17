@@ -41,3 +41,10 @@ sandbox/
 /backend/.jpb/
 /backend/src/main/java/pw/coins/db/generated/
 /backend/migrations/
+
+# @pochka15 localmachine stuff
+.DS_Store
+backend/.DS_Store
+backend/src/test/kotlin/pw/coins/.DS_Store
+teams-bot/.DS_Store
+teams-bot/coins/templates/appPackage/appPackage.zip

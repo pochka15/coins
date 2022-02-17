@@ -17,18 +17,11 @@ class TeamsBot extends TeamsActivityHandler {
     this.likeCountObj = { likeCount: 0 };
 
     this.onMessage(async (context, next) => {
-      console.log("Running with Message Activity.");
-      let txt = context.activity.text;
-      const removedMentionText = TurnContext.removeRecipientMention(
-        context.activity
-      );
-      if (removedMentionText) {
-        // Remove the line break
-        txt = removedMentionText.toLowerCase().replace(/\n|\r/g, "").trim();
-      }
-
+      TurnContext.removeRecipientMention(context.activity);
+      const text = context.activity.text.trim().toLocaleLowerCase();
+   
       // Trigger command by IM text
-      switch (txt) {
+      switch (text) {
         case "welcome": {
           const card = this.renderAdaptiveCard(rawWelcomeCard);
           await context.sendActivity({ attachments: [card] });
@@ -40,21 +33,10 @@ class TeamsBot extends TeamsActivityHandler {
           await context.sendActivity({ attachments: [card] });
           break;
         }
-        // todo: remove later
-        case "test": {
-          const activity = MessageFactory.text("Yo, check the message");
-          teamsNotifyUser(activity);
-          await context.sendActivity(activity);
-          break;
-        }
         case "create": {
           await context.sendActivity(
             `Activity created: ${context.activity.id}`
           );
-          break;
-        }
-        case "delete": {
-          await context.deleteActivity("1645011086147");
           break;
         }
       }
