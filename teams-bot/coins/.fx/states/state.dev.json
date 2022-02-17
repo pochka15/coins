@@ -1,28 +1,44 @@
 {
     "solution": {
-        "teamsAppTenantId": "{{solution.teamsAppTenantId}}",
+        "teamsAppTenantId": "a91cf769-3c87-46a1-8597-0bedc9d723b2",
         "resourceNameSuffix": "77cb81",
         "resourceGroupName": "coins-rg",
         "tenantId": "a91cf769-3c87-46a1-8597-0bedc9d723b2",
         "subscriptionId": "1ddb1dd5-43f4-449d-931e-054018169f86",
         "subscriptionName": "Azure subscription 1",
         "location": "East US",
-        "provisionSucceeded": false
+        "provisionSucceeded": true,
+        "needCreateResourceGroup": false
     },
     "fx-resource-aad-app-for-teams": {
         "oauthHost": "https://login.microsoftonline.com",
         "oauthAuthority": "https://login.microsoftonline.com/a91cf769-3c87-46a1-8597-0bedc9d723b2",
         "clientId": "e56310c3-c086-4f2a-babd-8c5552494ba3",
-        "clientSecret": "{{fx-resource-aad-app-for-teams.clientSecret}}",
         "objectId": "e4b7da18-ff8d-4d88-ad4e-c3c15a450835",
         "oauth2PermissionScopeId": "04de0195-4a5c-4f6e-af27-4c437fcde664",
         "tenantId": "a91cf769-3c87-46a1-8597-0bedc9d723b2",
-        "applicationIdUris": "api://botid-fa4a9a9c-3424-4ef0-9be8-fc52eccf6910"
+        "applicationIdUris": "api://botid-7ac8e9fd-02e2-4fe1-badb-4b9d748573a7",
+        "clientSecret": "{{fx-resource-aad-app-for-teams.clientSecret}}"
     },
     "fx-resource-appstudio": {
-        "teamsAppId": "04e9388c-482a-41df-93ca-e52224a51ba7"
+        "teamsAppId": "04e9388c-482a-41df-93ca-e52224a51ba7",
+        "teamsAppUpdatedAt": 1645093559990
     },
     "fx-resource-bot": {
-        "wayToRegisterBot": "create-new"
+        "wayToRegisterBot": "create-new",
+        "botId": "7ac8e9fd-02e2-4fe1-badb-4b9d748573a7",
+        "objectId": "12644817-cefb-4f29-a56d-66b11114d2d0",
+        "skuName": "F1",
+        "siteName": "coinsdev9bf1f5bot",
+        "validDomain": "coinsdev9bf1f5bot.azurewebsites.net",
+        "appServicePlanName": "coinsdev9bf1f5bot",
+        "botWebAppResourceId": "/subscriptions/1ddb1dd5-43f4-449d-931e-054018169f86/resourceGroups/coins-rg/providers/Microsoft.Web/sites/coinsdev9bf1f5bot",
+        "siteEndpoint": "https://coinsdev9bf1f5bot.azurewebsites.net",
+        "botPassword": "{{fx-resource-bot.botPassword}}"
+    },
+    "fx-resource-identity": {
+        "identityName": "coinsdev9bf1f5",
+        "identityResourceId": "/subscriptions/1ddb1dd5-43f4-449d-931e-054018169f86/resourceGroups/coins-rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/coinsdev9bf1f5",
+        "identityClientId": "2527e9d1-e6e9-42c0-98c4-f166964b270d"
     }
 }

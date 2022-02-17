@@ -3,7 +3,7 @@
     "projectId": "cd16eb23-721a-47ed-baae-83ae4ecd00ff",
     "solutionSettings": {
         "name": "fx-solution-azure",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "hostType": "Azure",
         "azureResources": [],
         "capabilities": [

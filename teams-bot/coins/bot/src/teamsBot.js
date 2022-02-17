@@ -2,24 +2,19 @@ const {
   TeamsActivityHandler,
   CardFactory,
   TurnContext,
-  teamsNotifyUser,
 } = require("botbuilder");
-const rawWelcomeCard = require("./adaptiveCards/welcome.json");
+const rawWelcomeCard = require("../adaptiveCards/welcome.json");
 const ACData = require("adaptivecards-templating");
-const { MessageFactory } = require("botbuilder-core");
+const axios = require("axios");
 
 class TeamsBot extends TeamsActivityHandler {
   constructor() {
     super();
 
-    // record the likeCount
-    this.likeCountObj = { likeCount: 0 };
-
     this.onMessage(async (context, next) => {
       TurnContext.removeRecipientMention(context.activity);
       const text = context.activity.text.trim().toLocaleLowerCase();
-   
-      // Trigger command by IM text
+
       switch (text) {
         case "welcome": {
           const card = this.renderAdaptiveCard(rawWelcomeCard);
@@ -27,9 +22,15 @@ class TeamsBot extends TeamsActivityHandler {
           break;
         }
         case "wallet": {
-          await context.sendActivity(
-            `You don't have any wallet yet`
-          );
+          await context.sendActivity(`You don't have any wallet yet`);
+          break;
+        }
+        case "api": {
+          // TODO use coinsService later
+          const TMP_ENDPOINT = process.env.COINS_API_ENDPOINT + "/tmp";
+          const response = await axios.get(TMP_ENDPOINT);
+          const message = await response.data;
+          await context.sendActivity(`Got the ${message}`);
           break;
         }
       }
@@ -56,8 +57,7 @@ class TeamsBot extends TeamsActivityHandler {
   renderAdaptiveCard(rawCardTemplate, dataObj) {
     const cardTemplate = new ACData.Template(rawCardTemplate);
     const cardWithData = cardTemplate.expand({ $root: dataObj });
-    const card = CardFactory.adaptiveCard(cardWithData);
-    return card;
+    return CardFactory.adaptiveCard(cardWithData);
   }
 }
 

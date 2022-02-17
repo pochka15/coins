@@ -6,7 +6,7 @@ const restify = require("restify");
 // Import required bot services.
 // See https://aka.ms/bot-services to learn more about the different parts of a bot.
 const { BotFrameworkAdapter } = require("botbuilder");
-const { TeamsBot } = require("./teamsBot");
+const { TeamsBot } = require("./src/teamsBot");
 
 // Create adapter.
 // See https://aka.ms/about-bot-adapter to learn more about adapters.
@@ -23,8 +23,12 @@ adapter.onTurnError = async (context, error) => {
   console.error(`\n [onTurnError] unhandled error: ${error}`);
 
   // Send a message to the user
-  await context.sendActivity(`The bot encountered an unhandled error:\n ${error.message}`);
-  await context.sendActivity("To continue to run this bot, please fix the bot source code.");
+  await context.sendActivity(
+    `The bot encountered an unhandled error:\n ${error.message}`
+  );
+  await context.sendActivity(
+    "To continue to run this bot, please fix the bot source code."
+  );
 };
 
 // Create the bot that will handle incoming messages.
@@ -44,7 +48,14 @@ server.post("/api/messages", async (req, res) => {
 });
 
 // Gracefully shutdown HTTP server
-["exit", "uncaughtException", "SIGINT", "SIGTERM", "SIGUSR1", "SIGUSR2"].forEach((event) => {
+[
+  "exit",
+  "uncaughtException",
+  "SIGINT",
+  "SIGTERM",
+  "SIGUSR1",
+  "SIGUSR2",
+].forEach((event) => {
   process.on(event, () => {
     server.close();
   });
