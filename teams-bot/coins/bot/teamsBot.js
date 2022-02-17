@@ -5,7 +5,6 @@ const {
   teamsNotifyUser,
 } = require("botbuilder");
 const rawWelcomeCard = require("./adaptiveCards/welcome.json");
-const rawLearnCard = require("./adaptiveCards/learn.json");
 const ACData = require("adaptivecards-templating");
 const { MessageFactory } = require("botbuilder-core");
 
@@ -27,15 +26,9 @@ class TeamsBot extends TeamsActivityHandler {
           await context.sendActivity({ attachments: [card] });
           break;
         }
-        case "learn": {
-          this.likeCountObj.likeCount = 0;
-          const card = this.renderAdaptiveCard(rawLearnCard, this.likeCountObj);
-          await context.sendActivity({ attachments: [card] });
-          break;
-        }
-        case "create": {
+        case "wallet": {
           await context.sendActivity(
-            `Activity created: ${context.activity.id}`
+            `You don't have any wallet yet`
           );
           break;
         }
@@ -57,22 +50,6 @@ class TeamsBot extends TeamsActivityHandler {
       }
       await next();
     });
-  }
-
-  // Invoked when an action is taken on an Adaptive Card. The Adaptive Card sends an event to the Bot and this
-  // method handles that event.
-  async onAdaptiveCardInvoke(context, invokeValue) {
-    // The verb "userlike" is sent from the Adaptive Card defined in adaptiveCards/learn.json
-    if (invokeValue.action.verb === "userlike") {
-      this.likeCountObj.likeCount++;
-      const card = this.renderAdaptiveCard(rawLearnCard, this.likeCountObj);
-      await context.updateActivity({
-        type: "message",
-        id: context.activity.replyToId,
-        attachments: [card],
-      });
-      return { statusCode: 200 };
-    }
   }
 
   // Bind AdaptiveCard with data
