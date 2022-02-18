@@ -1,2 +1,7 @@
 const COINS_API_ENDPOINT = process.env.COINS_API_ENDPOINT;
 const TMP_ENDPOINT = COINS_API_ENDPOINT + "/tmp";
+
+module.exports = {
+    COINS_API_ENDPOINT,
+    TMP_ENDPOINT
+}

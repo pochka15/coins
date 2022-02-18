@@ -1,4 +1,5 @@
 const axios = require("axios");
+const {TMP_ENDPOINT} = require("./CoinsApi");
 
 class CoinsService {
   async getHelloMessage() {
@@ -8,3 +9,5 @@ class CoinsService {
     return response.data;
   }
 }
+
+module.exports = CoinsService

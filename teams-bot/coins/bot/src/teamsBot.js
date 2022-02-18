@@ -5,11 +5,13 @@ const {
 } = require("botbuilder");
 const rawWelcomeCard = require("../adaptiveCards/welcome.json");
 const ACData = require("adaptivecards-templating");
-const axios = require("axios");
+const CoinsService = require("./api/CoinsService");
 
 class TeamsBot extends TeamsActivityHandler {
   constructor() {
     super();
+
+    this.coinsService = new CoinsService()
 
     this.onMessage(async (context, next) => {
       TurnContext.removeRecipientMention(context.activity);
@@ -18,7 +20,7 @@ class TeamsBot extends TeamsActivityHandler {
       switch (text) {
         case "welcome": {
           const card = this.renderAdaptiveCard(rawWelcomeCard);
-          await context.sendActivity({ attachments: [card] });
+          await context.sendActivity({attachments: [card]});
           break;
         }
         case "wallet": {
@@ -26,10 +28,7 @@ class TeamsBot extends TeamsActivityHandler {
           break;
         }
         case "api": {
-          // TODO use coinsService later
-          const TMP_ENDPOINT = process.env.COINS_API_ENDPOINT + "/tmp";
-          const response = await axios.get(TMP_ENDPOINT);
-          const message = await response.data;
+          const message = await this.coinsService.getHelloMessage()
           await context.sendActivity(`Got the ${message}`);
           break;
         }
