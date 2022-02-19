@@ -2,7 +2,6 @@ package pw.coins.room
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.hamcrest.CoreMatchers.*
-import org.hamcrest.Matchers.emptyIterable
 import org.hamcrest.Matchers.hasSize
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -19,7 +18,6 @@ import pw.coins.db.generated.tables.pojos.User
 import pw.coins.jsonGet
 import pw.coins.jsonPost
 import pw.coins.room.dtos.NewRoom
-import pw.coins.room.member.Role
 import pw.coins.room.member.dtos.NewMember
 import pw.coins.user.UserSe
 import pw.coins.user.dtos.UserCredentials
@@ -36,7 +34,7 @@ internal class RoomCoTest(
 
     @Test
     @DirtiesContext
-    fun `create room EXPECT correct dto`() {
+    fun `create room EXPECT correct name and id`() {
         mockMvc.jsonPost(
             "/room"
         ) {
@@ -51,15 +49,15 @@ internal class RoomCoTest(
 
     @Test
     @DirtiesContext
-    fun `add member EXPECT correct dto`() {
+    fun `add member EXPECT member id is not null`() {
+        val roomId = createRoom("room").id
         mockMvc.jsonPost(
-            "/room/${createRoom("room").id}/members"
+            "/room/$roomId/members"
         ) {
             content = mapper.writeValueAsBytes(NewMember(createUser().id))
         }.andExpectOkJson {
             content {
                 jsonPath("$.id", notNullValue())
-                jsonPath("$.roles", not(emptyIterable<Role>()))
             }
         }
     }
@@ -91,6 +89,7 @@ internal class RoomCoTest(
             }
     }
 
+    @Suppress("SameParameterValue")
     private fun createRoom(roomName: String = "tmp"): Room = roomSe.create(NewRoom(roomName))
 
     private fun createUser(name: String = "tmp"): User =

@@ -2,10 +2,7 @@ package pw.coins.db
 
 import org.jooq.Configuration
 import org.springframework.context.annotation.Bean
-import pw.coins.db.generated.tables.daos.MembersDao
-import pw.coins.db.generated.tables.daos.RoomsDao
-import pw.coins.db.generated.tables.daos.UsersDao
-import pw.coins.db.generated.tables.daos.WalletsDao
+import pw.coins.db.generated.tables.daos.*
 
 @org.springframework.context.annotation.Configuration
 class DaosConfig(val configuration: Configuration) {
@@ -21,5 +18,8 @@ class DaosConfig(val configuration: Configuration) {
 
     @Bean
     fun walletsDao(): WalletsDao = WalletsDao(configuration)
+
+    @Bean
+    fun tasksDao(): TasksDao = TasksDao(configuration)
 
 }

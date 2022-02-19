@@ -13,7 +13,7 @@ import pw.coins.jsonPost
 import pw.coins.user.dtos.UserCredentials
 
 @AutoConfigureMockMvc
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 internal class UserCoTest(
     @Autowired val mockMvc: MockMvc,
     @Autowired val mapper: ObjectMapper,
@@ -34,6 +34,7 @@ internal class UserCoTest(
         }
     }
 
+    @Suppress("SameParameterValue")
     private fun tmpCredentials(name: String) = UserCredentials(
         name = name,
         password = "randomPassword",

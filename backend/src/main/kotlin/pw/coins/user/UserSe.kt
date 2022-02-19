@@ -27,7 +27,7 @@ class UserSe(
     }
 
     fun findByName(username: String): User? {
-        return usersDao.fetchOneByName(username)
+        return usersDao.fetchByName(username).firstOrNull()
     }
 
     fun removeUserById(id: Long) {
