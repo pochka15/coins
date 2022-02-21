@@ -1,0 +1,63 @@
+{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.4",
+  "body": [
+    {
+      "type": "TextBlock",
+      "size": "medium",
+      "weight": "bolder",
+      "text": "New task",
+      "horizontalAlignment": "center",
+      "wrap": true
+    },
+    {
+      "type": "TextBlock",
+      "text": "Title",
+      "wrap": true
+    },
+    {
+      "type": "Input.Text",
+      "id": "title"
+    },
+    {
+      "type": "TextBlock",
+      "text": "Content",
+      "wrap": true
+    },
+    {
+      "type": "Input.Text",
+      "isMultiline": true,
+      "id": "content"
+    },
+    {
+      "type": "TextBlock",
+      "text": "Budget",
+      "wrap": true
+    },
+    {
+      "type": "Input.Number",
+      "min": 0,
+      "max": 10000,
+      "id": "budget"
+    },
+    {
+      "type": "TextBlock",
+      "text": "Deadline",
+      "wrap": true
+    },
+    {
+      "type": "Input.Date",
+      "id": "deadline",
+      "value": "2022-02-21"
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.Execute",
+      "title": "Submit",
+      "verb": "create-task",
+      "fallback": "Action.Submit"
+    }
+  ]
+}

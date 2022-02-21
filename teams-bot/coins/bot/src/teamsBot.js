@@ -4,6 +4,7 @@ const {
   TurnContext,
 } = require("botbuilder");
 const rawWelcomeCard = require("../adaptiveCards/welcome.json");
+const rawTaskCard = require("../adaptiveCards/task.json");
 const ACData = require("adaptivecards-templating");
 const CoinsService = require("./api/CoinsService");
 
@@ -11,26 +12,39 @@ class TeamsBot extends TeamsActivityHandler {
   constructor() {
     super();
 
-    this.coinsService = new CoinsService()
+    this.coinsService = new CoinsService();
 
     this.onMessage(async (context, next) => {
       TurnContext.removeRecipientMention(context.activity);
-      const text = context.activity.text.trim().toLocaleLowerCase();
+      const removedMentionText = TurnContext.removeRecipientMention(
+        context.activity
+      );
 
-      switch (text) {
-        case "welcome": {
-          const card = this.renderAdaptiveCard(rawWelcomeCard);
-          await context.sendActivity({attachments: [card]});
-          break;
-        }
-        case "wallet": {
-          await context.sendActivity(`You don't have any wallet yet`);
-          break;
-        }
-        case "api": {
-          const message = await this.coinsService.getHelloMessage()
-          await context.sendActivity(`Got the ${message}`);
-          break;
+      if (removedMentionText) {
+        const text = removedMentionText
+          .toLocaleLowerCase()
+          .replace(/\n|\r/g, "")
+          .trim();
+        switch (text) {
+          case "welcome": {
+            const card = this.renderAdaptiveCard(rawWelcomeCard);
+            await context.sendActivity({ attachments: [card] });
+            break;
+          }
+          case "wallet": {
+            await context.sendActivity(`You don't have any wallet yet`);
+            break;
+          }
+          case "api": {
+            const message = await this.coinsService.getHelloMessage();
+            await context.sendActivity(`Got the ${message}`);
+            break;
+          }
+          case "task": {
+            const card = this.renderAdaptiveCard(rawTaskCard);
+            await context.sendActivity({ attachments: [card] });
+            break;
+          }
         }
       }
 
@@ -57,6 +71,27 @@ class TeamsBot extends TeamsActivityHandler {
     const cardTemplate = new ACData.Template(rawCardTemplate);
     const cardWithData = cardTemplate.expand({ $root: dataObj });
     return CardFactory.adaptiveCard(cardWithData);
+  }
+
+  async onAdaptiveCardInvoke(context, invokeValue) {
+    if (invokeValue.action.verb === "create-task") {
+      const task = invokeValue.action.data;
+      task.title = task.title.trim();
+
+      // noinspection JSCheckFunctionSignatures
+      const isOk = await this.coinsService.createTask({
+        ...task,
+        // Hotfix id
+        roomId: 1,
+      });
+      if (isOk)
+        await context.sendActivity(
+          `Task "${task.title}" was created successfully`
+        );
+
+      // noinspection JSValidateTypes
+      return { statusCode: 200 };
+    }
   }
 }
 

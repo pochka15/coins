@@ -1,0 +1,8 @@
+{
+  "Task": {
+    "title": "Just some title",
+    "content": "Some content",
+    "budget": 1,
+    "deadline": "2017-09-20"
+  }
+}
