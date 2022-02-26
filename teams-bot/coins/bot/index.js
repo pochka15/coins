@@ -7,6 +7,7 @@ const restify = require("restify");
 // See https://aka.ms/bot-services to learn more about the different parts of a bot.
 const { BotFrameworkAdapter } = require("botbuilder");
 const { TeamsBot } = require("./src/teamsBot");
+const { CoinsController } = require("./src/api/CoinsController");
 
 // Create adapter.
 // See https://aka.ms/about-bot-adapter to learn more about adapters.
@@ -36,6 +37,8 @@ const bot = new TeamsBot();
 
 // Create HTTP server.
 const server = restify.createServer();
+server.use(restify.plugins.bodyParser());
+
 server.listen(process.env.port || process.env.PORT || 3978, function () {
   console.log(`\nBot started, ${server.name} listening to ${server.url}`);
 });
@@ -46,6 +49,14 @@ server.post("/api/messages", async (req, res) => {
     await bot.run(context);
   });
 });
+
+const coinsController = new CoinsController(bot, adapter);
+
+// Listen to the requests from the coins server
+server.post(
+  "/api/notify",
+  async (req, res) => await coinsController.handleNotification(req, res)
+);
 
 // Gracefully shutdown HTTP server
 [

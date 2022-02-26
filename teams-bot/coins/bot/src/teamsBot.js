@@ -9,10 +9,14 @@ const ACData = require("adaptivecards-templating");
 const CoinsService = require("./api/CoinsService");
 
 class TeamsBot extends TeamsActivityHandler {
+  // It's rather a temporary field. It's used to send proactive messages.
+  conversationReference;
+  _coinsService;
+
   constructor() {
     super();
 
-    this.coinsService = new CoinsService();
+    this._coinsService = new CoinsService();
 
     this.onMessage(async (context, next) => {
       TurnContext.removeRecipientMention(context.activity);
@@ -23,7 +27,7 @@ class TeamsBot extends TeamsActivityHandler {
       if (removedMentionText) {
         const text = removedMentionText
           .toLocaleLowerCase()
-          .replace(/\n|\r/g, "")
+          .replace(/[\n\r]/g, "")
           .trim();
         switch (text) {
           case "welcome": {
@@ -35,9 +39,18 @@ class TeamsBot extends TeamsActivityHandler {
             await context.sendActivity(`You don't have any wallet yet`);
             break;
           }
+          // A temporary case
           case "api": {
-            const message = await this.coinsService.getHelloMessage();
-            await context.sendActivity(`Got the ${message}`);
+            const message = await this._coinsService.getHelloMessage();
+            this.conversationReference = TurnContext.getConversationReference(
+              context.activity
+            );
+            const isUndefined = this.conversationReference === undefined;
+            await context.sendActivity(
+              `Got the ${message}. conversationReference is ${
+                isUndefined ? "undefined" : "set"
+              }`
+            );
             break;
           }
           case "task": {
@@ -79,16 +92,17 @@ class TeamsBot extends TeamsActivityHandler {
       task.title = task.title.trim();
 
       // noinspection JSCheckFunctionSignatures
-      const isOk = await this.coinsService.createTask({
+      const isOk = await this._coinsService.createTask({
         ...task,
-        // Hotfix id
+        // Hotfix ids
         roomId: 1,
+        userId: 1,
       });
-      if (isOk)
+      if (isOk) {
         await context.sendActivity(
           `Task "${task.title}" was created successfully`
         );
-
+      }
       // noinspection JSValidateTypes
       return { statusCode: 200 };
     }

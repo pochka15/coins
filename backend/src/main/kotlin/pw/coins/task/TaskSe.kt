@@ -16,7 +16,8 @@ class TaskSe(private val tasksDao: TasksDao) {
             newTask.deadline,
             newTask.budget,
             TaskStatus.NEW.formatted,
-            newTask.roomId
+            newTask.roomId,
+            newTask.userId
         )
         tasksDao.insert(task)
 
@@ -29,5 +30,11 @@ class TaskSe(private val tasksDao: TasksDao) {
 
     fun getTask(taskId: Long): Task? {
         return tasksDao.fetchOneById(taskId)
+    }
+
+    fun solveTask(taskId: Long) {
+        val task = tasksDao.fetchOneById(taskId)
+        task.status = TaskStatus.FINISHED.formatted
+        tasksDao.update(task)
     }
 }

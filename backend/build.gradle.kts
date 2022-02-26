@@ -35,12 +35,13 @@ repositories {
 }
 
 dependencies {
-//    Spring boot
+//    Spring
     implementation("org.springframework.boot:spring-boot-starter-jooq")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-web")
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-parent
     implementation(group = "org.springframework.boot", name = "spring-boot-starter-parent", version = "2.4.5")
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
 
 //    Kotlin
     implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -71,6 +72,8 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.springdoc:springdoc-openapi-ui:1.6.5")
     kapt("org.springframework.boot:spring-boot-configuration-processor")
+//    Netty was primarily imported to work in pair with the boot-starter-webflux. Maybe it's only necessary for mac M1 (didn't test on other machines)
+    implementation("io.netty:netty-all:4.1.74.Final")
 }
 
 tasks.withType<KotlinCompile> {

@@ -1,0 +1,9 @@
+{
+  "properties": [
+    {
+      "name": "teamsbot.endpoint",
+      "type": "java.lang.String",
+      "description": "The endpoint for the MS Teams Bot. e.x. localhost:3978/api/notify."
+    }
+  ]
+}

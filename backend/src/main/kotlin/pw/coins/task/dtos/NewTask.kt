@@ -8,4 +8,5 @@ data class NewTask(
     val deadline: LocalDate,
     val budget: Int,
     val roomId: Long,
+    val userId: Long
 )

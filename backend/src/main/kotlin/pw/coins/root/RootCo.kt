@@ -13,4 +13,10 @@ class RootCo {
     fun redirectSwagger(model: ModelMap): ModelAndView {
         return ModelAndView("redirect:/swagger-ui/index.html#/", model)
     }
+
+    @GetMapping
+    @RequestMapping("tmp")
+    fun tmp(): String {
+        return "Hello world"
+    }
 }
