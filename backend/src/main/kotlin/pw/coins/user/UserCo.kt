@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.web.bind.annotation.*
 import pw.coins.db.generated.tables.pojos.Member
 import pw.coins.db.generated.tables.pojos.User
-import pw.coins.user.dtos.UserCredentials
+import pw.coins.user.dtos.CreateUserPayload
 import javax.validation.Valid
 
 
@@ -14,8 +14,8 @@ import javax.validation.Valid
 class UserCo(private val userSe: UserSe) {
     //        TODO(@pochka15): handle return validation error message if something went wrong
     @PostMapping
-    fun createNewUser(@RequestBody @Valid userCredentials: UserCredentials): User {
-        return userSe.createUser(userCredentials)
+    fun createNewUser(@RequestBody @Valid payload: CreateUserPayload): User {
+        return userSe.createUser(payload.userName)
     }
 
     @GetMapping("/{id}/members")

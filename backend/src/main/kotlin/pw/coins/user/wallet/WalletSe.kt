@@ -24,9 +24,10 @@ class WalletSe(val walletsDao: WalletsDao) {
 }
 
 private fun NewWallet.toWallet(): Wallet {
-    val x = Wallet()
-    x.name = name
-    x.coinsAmount = coinsAmount
-    x.ownerId = ownerId
-    return x
+    return Wallet(
+        null,
+        coinsAmount,
+        name,
+        ownerId
+    )
 }

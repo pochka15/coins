@@ -10,7 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.web.servlet.MockMvc
 import pw.coins.andExpectOkJson
 import pw.coins.jsonPost
-import pw.coins.user.dtos.UserCredentials
+import pw.coins.user.dtos.CreateUserPayload
 
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -21,23 +21,15 @@ internal class UserCoTest(
 
     @Test
     fun `create user EXPECT correct dto`() {
-        val credentials = tmpCredentials("user")
+        val payload = CreateUserPayload("tmp")
         mockMvc.jsonPost("/user") {
-            content = mapper.writeValueAsString(credentials)
+            content = mapper.writeValueAsString(payload)
         }.andExpectOkJson {
             content {
                 jsonPath("$.id", notNullValue())
-                jsonPath("$.name", `is`(credentials.name))
+                jsonPath("$.name", `is`("tmp"))
                 jsonPath("$.isEnabled", `is`(true))
-                jsonPath("$.email", `is`(credentials.email))
             }
         }
     }
-
-    @Suppress("SameParameterValue")
-    private fun tmpCredentials(name: String) = UserCredentials(
-        name = name,
-        password = "randomPassword",
-        email = "some-email@mail.ru"
-    )
 }

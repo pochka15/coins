@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import pw.coins.transaction.dtos.Transaction
 import pw.coins.user.UserSe
-import pw.coins.user.dtos.UserCredentials
 import pw.coins.user.wallet.WalletSe
 import pw.coins.user.wallet.dtos.NewWallet
 
@@ -23,8 +22,8 @@ class TransactionScenariosTest(
         val fromAmount = 1
         val toAmount = 0
         val transactionAmount = 2
-        val fromUser = userSe.createUser(tmpCredentials("-from"))
-        val toUser = userSe.createUser(tmpCredentials("-to"))
+        val fromUser = userSe.createUser("from")
+        val toUser = userSe.createUser("to")
         val fromWallet = walletSe.createWallet(NewWallet("from", fromAmount, fromUser.id))
         val toWallet = walletSe.createWallet(NewWallet("to", toAmount, toUser.id))
 
@@ -43,8 +42,8 @@ class TransactionScenariosTest(
         val toAmount = 0
         val transactionAmount = 2
 
-        val fromUser = userSe.createUser(tmpCredentials("-from"))
-        val toUser = userSe.createUser(tmpCredentials("-to"))
+        val fromUser = userSe.createUser("from")
+        val toUser = userSe.createUser("to")
 
         val fromWallet = walletSe.createWallet(NewWallet("from", fromAmount, fromUser.id))
         val toWallet = walletSe.createWallet(NewWallet("to", toAmount, toUser.id))
@@ -68,9 +67,4 @@ class TransactionScenariosTest(
         assertThat(toWalletAmountBefore).isEqualTo(toWalletAfter!!.coinsAmount)
     }
 
-    private fun tmpCredentials(suffix: String) = UserCredentials(
-        name = "tmp$suffix",
-        password = "randomPassword",
-        email = "some-email${suffix}@mail.ru"
-    )
 }
