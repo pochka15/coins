@@ -37,4 +37,8 @@ class TaskSe(private val tasksDao: TasksDao) {
         task.status = TaskStatus.FINISHED.formatted
         tasksDao.update(task)
     }
+
+    fun getUserTasks(userId: Long): List<Task> {
+        return tasksDao.fetchByUserId(userId)
+    }
 }

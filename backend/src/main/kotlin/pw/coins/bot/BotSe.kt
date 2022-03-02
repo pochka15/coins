@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.ClientResponse
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
+import pw.coins.db.generated.tables.daos.TeamsConversationsDao
+import pw.coins.db.generated.tables.pojos.TeamsConversation
 import java.time.Duration
 
 
@@ -25,9 +27,13 @@ data class Notification(
 @Service
 class BotSe(
     @Value("\${teamsbot.endpoint}")
-    private val botEndpoint: String
+    private val botEndpoint: String,
+    private val conversationsDao: TeamsConversationsDao
 ) {
 
+    /**
+     * Send the request to the bot that says that task with given ID has been solved
+     */
     fun notifyTaskSolved(taskId: Long) {
         val body = Notification(NotificationType.TASK_SOLVED, taskId)
 
@@ -40,6 +46,14 @@ class BotSe(
             .bodyToMono<Void>()
             .timeout(Duration.ofSeconds(5))
             .block()
+    }
+
+    fun getConversationById(id: String): TeamsConversation? {
+        return conversationsDao.fetchOneById(id)
+    }
+
+    fun createConversation(conversationId: String, userId: Long, rawConversationReference: String) {
+        conversationsDao.insert(TeamsConversation(conversationId, rawConversationReference, userId))
     }
 
     private fun toMonoException(response: ClientResponse) =

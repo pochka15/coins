@@ -1,5 +1,10 @@
 const axios = require("axios");
-const { TMP_ENDPOINT, NEW_TASK_ENDPOINT } = require("./CoinsApi");
+const {
+  TMP_ENDPOINT,
+  NEW_TASK_ENDPOINT,
+  BOT_REGISTRATION_ENDPOINT,
+  BOT_HOME_ENDPOINT,
+} = require("./CoinsApi");
 
 class Task {
   /** @type {string} */
@@ -36,6 +41,25 @@ class CoinsService {
     const response = await axios.post(NEW_TASK_ENDPOINT, task);
     return response.status === 200;
   }
+
+  // noinspection JSValidateJSDoc
+  /**
+   * Register bot in the coins service
+   * @param {ConversationReference} conversationReference
+   * @returns {Promise<boolean>} true if server responded with 200
+   */
+  async registerBot(conversationReference) {
+    const response = await axios.post(
+      BOT_REGISTRATION_ENDPOINT,
+      conversationReference
+    );
+    return response.status === 200;
+  }
+
+  async getHomeData(userId) {
+    const response = await axios.post(BOT_HOME_ENDPOINT, { userId });
+    return response.data;
+  }
 }
 
-module.exports = CoinsService
+module.exports = CoinsService;

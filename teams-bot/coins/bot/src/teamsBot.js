@@ -35,10 +35,6 @@ class TeamsBot extends TeamsActivityHandler {
             await context.sendActivity({ attachments: [card] });
             break;
           }
-          case "wallet": {
-            await context.sendActivity(`You don't have any wallet yet`);
-            break;
-          }
           // A temporary case
           case "api": {
             const message = await this._coinsService.getHelloMessage();
@@ -56,6 +52,27 @@ class TeamsBot extends TeamsActivityHandler {
           case "task": {
             const card = this.renderAdaptiveCard(rawTaskCard);
             await context.sendActivity({ attachments: [card] });
+            break;
+          }
+          case "register": {
+            const reference = TurnContext.getConversationReference(
+              context.activity
+            );
+
+            const isOk = await this._coinsService.registerBot(reference);
+            const message = isOk
+              ? "Bot has been registered"
+              : "Bot couldn't be registered, something went wrong";
+            await context.sendActivity(`${message}`);
+            break;
+          }
+          case "home": {
+            const reference = TurnContext.getConversationReference(
+              context.activity
+            );
+            const id = reference.user.id;
+            const data = await this._coinsService.getHomeData(id);
+            await context.sendActivity(`${JSON.stringify(data)}`);
             break;
           }
         }

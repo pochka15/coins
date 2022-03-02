@@ -21,6 +21,10 @@ class WalletSe(val walletsDao: WalletsDao) {
 
         return wallet
     }
+
+    fun getUserWallets(userId: Long): List<Wallet> {
+        return walletsDao.fetchByOwnerId(userId)
+    }
 }
 
 private fun NewWallet.toWallet(): Wallet {

@@ -22,4 +22,9 @@ class DaosConfig(val configuration: Configuration) {
     @Bean
     fun tasksDao(): TasksDao = TasksDao(configuration)
 
+    @Bean
+    fun teamsConversationsDao(): TeamsConversationsDao = TeamsConversationsDao(configuration)
+
+    @Bean
+    fun teamsUserDao(): TeamsUsersDao = TeamsUsersDao(configuration)
 }
