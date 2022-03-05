@@ -2,13 +2,22 @@ package pw.coins.task
 
 import org.springframework.stereotype.Service
 import pw.coins.db.generated.tables.daos.TasksDao
+import pw.coins.db.generated.tables.daos.TeamsUsersDao
+import pw.coins.db.generated.tables.daos.UsersDao
 import pw.coins.db.generated.tables.pojos.Task
 import pw.coins.task.dtos.NewTask
 import pw.coins.task.dtos.TaskStatus
 
 @Service
-class TaskSe(private val tasksDao: TasksDao) {
+class TaskSe(
+    private val tasksDao: TasksDao,
+    private val teamsUsersDao: TeamsUsersDao,
+    private val usersDao: UsersDao,
+) {
     fun create(newTask: NewTask): Task {
+        val id = teamsUsersDao.fetchOneById(newTask.teamsUserId)!!.originalUserId
+        val user = usersDao.fetchOneById(id)!!
+
         val task = Task(
             null,
             newTask.title,
@@ -17,7 +26,7 @@ class TaskSe(private val tasksDao: TasksDao) {
             newTask.budget,
             TaskStatus.NEW.formatted,
             newTask.roomId,
-            newTask.userId
+            user.id
         )
         tasksDao.insert(task)
 

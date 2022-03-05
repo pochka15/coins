@@ -12,7 +12,7 @@ import javax.validation.Valid
 @RequestMapping("/user")
 @Tag(name = "User")
 class UserCo(private val userSe: UserSe) {
-    //        TODO(@pochka15): handle return validation error message if something went wrong
+
     @PostMapping
     fun createNewUser(@RequestBody @Valid payload: CreateUserPayload): User {
         return userSe.createUser(payload.userName)

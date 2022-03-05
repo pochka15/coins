@@ -107,13 +107,16 @@ class TeamsBot extends TeamsActivityHandler {
     if (invokeValue.action.verb === "create-task") {
       const task = invokeValue.action.data;
       task.title = task.title.trim();
+      const conversationReference = TurnContext.getConversationReference(
+        context.activity
+      );
 
       // noinspection JSCheckFunctionSignatures
       const isOk = await this._coinsService.createTask({
         ...task,
-        // Hotfix ids
+        // TODO hotfix roomId
         roomId: 1,
-        userId: 1,
+        userId: conversationReference.user.id,
       });
       if (isOk) {
         await context.sendActivity(

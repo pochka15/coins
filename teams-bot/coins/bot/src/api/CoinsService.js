@@ -21,6 +21,9 @@ class Task {
 
   /** @type {number} */
   roomId;
+
+  /** @type {string} */
+  userId;
 }
 
 /**
