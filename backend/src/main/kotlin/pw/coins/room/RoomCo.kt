@@ -4,8 +4,6 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.web.bind.annotation.*
 import pw.coins.db.generated.tables.pojos.Member
 import pw.coins.db.generated.tables.pojos.Room
-import pw.coins.room.dtos.NewRoom
-import pw.coins.room.member.dtos.NewMember
 
 @RestController
 @RequestMapping("/room")
@@ -31,3 +29,11 @@ class RoomCo(val roomSe: RoomSe) {
         roomSe.removeMemberById(memberId)
     }
 }
+
+data class NewMember(
+    val associatedUserId: Long
+)
+
+data class NewRoom(
+    var name: String
+)

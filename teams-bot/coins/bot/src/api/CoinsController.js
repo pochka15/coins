@@ -2,11 +2,14 @@
  * Income Dto from the backend. It's used to handle notifications
  */
 class Notification {
-  /** @type {"TASK_SOLVED"} */
-  type;
+    /** @type {"TASK_SOLVED"} */
+    type;
 
-  /** @type {string} */
-  taskId;
+    /** @type {string} */
+    taskId;
+
+    /** @type {string} */
+    rawConversationReference;
 }
 
 /**
@@ -35,18 +38,14 @@ class CoinsController {
     /** @type {Notification} */
     const notification = req.body;
 
-    // Check if conversationReference is set
-    if (this.teamsBot.conversationReference === undefined) {
-      res.send(
-        500,
-        "Couldn't send the proactive message. Conversation reference is not defined"
-      );
-      return;
-    }
+    const conversationReference = JSON.parse(
+      notification.rawConversationReference
+    );
 
     try {
       await this._sendProactiveMessage(
-        `Task has been solved, id: ${notification.taskId}`
+        `Task has been solved, id: ${notification.taskId}`,
+        conversationReference
       );
     } catch (e) {
       res.send(500, `Couldn't send the proactive message: ${e.message}`);
@@ -55,9 +54,9 @@ class CoinsController {
     res.send(200, "Successfully sent proactive message");
   }
 
-  async _sendProactiveMessage(message) {
+  async _sendProactiveMessage(message, conversationReference) {
     await this.adapter.continueConversation(
-      this.teamsBot.conversationReference,
+      conversationReference,
       async (context) => await context.sendActivity(message)
     );
   }

@@ -10,7 +10,6 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment
 import org.springframework.test.web.servlet.MockMvc
 import pw.coins.jsonPost
-import pw.coins.room.dtos.NewRoom
 
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)

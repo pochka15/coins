@@ -5,8 +5,6 @@ import pw.coins.db.generated.tables.daos.MembersDao
 import pw.coins.db.generated.tables.daos.RoomsDao
 import pw.coins.db.generated.tables.pojos.Member
 import pw.coins.db.generated.tables.pojos.Room
-import pw.coins.room.dtos.NewRoom
-import pw.coins.room.member.dtos.NewMember
 
 @Service
 class RoomSe(

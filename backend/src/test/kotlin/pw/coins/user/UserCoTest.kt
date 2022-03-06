@@ -10,7 +10,6 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.web.servlet.MockMvc
 import pw.coins.andExpectOkJson
 import pw.coins.jsonPost
-import pw.coins.user.dtos.CreateUserPayload
 
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)

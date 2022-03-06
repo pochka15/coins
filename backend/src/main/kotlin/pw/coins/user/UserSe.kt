@@ -23,9 +23,9 @@ class UserSe(
         return user
     }
 
-    fun removeUserById(id: Long) {
-        usersDao.deleteById(id)
-    }
+    fun removeUserById(id: Long) = usersDao.deleteById(id)
+
+    fun getUserById(id: Long): User? = usersDao.fetchOneById(id)
 
     fun findAssociatedMembers(userId: Long): List<Member> {
         return membersDao.fetchByUserId(userId)

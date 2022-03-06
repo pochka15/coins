@@ -9,8 +9,6 @@ const ACData = require("adaptivecards-templating");
 const CoinsService = require("./api/CoinsService");
 
 class TeamsBot extends TeamsActivityHandler {
-  // It's rather a temporary field. It's used to send proactive messages.
-  conversationReference;
   _coinsService;
 
   constructor() {
@@ -29,51 +27,47 @@ class TeamsBot extends TeamsActivityHandler {
           .toLocaleLowerCase()
           .replace(/[\n\r]/g, "")
           .trim();
-        switch (text) {
-          case "welcome": {
-            const card = this.renderAdaptiveCard(rawWelcomeCard);
-            await context.sendActivity({ attachments: [card] });
-            break;
-          }
-          // A temporary case
-          case "api": {
-            const message = await this._coinsService.getHelloMessage();
-            this.conversationReference = TurnContext.getConversationReference(
-              context.activity
-            );
-            const isUndefined = this.conversationReference === undefined;
-            await context.sendActivity(
-              `Got the ${message}. conversationReference is ${
-                isUndefined ? "undefined" : "set"
-              }`
-            );
-            break;
-          }
-          case "task": {
-            const card = this.renderAdaptiveCard(rawTaskCard);
-            await context.sendActivity({ attachments: [card] });
-            break;
-          }
-          case "register": {
-            const reference = TurnContext.getConversationReference(
-              context.activity
-            );
 
-            const isOk = await this._coinsService.registerBot(reference);
-            const message = isOk
-              ? "Bot has been registered"
-              : "Bot couldn't be registered, something went wrong";
-            await context.sendActivity(`${message}`);
-            break;
-          }
-          case "home": {
-            const reference = TurnContext.getConversationReference(
-              context.activity
-            );
-            const id = reference.user.id;
-            const data = await this._coinsService.getHomeData(id);
-            await context.sendActivity(`${JSON.stringify(data)}`);
-            break;
+        // Commands that start with some keyword
+        if (text.startsWith("solve")) {
+          const taskId = text.slice("solve ".length);
+          await this.handleSolveTaskCommand(taskId, context);
+        }
+
+        // Commands that match some keyword
+        else {
+          switch (text) {
+            case "welcome": {
+              const card = this.renderAdaptiveCard(rawWelcomeCard);
+              await context.sendActivity({ attachments: [card] });
+              break;
+            }
+            case "task": {
+              const card = this.renderAdaptiveCard(rawTaskCard);
+              await context.sendActivity({ attachments: [card] });
+              break;
+            }
+            case "register": {
+              const reference = TurnContext.getConversationReference(
+                context.activity
+              );
+
+              const isOk = await this._coinsService.registerBot(reference);
+              const message = isOk
+                ? "Bot has been registered"
+                : "Bot couldn't be registered, something went wrong";
+              await context.sendActivity(`${message}`);
+              break;
+            }
+            case "home": {
+              const reference = TurnContext.getConversationReference(
+                context.activity
+              );
+              const id = reference.user.id;
+              const data = await this._coinsService.getHomeData(id);
+              await context.sendActivity(`${JSON.stringify(data)}`);
+              break;
+            }
           }
         }
       }
@@ -114,7 +108,6 @@ class TeamsBot extends TeamsActivityHandler {
       // noinspection JSCheckFunctionSignatures
       const isOk = await this._coinsService.createTask({
         ...task,
-        // TODO hotfix roomId
         roomId: 1,
         userId: conversationReference.user.id,
       });
@@ -126,6 +119,11 @@ class TeamsBot extends TeamsActivityHandler {
       // noinspection JSValidateTypes
       return { statusCode: 200 };
     }
+  }
+
+  async handleSolveTaskCommand(taskId, context) {
+    const message = await this._coinsService.solveTask(taskId);
+    await context.sendActivity(message);
   }
 }
 

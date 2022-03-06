@@ -8,7 +8,9 @@ import org.springframework.web.reactive.function.client.ClientResponse
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
 import pw.coins.db.generated.tables.daos.TeamsConversationsDao
+import pw.coins.db.generated.tables.daos.TeamsUsersDao
 import pw.coins.db.generated.tables.pojos.TeamsConversation
+import pw.coins.db.generated.tables.pojos.TeamsUser
 import java.time.Duration
 
 
@@ -18,7 +20,8 @@ enum class NotificationType {
 
 data class Notification(
     val type: NotificationType,
-    val taskId: Long
+    val taskId: Long,
+    val rawConversationReference: String
 )
 
 /**
@@ -28,14 +31,18 @@ data class Notification(
 class BotSe(
     @Value("\${teamsbot.endpoint}")
     private val botEndpoint: String,
-    private val conversationsDao: TeamsConversationsDao
+    private val conversationsDao: TeamsConversationsDao,
+    private val teamsUsersDao: TeamsUsersDao,
 ) {
 
     /**
-     * Send the request to the bot that says that task with given ID has been solved
+     * Notify bot that task has been solved
+     * @param taskId - id of the task which is solved
+     * @param targetUserId - id of the user which gets the notification
      */
-    fun notifyTaskSolved(taskId: Long) {
-        val body = Notification(NotificationType.TASK_SOLVED, taskId)
+    fun notifyTaskSolved(taskId: Long, targetUserId: Long) {
+        val rawConversationReference = getUserConversation(targetUserId)!!.rawConversationReference
+        val body = Notification(NotificationType.TASK_SOLVED, taskId, rawConversationReference)
 
         WebClient.create(botEndpoint)
             .post()
@@ -48,8 +55,15 @@ class BotSe(
             .block()
     }
 
-    fun getConversationById(id: String): TeamsConversation? {
-        return conversationsDao.fetchOneById(id)
+    fun fetchTeamsUserById(id: String): TeamsUser? = teamsUsersDao.fetchOneById(id)
+
+    fun getConversationById(id: String): TeamsConversation? = conversationsDao.fetchOneById(id)
+
+    fun getUserConversation(userId: Long): TeamsConversation? {
+        val conversations = conversationsDao.fetchByUserId(userId)
+        assert(conversations.size < 2) { "Multiple conversations found for the user with an Id: $userId" }
+
+        return conversations.getOrNull(0)
     }
 
     fun createConversation(conversationId: String, userId: Long, rawConversationReference: String) {

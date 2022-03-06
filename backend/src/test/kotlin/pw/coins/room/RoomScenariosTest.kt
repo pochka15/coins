@@ -5,8 +5,6 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import pw.coins.db.generated.tables.pojos.Room
-import pw.coins.room.dtos.NewRoom
-import pw.coins.room.member.dtos.NewMember
 import pw.coins.user.UserSe
 
 @SpringBootTest
