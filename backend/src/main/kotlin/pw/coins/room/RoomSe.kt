@@ -22,8 +22,8 @@ class RoomSe(
 
         membersDao.insert(member)
 
-        assert(member.id != null) {
-            "Couldn't create member for user with an id = ${newMember.associatedUserId}, returned Id is null"
+        if (member.id == null) {
+            throw Exception("Couldn't create member for user with an id = ${newMember.associatedUserId}, returned Id is null")
         }
 
         return member

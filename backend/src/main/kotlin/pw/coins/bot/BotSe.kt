@@ -61,7 +61,9 @@ class BotSe(
 
     fun getUserConversation(userId: Long): TeamsConversation? {
         val conversations = conversationsDao.fetchByUserId(userId)
-        assert(conversations.size < 2) { "Multiple conversations found for the user with an Id: $userId" }
+        if (conversations.size > 1) {
+            throw Exception("Multiple conversations found for the user with an Id: $userId")
+        }
 
         return conversations.getOrNull(0)
     }

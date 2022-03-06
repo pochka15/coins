@@ -16,8 +16,8 @@ class UserSe(
 
         usersDao.insert(user)
 
-        assert(user.id != null) {
-            "Couldn't create user with the name '$userName', returned Id is null"
+        if (user.id == null) {
+            throw Exception("Couldn't create user with the name '$userName', returned Id is null")
         }
 
         return user

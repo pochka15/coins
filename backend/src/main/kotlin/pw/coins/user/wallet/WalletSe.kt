@@ -15,8 +15,8 @@ class WalletSe(val walletsDao: WalletsDao) {
         val wallet = newWallet.toWallet()
         walletsDao.insert(wallet)
 
-        assert(wallet.id != null) {
-            "Couldn't create wallet with the name ${newWallet.name} = ${wallet.id}, returned Id is null"
+        if (wallet.id == null) {
+            throw Exception("Couldn't create wallet with the name ${newWallet.name} = ${wallet.id}, returned Id is null")
         }
 
         return wallet

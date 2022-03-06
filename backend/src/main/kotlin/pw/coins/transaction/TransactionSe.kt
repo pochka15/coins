@@ -20,7 +20,9 @@ class TransactionSe(val walletsDao: WalletsDao) {
 
         if (transaction.amount == 0) return
 
-        assert(transaction.amount > 0) { "Transaction amount cannot be negative" }
+        if (transaction.amount < 0) {
+            throw Exception("Transaction amount cannot be negative")
+        }
 
         val from = wallets.find { it.id == transaction.fromWalletId }
             ?: throw Exception("Couldn't find the 'from' wallet with an id: ${transaction.fromWalletId}")
