@@ -79,17 +79,25 @@ class BotCo(
      * There are made some pre-checks before running main logic.
      * It's checked if the task is assigned to anyone and ensures that author and assignee have only one primary wallet
      */
+    @Suppress("FoldInitializerAndIfToElvis")
     @PostMapping("tasks/{task_id}/solve")
     fun solveTask(
         @PathVariable("task_id") taskId: Long,
     ): ResponseEntity<String> {
 
         val task = taskSe.getTask(taskId)
-        val author = userSe.getUserById(task!!.authorUserId)
+
+//        Check if task exists
+        if (task == null) {
+            return ResponseEntity
+                .badRequest()
+                .body("The task with an id $taskId doesn't exist")
+        }
+
+        val author = userSe.getUserById(task.authorUserId)
         val assignee = userSe.getUserById(task.assigneeUserId)
 
 //        Check if the task is assigned
-        @Suppress("FoldInitializerAndIfToElvis")
         if (assignee == null) {
             return ResponseEntity
                 .badRequest()
