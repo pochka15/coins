@@ -4,9 +4,42 @@ const {
   TurnContext,
 } = require("botbuilder");
 const rawWelcomeCard = require("../adaptiveCards/welcome.json");
+const rawHomeCard = require("../adaptiveCards/home.json");
 const rawTaskCard = require("../adaptiveCards/task.json");
 const ACData = require("adaptivecards-templating");
 const CoinsService = require("./api/CoinsService");
+
+/**
+ * @typedef {{
+ *  name: string,
+ *  coinsAmount: number
+ * }} Wallet
+ */
+
+/**
+ *
+ * @param {Array<Wallet>} wallets
+ * @returns {string} formatted wallets
+ */
+function formatWallets(wallets) {
+  return wallets.map((x) => `- ${x.name} (${x.coinsAmount} coins)`).join("\n");
+}
+
+/**
+ * @typedef {{
+ *  title: string,
+ *  status: string
+ * }} Task
+ */
+
+/**
+ *
+ * @param {Array<Task>} tasks
+ * @returns {string} formatted tasks
+ */
+function formatTasks(tasks) {
+  return tasks.map((x) => `- ${x.title}: ${x.status}`).join("\n");
+}
 
 class TeamsBot extends TeamsActivityHandler {
   _coinsService;
@@ -65,7 +98,11 @@ class TeamsBot extends TeamsActivityHandler {
               );
               const id = reference.user.id;
               const data = await this._coinsService.getHomeData(id);
-              await context.sendActivity(`${JSON.stringify(data)}`);
+              const card = this.renderAdaptiveCard(rawHomeCard, {
+                wallets: formatWallets(data.wallets),
+                tasks: formatTasks(data.tasks),
+              });
+              await context.sendActivity({ attachments: [card] });
               break;
             }
           }
