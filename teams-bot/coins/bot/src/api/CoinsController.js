@@ -2,14 +2,14 @@
  * Income Dto from the backend. It's used to handle notifications
  */
 class Notification {
-    /** @type {"TASK_SOLVED"} */
-    type;
+  /** @type {"TASK_SOLVED"} */
+  type;
 
-    /** @type {string} */
-    taskId;
+  /** @type {string} */
+  taskTitle;
 
-    /** @type {string} */
-    rawConversationReference;
+  /** @type {string} */
+  rawConversationReference;
 }
 
 /**
@@ -44,7 +44,7 @@ class CoinsController {
 
     try {
       await this._sendProactiveMessage(
-        `Task has been solved, id: ${notification.taskId}`,
+        `Task ${notification.taskTitle} has been solved`,
         conversationReference
       );
     } catch (e) {

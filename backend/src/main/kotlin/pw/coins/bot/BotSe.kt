@@ -20,7 +20,7 @@ enum class NotificationType {
 
 data class Notification(
     val type: NotificationType,
-    val taskId: Long,
+    val taskTitle: String,
     val rawConversationReference: String
 )
 
@@ -37,12 +37,12 @@ class BotSe(
 
     /**
      * Notify bot that task has been solved
-     * @param taskId - id of the task which is solved
+     * @param taskTitle - title of the task which is solved
      * @param targetUserId - id of the user which gets the notification
      */
-    fun notifyTaskSolved(taskId: Long, targetUserId: Long) {
+    fun notifyTaskSolved(taskTitle: String, targetUserId: Long) {
         val rawConversationReference = getUserConversation(targetUserId)!!.rawConversationReference
-        val body = Notification(NotificationType.TASK_SOLVED, taskId, rawConversationReference)
+        val body = Notification(NotificationType.TASK_SOLVED, taskTitle, rawConversationReference)
 
         WebClient.create(botEndpoint)
             .post()

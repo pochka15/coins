@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import pw.coins.bot.dtos.*
 import pw.coins.task.TaskSe
+import pw.coins.task.dtos.TaskStatus
 import pw.coins.user.wallet.dtos.Transaction
 import pw.coins.user.UserSe
 import pw.coins.user.wallet.WalletSe
@@ -76,7 +77,7 @@ class BotCo(
 
     /**
      * Solve the task with the given taskId. It's assumed that the task is solved by the assigned user.
-     * There are made some pre-checks before running main logic.
+     * There are made some pre-checks before running the main logic.
      * It's checked if the task is assigned to anyone and ensures that author and assignee have only one primary wallet
      */
     @Suppress("FoldInitializerAndIfToElvis")
@@ -92,6 +93,13 @@ class BotCo(
             return ResponseEntity
                 .badRequest()
                 .body("The task with an id $taskId doesn't exist")
+        }
+
+//        Check if task hasn't got status finished
+        if (task.status == TaskStatus.FINISHED.formatted) {
+            return ResponseEntity
+                .badRequest()
+                .body("The task ${task.title} has already been solved already solved by someone")
         }
 
         val author = userSe.getUserById(task.authorUserId)
@@ -128,7 +136,7 @@ class BotCo(
             )
         )
         taskSe.solveTask(taskId)
-        botSe.notifyTaskSolved(taskId, author.id)
+        botSe.notifyTaskSolved(task.title, author.id)
         return ResponseEntity.ok("Task ${task.title} has been successfully solved")
     }
 
