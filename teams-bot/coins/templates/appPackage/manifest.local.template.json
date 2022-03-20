@@ -27,27 +27,35 @@
         {
             "botId": "{{localSettings.bot.botId}}",
             "scopes": [
-                "personal",
-                "team",
-                "groupchat"
+                "personal"
             ],
             "supportsFiles": false,
             "isNotificationOnly": false,
             "commandLists": [
                 {
                     "scopes": [
-                        "personal",
-                        "team",
-                        "groupchat"
+                        "personal"
                     ],
                     "commands": [
                         {
-                            "title": "welcome",
-                            "description": "Get the welcome message"
+                            "title": "help",
+                            "description": "Get help info"
                         },
                         {
-                            "title": "wallet",
-                            "description": "Get the info about wallet"
+                            "title": "register",
+                            "description": "Register bot in the coins service"
+                        },
+                        {
+                            "title": "task",
+                            "description": "Create a new task"
+                        },
+                        {
+                            "title": "home",
+                            "description": "Get home data"
+                        },
+                        {
+                            "title": "solve",
+                            "description": "Solve task by an id"
                         }
                     ]
                 }

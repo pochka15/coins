@@ -121,7 +121,7 @@ class BotCo(
         )
         taskSe.solveTask(taskId)
         botSe.notifyTaskSolved(taskId, author.id)
-        return ResponseEntity.ok("Task has been successfully solved")
+        return ResponseEntity.ok("Task ${task.title} has been successfully solved")
     }
 
     @PostMapping("home")

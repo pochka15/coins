@@ -70,6 +70,7 @@ class TeamsBot extends TeamsActivityHandler {
         // Commands that match some keyword
         else {
           switch (text) {
+            case "help":
             case "welcome": {
               const card = this.renderAdaptiveCard(rawWelcomeCard);
               await context.sendActivity({ attachments: [card] });
