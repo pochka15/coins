@@ -7,8 +7,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import pw.coins.bot.dtos.*
 import pw.coins.task.TaskSe
-import pw.coins.transaction.TransactionSe
-import pw.coins.transaction.dtos.Transaction
+import pw.coins.user.wallet.dtos.Transaction
 import pw.coins.user.UserSe
 import pw.coins.user.wallet.WalletSe
 import pw.coins.user.wallet.dtos.NewWallet
@@ -24,7 +23,6 @@ class BotCo(
     val walletSe: WalletSe,
     val userSe: UserSe,
     val taskSe: TaskSe,
-    val transactionSe: TransactionSe,
 ) {
 
     /**
@@ -98,13 +96,15 @@ class BotCo(
                 .body("The task ${task.title} cannot be solved. It's not assigned to anyone")
         }
 
-//        Ensure users have only one wallet
+//        Ensure author has only one wallet
         val authorWallets = walletSe.getUserWallets(author!!.id)
         if (authorWallets.size != 1) {
             return ResponseEntity
                 .badRequest()
                 .body("Task author has multiple wallets. Multiple wallets are not supported yet. Leave only one wallet")
         }
+
+//        Ensure assignee has only one wallet
         val assigneeWallets = walletSe.getUserWallets(assignee.id)
         if (assigneeWallets.size != 1) {
             return ResponseEntity
@@ -112,14 +112,14 @@ class BotCo(
                 .body("Task assignee has multiple wallets. Multiple wallets are not supported yet. Leave only one wallet")
         }
 
-        taskSe.solveTask(taskId)
-        transactionSe.executeTransaction(
+        walletSe.executeTransaction(
             Transaction(
                 authorWallets[0].id,
                 assigneeWallets[0].id,
                 task.budget
             )
         )
+        taskSe.solveTask(taskId)
         botSe.notifyTaskSolved(taskId, author.id)
         return ResponseEntity.ok("Task has been successfully solved")
     }

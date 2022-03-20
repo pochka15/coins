@@ -5,14 +5,13 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import pw.coins.transaction.dtos.Transaction
+import pw.coins.user.wallet.dtos.Transaction
 import pw.coins.user.UserSe
 import pw.coins.user.wallet.WalletSe
 import pw.coins.user.wallet.dtos.NewWallet
 
 @SpringBootTest
 class TransactionScenariosTest(
-    @Autowired val transactionSe: TransactionSe,
     @Autowired val userSe: UserSe,
     @Autowired val walletSe: WalletSe
 ) {
@@ -28,7 +27,7 @@ class TransactionScenariosTest(
         val toWallet = walletSe.createWallet(NewWallet("to", toAmount, toUser.id))
 
         assertThrows<AssertionError> {
-            transactionSe.executeTransaction(
+            walletSe.executeTransaction(
                 Transaction(
                     fromWallet.id, toWallet.id, transactionAmount
                 )
@@ -53,7 +52,7 @@ class TransactionScenariosTest(
 
 //        Omit AssertionError
         assertThrows<AssertionError> {
-            transactionSe.executeTransaction(
+            walletSe.executeTransaction(
                 Transaction(
                     fromWallet.id, toWallet.id, transactionAmount
                 )

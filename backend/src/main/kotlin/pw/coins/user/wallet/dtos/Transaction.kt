@@ -1,4 +1,4 @@
-package pw.coins.transaction.dtos
+package pw.coins.user.wallet.dtos
 
 /**
  * Dto representing a single coins transaction

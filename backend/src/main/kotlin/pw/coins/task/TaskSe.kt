@@ -1,7 +1,6 @@
 package pw.coins.task
 
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import pw.coins.db.generated.tables.daos.TasksDao
 import pw.coins.db.generated.tables.pojos.Task
 import pw.coins.task.dtos.NewTask
@@ -36,7 +35,6 @@ class TaskSe(
         return tasksDao.fetchOneById(taskId)
     }
 
-    @Transactional
     fun solveTask(taskId: Long) {
         val task = tasksDao.fetchOneById(taskId)!!
         task.status = TaskStatus.FINISHED.formatted
