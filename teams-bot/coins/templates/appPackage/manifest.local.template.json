@@ -1,7 +1,7 @@
 {
     "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.9/MicrosoftTeams.schema.json",
     "manifestVersion": "1.9",
-    "version": "1.0.0",
+    "version": "1.0.3",
     "id": "{{localSettings.teamsApp.teamsAppId}}",
     "packageName": "com.microsoft.teams.extension",
     "developer": {
@@ -40,10 +40,6 @@
                         {
                             "title": "help",
                             "description": "Get help info"
-                        },
-                        {
-                            "title": "register",
-                            "description": "Register bot in the coins service"
                         },
                         {
                             "title": "task",

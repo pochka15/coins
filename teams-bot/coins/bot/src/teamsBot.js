@@ -70,8 +70,13 @@ class TeamsBot extends TeamsActivityHandler {
         // Commands that match some keyword
         else {
           switch (text) {
-            case "help":
+            case "help": {
+              const card = this.renderAdaptiveCard(rawWelcomeCard);
+              await context.sendActivity({ attachments: [card] });
+              break;
+            }
             case "welcome": {
+              await this.registerBot(context);
               const card = this.renderAdaptiveCard(rawWelcomeCard);
               await context.sendActivity({ attachments: [card] });
               break;
@@ -79,18 +84,6 @@ class TeamsBot extends TeamsActivityHandler {
             case "task": {
               const card = this.renderAdaptiveCard(rawTaskCard);
               await context.sendActivity({ attachments: [card] });
-              break;
-            }
-            case "register": {
-              const reference = TurnContext.getConversationReference(
-                context.activity
-              );
-
-              const isOk = await this._coinsService.registerBot(reference);
-              const message = isOk
-                ? "Bot has been registered"
-                : "Bot couldn't be registered, something went wrong";
-              await context.sendActivity(`${message}`);
               break;
             }
             case "home": {
@@ -120,7 +113,7 @@ class TeamsBot extends TeamsActivityHandler {
       for (let cnt = 0; cnt < membersAdded.length; cnt++) {
         if (membersAdded[cnt].id) {
           const card = this.renderAdaptiveCard(rawWelcomeCard);
-          await context.sendActivity({ attachments: [card] });
+          await context.sendActivity({attachments: [card]});
           break;
         }
       }
@@ -128,10 +121,20 @@ class TeamsBot extends TeamsActivityHandler {
     });
   }
 
+  async registerBot(context) {
+    const reference = TurnContext.getConversationReference(context.activity);
+    const isOk = await this._coinsService.registerBot(reference);
+    if (!isOk) {
+      await context.sendActivity(
+          `Bot couldn't be registered, something went wrong`
+      );
+    }
+  }
+
   // Bind AdaptiveCard with data
   renderAdaptiveCard(rawCardTemplate, dataObj) {
     const cardTemplate = new ACData.Template(rawCardTemplate);
-    const cardWithData = cardTemplate.expand({ $root: dataObj });
+    const cardWithData = cardTemplate.expand({$root: dataObj});
     return CardFactory.adaptiveCard(cardWithData);
   }
 
