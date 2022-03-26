@@ -102,15 +102,15 @@ class BotCo(
                 .body("The task ${task.title} has already been solved already solved by someone")
         }
 
-        val author = userSe.getUserById(task.authorUserId)
-        val assignee = userSe.getUserById(task.assigneeUserId)
-
-//        Check if the task is assigned
-        if (assignee == null) {
+//        Check if task is assigned
+        if (task.assigneeUserId == null) {
             return ResponseEntity
                 .badRequest()
-                .body("The task ${task.title} cannot be solved. It's not assigned to anyone")
+                .body("The task '${task.title}' cannot be solved. It's not assigned to anyone")
         }
+
+        val author = userSe.getUserById(task.authorUserId)
+        val assignee = userSe.getUserById(task.assigneeUserId)!!
 
 //        Ensure author has only one wallet
         val authorWallets = walletSe.getUserWallets(author!!.id)

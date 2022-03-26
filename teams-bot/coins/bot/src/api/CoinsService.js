@@ -53,15 +53,21 @@ class CoinsService {
    */
   async solveTask(taskId) {
     const url = SOLVE_TASK_ENDPOINT.replace("{task_id}", taskId);
-    let response;
+    let data;
 
     try {
-      response = await axios.post(url);
+      const response = await axios.post(url);
+      data = response.data;
     } catch (e) {
-      response = e.response;
+      const response = e.response;
+      if (typeof response.data === "string") {
+        data = response.data;
+      } else {
+        data = "Couldn't solve task, something went wrong";
+      }
     }
 
-    return response.data;
+    return data;
   }
 
   // noinspection JSValidateJSDoc
