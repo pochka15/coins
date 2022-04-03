@@ -6,7 +6,7 @@ import pw.coins.db.generated.tables.daos.TeamsUsersDao
 import pw.coins.db.generated.tables.pojos.TeamsUser
 
 @Service
-class TeamsUserSe(val teamsUsersDao: TeamsUsersDao) {
+class TeamsUserService(val teamsUsersDao: TeamsUsersDao) {
 
     /**
      * Store into the db an MS Teams user which is bound to the given usual user

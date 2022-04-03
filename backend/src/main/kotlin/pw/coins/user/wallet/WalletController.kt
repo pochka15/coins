@@ -8,14 +8,14 @@ import pw.coins.user.wallet.dtos.NewWallet
 @RestController
 @RequestMapping("/user/wallet")
 @Tag(name = "Wallet")
-class WalletCo(val walletSe: WalletSe) {
+class WalletController(val walletService: WalletService) {
     @PostMapping
     fun createWallet(wallet: NewWallet): Wallet {
-        return walletSe.createWallet(wallet)
+        return walletService.createWallet(wallet)
     }
 
     @GetMapping("/{walletId}")
     fun wallet(@PathVariable walletId: Long): Wallet? {
-        return walletSe.getWalletById(walletId)
+        return walletService.getWalletById(walletId)
     }
 }

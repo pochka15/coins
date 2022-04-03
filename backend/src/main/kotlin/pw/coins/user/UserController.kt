@@ -12,21 +12,21 @@ import javax.validation.constraints.Size
 @RestController
 @RequestMapping("/user")
 @Tag(name = "User")
-class UserCo(private val userSe: UserSe) {
+class UserController(private val userService: UserService) {
 
     @PostMapping
     fun createNewUser(@RequestBody @Valid payload: CreateUserPayload): User {
-        return userSe.createUser(payload.userName)
+        return userService.createUser(payload.userName)
     }
 
     @GetMapping("/{id}/members")
     fun findAssociatedMembers(@PathVariable id: Long): List<Member> {
-        return userSe.findAssociatedMembers(id)
+        return userService.findAssociatedMembers(id)
     }
 
     @DeleteMapping("/{id}")
     fun removeUser(@PathVariable id: Long) {
-        userSe.removeUserById(id)
+        userService.removeUserById(id)
     }
 }
 

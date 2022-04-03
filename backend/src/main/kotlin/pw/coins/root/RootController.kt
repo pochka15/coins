@@ -8,7 +8,7 @@ import org.springframework.web.servlet.ModelAndView
 
 @RestController
 @RequestMapping("/")
-class RootCo {
+class RootController {
     @GetMapping
     fun redirectSwagger(model: ModelMap): ModelAndView {
         return ModelAndView("redirect:/swagger-ui/index.html#/", model)

@@ -5,18 +5,18 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import pw.coins.db.generated.tables.pojos.Room
-import pw.coins.user.UserSe
+import pw.coins.user.UserService
 
 @SpringBootTest
 class RoomScenariosTest(
-    @Autowired val roomSe: RoomSe,
-    @Autowired val userSe: UserSe,
+    @Autowired val roomService: RoomService,
+    @Autowired val userService: UserService,
 ) {
 
     @Test
     fun `add member EXPECT member id is not null`() {
         val roomId = createRoom("room").id
-        val member = roomSe.addMember(roomId, NewMember(userSe.createUser("tmp").id))
+        val member = roomService.addMember(roomId, NewMember(userService.createUser("tmp").id))
         assertThat(member.id).isNotNull
     }
 
@@ -24,18 +24,18 @@ class RoomScenariosTest(
     fun `add members EXPECT correct amount of members returned`() {
         val room = createRoom("room")
         val membersAmount = 5
-        repeat(membersAmount) { roomSe.addMember(room.id, NewMember(userSe.createUser("tmp").id)) }
-        assertThat(roomSe.getMembers(room.id).size).isEqualTo(membersAmount)
+        repeat(membersAmount) { roomService.addMember(room.id, NewMember(userService.createUser("tmp").id)) }
+        assertThat(roomService.getMembers(room.id).size).isEqualTo(membersAmount)
     }
 
     @Test
     fun `remove member EXPECT no exceptions`() {
         val room = createRoom("room")
-        val member = roomSe.addMember(room.id, NewMember(userSe.createUser("tmp").id))
-        roomSe.removeMemberById(member.id)
+        val member = roomService.addMember(room.id, NewMember(userService.createUser("tmp").id))
+        roomService.removeMemberById(member.id)
     }
 
     @Suppress("SameParameterValue")
-    private fun createRoom(roomName: String = "tmp"): Room = roomSe.create(NewRoom(roomName))
+    private fun createRoom(roomName: String = "tmp"): Room = roomService.create(NewRoom(roomName))
 
 }

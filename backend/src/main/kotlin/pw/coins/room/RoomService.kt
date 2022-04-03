@@ -7,7 +7,7 @@ import pw.coins.db.generated.tables.pojos.Member
 import pw.coins.db.generated.tables.pojos.Room
 
 @Service
-class RoomSe(
+class RoomService(
     private val roomsDao: RoomsDao,
     private val membersDao: MembersDao,
 ) {

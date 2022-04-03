@@ -6,11 +6,11 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import pw.coins.bot.dtos.*
-import pw.coins.task.TaskSe
+import pw.coins.task.TaskService
 import pw.coins.task.dtos.TaskStatus
 import pw.coins.user.wallet.dtos.Transaction
-import pw.coins.user.UserSe
-import pw.coins.user.wallet.WalletSe
+import pw.coins.user.UserService
+import pw.coins.user.wallet.WalletService
 import pw.coins.user.wallet.dtos.NewWallet
 import java.time.LocalDate
 import pw.coins.db.generated.tables.pojos.Task as TaskPojo
@@ -18,12 +18,12 @@ import pw.coins.db.generated.tables.pojos.Task as TaskPojo
 @RestController
 @RequestMapping("/bot")
 @Tag(name = "Bot")
-class BotCo(
-    val botSe: BotSe,
-    val teamsUserSe: TeamsUserSe,
-    val walletSe: WalletSe,
-    val userSe: UserSe,
-    val taskSe: TaskSe,
+class BotController(
+    val botService: BotService,
+    val teamsUserService: TeamsUserService,
+    val walletService: WalletService,
+    val userService: UserService,
+    val taskService: TaskService,
 ) {
 
     /**
@@ -35,22 +35,22 @@ class BotCo(
      */
     @PostMapping("register")
     fun registerBot(@RequestBody reference: ConversationReference) {
-        val conversation = botSe.getConversationById(reference.conversation.id)
+        val conversation = botService.getConversationById(reference.conversation.id)
 
 //        Check if already initialized 
         if (conversation != null) return
 
-        val user = userSe.createUser(reference.user.name)
+        val user = userService.createUser(reference.user.name)
 
-        teamsUserSe.createTeamsUser(
+        teamsUserService.createTeamsUser(
             reference.user,
             null,
             user.id
         )
 
-        walletSe.createWallet(NewWallet("${reference.bot.name} wallet", 0, user.id))
+        walletService.createWallet(NewWallet("${reference.bot.name} wallet", 0, user.id))
 
-        botSe.createConversation(
+        botService.createConversation(
             reference.conversation.id,
             user.id,
             jacksonObjectMapper().writeValueAsString(reference)
@@ -59,10 +59,10 @@ class BotCo(
 
     @PostMapping("new-task")
     fun createTask(@RequestBody task: NewTask): TaskPojo {
-        val teamsUser = botSe.fetchTeamsUserById(task.teamsUserId)!!
-        val author = userSe.getUserById(teamsUser.originalUserId)!!
+        val teamsUser = botService.fetchTeamsUserById(task.teamsUserId)!!
+        val author = userService.getUserById(teamsUser.originalUserId)!!
 
-        return taskSe.create(
+        return taskService.create(
             pw.coins.task.dtos.NewTask(
                 task.title,
                 task.content,
@@ -86,7 +86,7 @@ class BotCo(
         @PathVariable("task_id") taskId: Long,
     ): ResponseEntity<String> {
 
-        val task = taskSe.getTask(taskId)
+        val task = taskService.getTask(taskId)
 
 //        Check if task exists
         if (task == null) {
@@ -109,11 +109,11 @@ class BotCo(
                 .body("The task '${task.title}' cannot be solved. It's not assigned to anyone")
         }
 
-        val author = userSe.getUserById(task.authorUserId)
-        val assignee = userSe.getUserById(task.assigneeUserId)!!
+        val author = userService.getUserById(task.authorUserId)
+        val assignee = userService.getUserById(task.assigneeUserId)!!
 
 //        Ensure author has only one wallet
-        val authorWallets = walletSe.getUserWallets(author!!.id)
+        val authorWallets = walletService.getUserWallets(author!!.id)
         if (authorWallets.size != 1) {
             return ResponseEntity
                 .badRequest()
@@ -121,33 +121,33 @@ class BotCo(
         }
 
 //        Ensure assignee has only one wallet
-        val assigneeWallets = walletSe.getUserWallets(assignee.id)
+        val assigneeWallets = walletService.getUserWallets(assignee.id)
         if (assigneeWallets.size != 1) {
             return ResponseEntity
                 .badRequest()
                 .body("Task assignee has multiple wallets. Multiple wallets are not supported yet. Leave only one wallet")
         }
 
-        walletSe.executeTransaction(
+        walletService.executeTransaction(
             Transaction(
                 authorWallets[0].id,
                 assigneeWallets[0].id,
                 task.budget
             )
         )
-        taskSe.solveTask(taskId)
-        botSe.notifyTaskSolved(task.title, author.id)
+        taskService.solveTask(taskId)
+        botService.notifyTaskSolved(task.title, author.id)
         return ResponseEntity.ok("Task ${task.title} has been successfully solved")
     }
 
     @PostMapping("home")
     fun getHomeData(@RequestBody payload: HomePayload): HomeData {
         val teamsUserId = payload.userId
-        val userId = teamsUserSe.getOriginalUserId(teamsUserId)
+        val userId = teamsUserService.getOriginalUserId(teamsUserId)
             ?: throw Exception("Couldn't find original user for the teams user.")
 
-        val wallets = walletSe.getUserWallets(userId)
-        val tasks = taskSe.getUserTasks(userId)
+        val wallets = walletService.getUserWallets(userId)
+        val tasks = taskService.getUserTasks(userId)
         return HomeData(
             wallets.map { Wallet(it.name, it.coinsAmount) },
             tasks.map { Task(it.title, it.status) }

@@ -10,12 +10,12 @@ import pw.coins.db.generated.tables.pojos.Task
 @RestController
 @RequestMapping("/tasks")
 @Tag(name = "Task")
-class TaskCo(
-    private val taskSe: TaskSe,
+class TaskController(
+    private val taskService: TaskService,
 ) {
 
     @GetMapping("/{task_id}")
     fun getTask(@PathVariable("task_id") id: Long): Task? {
-        return taskSe.getTask(id)
+        return taskService.getTask(id)
     }
 }

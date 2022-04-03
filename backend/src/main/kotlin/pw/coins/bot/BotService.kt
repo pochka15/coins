@@ -28,7 +28,7 @@ data class Notification(
  * MS Teams bot service
  */
 @Service
-class BotSe(
+class BotService(
     @Value("\${teamsbot.endpoint}")
     private val botEndpoint: String,
     private val conversationsDao: TeamsConversationsDao,

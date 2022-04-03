@@ -14,7 +14,7 @@ import pw.coins.jsonPost
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-internal class RoomCoTest(
+internal class RoomControllerTest(
     @Autowired val mockMvc: MockMvc,
     @Autowired val mapper: ObjectMapper,
 ) {

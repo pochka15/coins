@@ -7,7 +7,7 @@ import pw.coins.task.dtos.NewTask
 import pw.coins.task.dtos.TaskStatus
 
 @Service
-class TaskSe(
+class TaskService(
     private val tasksDao: TasksDao,
 ) {
     fun create(newTask: NewTask): Task {

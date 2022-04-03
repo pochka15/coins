@@ -7,7 +7,7 @@ import pw.coins.user.wallet.dtos.NewWallet
 import pw.coins.user.wallet.dtos.Transaction
 
 @Service
-class WalletSe(val walletsDao: WalletsDao) {
+class WalletService(val walletsDao: WalletsDao) {
     fun getWalletById(walletId: Long): Wallet? {
         return walletsDao.findById(walletId)
     }

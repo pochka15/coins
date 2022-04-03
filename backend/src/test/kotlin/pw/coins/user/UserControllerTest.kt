@@ -13,7 +13,7 @@ import pw.coins.jsonPost
 
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-internal class UserCoTest(
+internal class UserControllerTest(
     @Autowired val mockMvc: MockMvc,
     @Autowired val mapper: ObjectMapper,
 ) {
