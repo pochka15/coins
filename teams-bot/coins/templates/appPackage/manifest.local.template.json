@@ -5,7 +5,7 @@
     "id": "{{localSettings.teamsApp.teamsAppId}}",
     "packageName": "com.microsoft.teams.extension",
     "developer": {
-        "name": "Teams App, Inc.",
+        "name": "Artsiom Kashkou",
         "websiteUrl": "{{{localSettings.frontend.tabEndpoint}}}",
         "privacyUrl": "{{{localSettings.frontend.tabEndpoint}}}/index.html#/privacy",
         "termsOfUseUrl": "{{{localSettings.frontend.tabEndpoint}}}/index.html#/termsofuse"
@@ -19,8 +19,8 @@
         "full": "This field is not used-local-debug"
     },
     "description": {
-        "short": "Short description of coins.",
-        "full": "Full description of coins."
+        "short": "Simply solve tasks and get virtual coins for them.",
+        "full": "Simply solve tasks and get virtual coins for them."
     },
     "accentColor": "#FFFFFF",
     "bots": [
