@@ -1,5 +1,5 @@
 # How tos
 
 ```txt
-git push heroku frontend:main
+git push heroku main
 ```
