@@ -8,7 +8,7 @@
     },
     "devDependencies": {
         "@microsoft/teamsfx-cli": "0.*",
-        "prettier": "2.5.1"
+        "prettier": "^2.6.2"
     },
     "license": "MIT"
 }
