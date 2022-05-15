@@ -1,25 +1,35 @@
 import React from 'react'
 import {
   ChakraProvider,
-  Box,
-  Text,
-  VStack,
-  Grid,
-  theme
+  theme,
+  Tabs,
+  TabList,
+  TabPanels,
+  Tab,
+  TabPanel
 } from '@chakra-ui/react'
-import { ColorModeSwitcher } from './ColorModeSwitcher'
+import Tmp from './Tmp'
+import Home from './Home'
 
 function App() {
   return (
     <ChakraProvider theme={theme}>
-      <Box textAlign="center" fontSize="xl">
-        <Grid minH="100vh" p={3}>
-          <ColorModeSwitcher justifySelf="flex-end" />
-          <VStack spacing={8}>
-            <Text>Your username</Text>
-          </VStack>
-        </Grid>
-      </Box>
+      <Tabs>
+        <TabList>
+          <Tab>Home</Tab>
+          <Tab>Tmp</Tab>
+        </TabList>
+
+        <TabPanels>
+          <TabPanel>
+            <Home />
+          </TabPanel>
+
+          <TabPanel>
+            <Tmp />
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
     </ChakraProvider>
   )
 }
