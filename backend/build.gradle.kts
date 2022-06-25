@@ -1,4 +1,3 @@
-import nu.studer.gradle.jooq.JooqEdition
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jooq.meta.jaxb.ForcedType
 
@@ -103,7 +102,6 @@ tasks.test.configure {
 
 jooq {
     version.set("3.16.4")
-    edition.set(JooqEdition.OSS)
 
     configurations {
         create("main") {
