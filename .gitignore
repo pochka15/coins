@@ -40,7 +40,6 @@ out/
 sandbox/
 /backend/.jpb/
 /backend/src/main/java/pw/coins/db/generated/
-/backend/migrations/
 
 # @pochka15 localmachine stuff
 .DS_Store

@@ -27,4 +27,7 @@ class DaosConfig(val configuration: Configuration) {
 
     @Bean
     fun teamsUserDao(): TeamsUsersDao = TeamsUsersDao(configuration)
+
+    @Bean
+    fun usosTokensDao(): UsosTokensDao = UsosTokensDao(configuration)
 }

@@ -7,9 +7,9 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
-import pw.coins.andExpectOkJson
-import pw.coins.jsonPost
+import org.springframework.test.web.servlet.post
 
 @AutoConfigureMockMvc
 @SpringBootTest
@@ -19,12 +19,17 @@ internal class UserControllerTest(
 ) {
 
     @Test
-    fun `create user EXPECT correct dto`() {
+    fun `create a user EXPECT correct dto returned`() {
         val payload = CreateUserPayload("tmp")
-        mockMvc.jsonPost("/user") {
+        val post = mockMvc.post("/user", arrayOf<Any?>()) {
+            contentType = MediaType.APPLICATION_JSON
+            accept = MediaType.APPLICATION_JSON
             content = mapper.writeValueAsString(payload)
-        }.andExpectOkJson {
+        }
+        post.andExpect {
+            status { isOk() }
             content {
+                contentType(MediaType.APPLICATION_JSON)
                 jsonPath("$.id", notNullValue())
                 jsonPath("$.name", `is`("tmp"))
                 jsonPath("$.isEnabled", `is`(true))

@@ -73,6 +73,9 @@ dependencies {
     kapt("org.springframework.boot:spring-boot-configuration-processor")
 //    Netty was primarily imported to work in pair with the boot-starter-webflux. Maybe it's only necessary for mac M1 (didn't test on other machines)
     implementation("io.netty:netty-all:4.1.74.Final")
+    implementation("com.github.scribejava:scribejava-core:8.3.1")
+    implementation("com.github.scribejava:scribejava-httpclient-okhttp:8.3.1")
+    implementation("com.squareup.okhttp3:okhttp:4.10.0")
 }
 
 tasks.withType<KotlinCompile> {

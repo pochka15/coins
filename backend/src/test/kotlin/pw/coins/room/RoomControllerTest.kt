@@ -8,8 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment
+import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
-import pw.coins.jsonPost
+import org.springframework.test.web.servlet.post
 
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -21,9 +22,9 @@ internal class RoomControllerTest(
 
     @Test
     fun `create room EXPECT correct name and id returned`() {
-        mockMvc.jsonPost(
-            "/room"
-        ) {
+        mockMvc.post("/room") {
+            contentType = MediaType.APPLICATION_JSON
+            accept = MediaType.APPLICATION_JSON
             content = mapper.writeValueAsString(NewRoom("test-room"))
         }.andExpect {
             content {
