@@ -1,6 +1,11 @@
 import React from 'react'
 import { Box } from '@chakra-ui/react'
 
+/**
+ * Card representing task
+ * @return {JSX.Element}
+ * @constructor
+ */
 function TaskCard(props) {
   return (
     <Box

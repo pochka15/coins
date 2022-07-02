@@ -10,10 +10,12 @@ import {
 } from '@chakra-ui/react'
 import Tmp from './Tmp'
 import Home from './Home'
+import TopBar from './TopBar'
 
 function App() {
   return (
     <ChakraProvider theme={theme}>
+      <TopBar />
       <Tabs>
         <TabList>
           <Tab>Home</Tab>
