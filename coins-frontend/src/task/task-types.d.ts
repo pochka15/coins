@@ -1,4 +1,8 @@
 declare type Task = {
-  id: string
-  name: string
+  id: number
+  title: string
+  content: string
+  deadline: string
+  budget: number
+  status: string
 }

@@ -4,11 +4,16 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.web.bind.annotation.*
 import pw.coins.db.generated.tables.pojos.Member
 import pw.coins.db.generated.tables.pojos.Room
+import pw.coins.task.TaskData
+import pw.coins.task.TaskService
 
 @RestController
 @RequestMapping("/room")
 @Tag(name = "Room")
-class RoomController(val roomService: RoomService) {
+class RoomController(
+    val roomService: RoomService,
+    val taskService: TaskService
+) {
     @PostMapping
     fun createRoom(@RequestBody room: NewRoom): Room {
         return roomService.create(room)
@@ -27,6 +32,11 @@ class RoomController(val roomService: RoomService) {
     @DeleteMapping("/{id}/members/{memberId}")
     fun removeMember(@PathVariable id: Long, @PathVariable memberId: Long) {
         roomService.removeMemberById(memberId)
+    }
+
+    @GetMapping("/{id}/tasks")
+    fun getTasks(@PathVariable id: Long): List<TaskData> {
+        return taskService.getTasksByRoom(id)
     }
 }
 

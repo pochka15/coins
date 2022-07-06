@@ -7,18 +7,22 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { USOS_CALLBACK_ENDPOINT } from './auth'
 import UsosAuth from './UsosAuth'
+import { QueryClient, QueryClientProvider } from 'react-query'
 
 const container = document.getElementById('root')
+const queryClient = new QueryClient()
 const root = createRoot(container)
 root.render(
   <>
     <ColorModeScript />
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<App />} />
-        <Route path={USOS_CALLBACK_ENDPOINT} element={<UsosAuth />} />
-      </Routes>
-    </BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<App />} />
+          <Route path={USOS_CALLBACK_ENDPOINT} element={<UsosAuth />} />
+        </Routes>
+      </BrowserRouter>
+    </QueryClientProvider>
   </>
 )
 

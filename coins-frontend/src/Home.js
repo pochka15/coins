@@ -1,18 +1,25 @@
 import React from 'react'
 import { VStack } from '@chakra-ui/react'
 import TaskCard from './task/TaskCard'
+import { useQuery } from 'react-query'
+import { getRoomTasks } from './api/tasks'
 
-/** @type {Task[]} */
-const tasks = [
-  { id: '1', name: 'Task 1' },
-  { id: '2', name: 'Task 2' }
-]
+const ROOM_ID = 1
 
 function Home() {
+  const {
+    data: tasks,
+    isFetching,
+    error
+  } = useQuery(['tasks', ROOM_ID], () => getRoomTasks(ROOM_ID))
+
+  if (isFetching) return 'Fetching...'
+  if (error) return `Error: ${error}`
+  // noinspection JSValidateTypes
   return (
     <VStack>
       {tasks.map(task => (
-        <TaskCard key={task.id}>{task.name}</TaskCard>
+        <TaskCard key={task.id}>{task.title}</TaskCard>
       ))}
     </VStack>
   )

@@ -13,7 +13,7 @@ import pw.coins.user.UserService
 import pw.coins.user.wallet.WalletService
 import pw.coins.user.wallet.dtos.NewWallet
 import java.time.LocalDate
-import pw.coins.db.generated.tables.pojos.Task as TaskPojo
+import pw.coins.task.TaskData
 
 @RestController
 @RequestMapping("/bot")
@@ -58,7 +58,7 @@ class BotController(
     }
 
     @PostMapping("new-task")
-    fun createTask(@RequestBody task: NewTask): TaskPojo {
+    fun createTask(@RequestBody task: NewTask): TaskData {
         val teamsUser = botService.fetchTeamsUserById(task.teamsUserId)!!
         val author = userService.getUserById(teamsUser.originalUserId)!!
 
