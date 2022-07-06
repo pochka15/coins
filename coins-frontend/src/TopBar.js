@@ -1,23 +1,10 @@
 import React from 'react'
-import {
-  Button,
-  HStack,
-  IconButton,
-  Input,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-  useDisclosure
-} from '@chakra-ui/react'
+import { HStack, IconButton, Input, useDisclosure } from '@chakra-ui/react'
 import { AddIcon } from '@chakra-ui/icons'
 import { ColorModeSwitcher } from './ColorModeSwitcher'
-import TaskForm from './task/TaskForm'
 import { FiLogIn, FiLogOut } from 'react-icons/fi'
 import auth from './auth'
+import NewTask from './task/NewTask'
 
 function TopBar() {
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -45,21 +32,7 @@ function TopBar() {
           />
         )}
       </HStack>
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>New task</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <TaskForm />
-          </ModalBody>
-          <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={onClose}>
-              Close
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+      <NewTask isOpen={isOpen} onClose={onClose} />
     </>
   )
 }

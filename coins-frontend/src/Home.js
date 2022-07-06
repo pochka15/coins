@@ -5,13 +5,14 @@ import { useQuery } from 'react-query'
 import { getRoomTasks } from './api/tasks'
 
 const ROOM_ID = 1
+export const TASKS_QUERY_KEY = 'tasks'
 
 function Home() {
   const {
     data: tasks,
     isFetching,
     error
-  } = useQuery(['tasks', ROOM_ID], () => getRoomTasks(ROOM_ID))
+  } = useQuery(TASKS_QUERY_KEY, () => getRoomTasks(ROOM_ID))
 
   if (isFetching) return 'Fetching...'
   if (error) return `Error: ${error}`
