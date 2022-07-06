@@ -11,7 +11,13 @@ import org.springframework.security.config.http.SessionCreationPolicy
 class SecurityConfig : WebSecurityConfigurerAdapter() {
     @Throws(Exception::class)
     override fun configure(security: HttpSecurity) {
-        security.authorizeRequests()
+        security
+            .logout().disable()
+            .httpBasic().disable()
+            .formLogin().disable()
+            .cors() // There exists separate cors config
+            .and().csrf().disable()
+            .authorizeRequests()
             //                .antMatchers(HttpMethod.GET,
             //                             "/user",
             //                             "/comments-websocket/**",
@@ -27,13 +33,10 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
             //                             "/v3/api-docs/**",
             //                             "/swagger-ui/**")
             //                .permitAll()
-            //                .antMatchers(HttpMethod.POST, "/register", "/login").permitAll()
+//            .antMatchers(HttpMethod.POST, "/auth/usos/callback").permitAll()
             //                .antMatchers("/user/admin/**").hasAuthority("ADMIN")
             //                .anyRequest().authenticated()
             .anyRequest().permitAll()
             .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            .and().exceptionHandling()
-            .and().cors()
-            .and().csrf().disable()
     }
 }

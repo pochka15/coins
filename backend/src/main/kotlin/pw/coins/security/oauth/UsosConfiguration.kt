@@ -13,7 +13,7 @@ class UsosConfiguration {
             api = UsosApi(),
             apiKey = "wdJbgtUSwTrRf5S328eD",
             apiSecret = "PqAr2rfUqXpm6tV6xtpAC3g3zUrPUfGuH8eMANZJ",
-            callback = "http://localhost:8080/oauth/usos-callback",
+            callback = "http://localhost:3000/oauth/usos-callback",
             scope = "cards",
             debugStream = System.out,
             userAgent = null,

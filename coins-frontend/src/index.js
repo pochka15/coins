@@ -4,13 +4,21 @@ import App from './App'
 import reportWebVitals from './reportWebVitals'
 import * as serviceWorker from './serviceWorker'
 import { createRoot } from 'react-dom/client'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { USOS_CALLBACK_ENDPOINT } from './auth'
+import UsosAuth from './UsosAuth'
 
 const container = document.getElementById('root')
 const root = createRoot(container)
 root.render(
   <>
     <ColorModeScript />
-    <App />
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<App />} />
+        <Route path={USOS_CALLBACK_ENDPOINT} element={<UsosAuth />} />
+      </Routes>
+    </BrowserRouter>
   </>
 )
 

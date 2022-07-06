@@ -1,7 +1,6 @@
 import React from 'react'
 import {
   Button,
-  Grid,
   HStack,
   IconButton,
   Input,
@@ -17,6 +16,8 @@ import {
 import { AddIcon } from '@chakra-ui/icons'
 import { ColorModeSwitcher } from './ColorModeSwitcher'
 import TaskForm from './task/TaskForm'
+import { FiLogIn, FiLogOut } from 'react-icons/fi'
+import auth from './auth'
 
 function TopBar() {
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -29,9 +30,20 @@ function TopBar() {
           icon={<AddIcon />}
           onClick={onOpen}
         />
-        <Grid p={3}>
-          <ColorModeSwitcher justifySelf="flex-end" />
-        </Grid>
+        <ColorModeSwitcher />
+        {auth.isLogged() ? (
+          <IconButton
+            aria-label={'Log out'}
+            onClick={() => auth.logout()}
+            icon={<FiLogOut />}
+          />
+        ) : (
+          <IconButton
+            aria-label={'Log in'}
+            onClick={() => auth.startLogin()}
+            icon={<FiLogIn />}
+          />
+        )}
       </HStack>
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
