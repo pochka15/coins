@@ -5,8 +5,6 @@ create table rooms
     name varchar(255)
 );
 
-alter table rooms
-    owner to pochka15;
 
 create table users
 (
@@ -16,8 +14,6 @@ create table users
     name       varchar(255) not null
 );
 
-alter table users
-    owner to pochka15;
 
 create table credentials
 (
@@ -31,8 +27,6 @@ create table credentials
             references users
 );
 
-alter table credentials
-    owner to pochka15;
 
 create table members
 (
@@ -46,8 +40,6 @@ create table members
             references rooms
 );
 
-alter table members
-    owner to pochka15;
 
 create table member_role
 (
@@ -57,8 +49,6 @@ create table member_role
     roles     varchar(255)
 );
 
-alter table member_role
-    owner to pochka15;
 
 create table tasks
 (
@@ -81,8 +71,6 @@ create table tasks
             references users
 );
 
-alter table tasks
-    owner to pochka15;
 
 create table teams_conversations
 (
@@ -95,8 +83,6 @@ create table teams_conversations
             references users
 );
 
-alter table teams_conversations
-    owner to pochka15;
 
 create table teams_users
 (
@@ -111,8 +97,6 @@ create table teams_users
             references users
 );
 
-alter table teams_users
-    owner to pochka15;
 
 create table usos_tokens
 (
@@ -124,8 +108,6 @@ create table usos_tokens
     created_date timestamp with time zone not null
 );
 
-alter table usos_tokens
-    owner to pochka15;
 
 create index usos_tokens_key_index
     on usos_tokens (key);
@@ -141,8 +123,6 @@ create table wallets
             references users
 );
 
-alter table wallets
-    owner to pochka15;
 
 INSERT INTO public.rooms (id, name)
 VALUES (1, 'Global');

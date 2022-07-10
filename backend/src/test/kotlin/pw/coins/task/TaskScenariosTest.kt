@@ -36,7 +36,6 @@ class TaskScenariosTest(
         Assertions.assertThat(task.content).isEqualTo("Test content")
         Assertions.assertThat(task.deadline).isNotNull
         Assertions.assertThat(task.budget).isEqualTo(10)
-        Assertions.assertThat(task.roomId).isNotNull
     }
 
     private fun createRoom(roomName: String = "tmp"): Room = roomService.create(NewRoom(roomName))

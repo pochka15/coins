@@ -5,9 +5,6 @@ spring:
     password: ${DATABASE_PASSWORD}
 jooq:
   sql-dialect:Postgres
-sql:
-  init:
-    platform: postgres
 logging:
   level:
     org:
