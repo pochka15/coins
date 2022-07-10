@@ -12,18 +12,17 @@ function HomeLayout({ children }) {
     <>
       <HStack>
         <Input placeholder="Find anything" size="md" />
-        <ColorModeSwitcher />
         {auth.isLogged() ? (
           <>
-            <IconButton
-              aria-label={'Log out'}
-              onClick={() => auth.logout()}
-              icon={<FiLogOut />}
-            />
             <IconButton
               aria-label="Add new task"
               icon={<AddIcon />}
               onClick={onOpen}
+            />
+            <IconButton
+              aria-label={'Log out'}
+              onClick={() => auth.logout()}
+              icon={<FiLogOut />}
             />
           </>
         ) : (
@@ -33,6 +32,7 @@ function HomeLayout({ children }) {
             icon={<FiLogIn />}
           />
         )}
+        <ColorModeSwitcher />
       </HStack>
       <NewTask isOpen={isOpen} onClose={onClose} />
       {children}
