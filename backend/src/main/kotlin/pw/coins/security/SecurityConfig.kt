@@ -15,7 +15,7 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
             .logout().disable()
             .httpBasic().disable()
             .formLogin().disable()
-            .cors() // There exists separate cors config
+            .cors() // There exists separate CorsConfig
             .and().csrf().disable()
             .authorizeRequests()
             //                .antMatchers(HttpMethod.GET,
