@@ -15,3 +15,6 @@ teamsbot:
   endpoint: ${TEAMS_BOT_ENDPOINT}
 server:
   port: 8080
+usos:
+  apiKey: ${USOS_API_KEY}
+  apiSecret: ${USOS_API_SECRET}
