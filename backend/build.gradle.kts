@@ -9,6 +9,7 @@ plugins {
     kotlin("plugin.spring") version "1.6.10"
     kotlin("plugin.allopen") version "1.6.10"
     kotlin("kapt") version "1.6.10"
+    id("org.flywaydb.flyway") version "8.5.13"
 }
 
 allOpen {
@@ -60,8 +61,6 @@ dependencies {
 //    Database
     implementation("org.jooq:jooq:3.16.4")
     implementation("org.postgresql:postgresql:42.3.2")
-
-//    Jooq
     // https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api
     jooqGenerator("jakarta.xml.bind:jakarta.xml.bind-api:3.0.1")
     jooqGenerator("org.postgresql:postgresql:42.3.2")
@@ -151,8 +150,26 @@ jooq {
     }
 }
 
+flyway {
+    url = "jdbc:${System.getenv("DATABASE_URL")}"
+    user = System.getenv("DATABASE_USERNAME")
+    password = System.getenv("DATABASE_PASSWORD")
+    table = "schema_history"
+}
+
 tasks.getByName<Jar>("jar") {
 //    don't generate *.plain.jar by the spring boot
 //    https://stackoverflow.com/questions/67663728/spring-boot-2-5-0-generates-plain-jar-file-can-i-remove-it
     enabled = false
+}
+
+tasks.named<nu.studer.gradle.jooq.JooqGenerate>("generateJooq") {
+    dependsOn("flywayMigrate")
+
+    // declare Flyway migration scripts as inputs on the jOOQ task
+    inputs.files(fileTree("src/main/resources/db/migration"))
+        .withPropertyName("migrations")
+        .withPathSensitivity(PathSensitivity.RELATIVE)
+
+    allInputsDeclared.set(true)
 }

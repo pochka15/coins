@@ -33,7 +33,7 @@ class UsosTokenService(
             uuidSource.genUuid(),
             token.token,
             token.tokenSecret,
-            OffsetDateTime.now().toLocalDate()
+            OffsetDateTime.now()
         )
 
         return try {
