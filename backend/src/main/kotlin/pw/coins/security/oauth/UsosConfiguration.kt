@@ -18,7 +18,7 @@ class UsosConfiguration(
             apiKey = apiKey,
             apiSecret = apiSecret,
             callback = "http://localhost:3000/oauth/usos-callback",
-            scope = "cards",
+            scope = "cards|email",
             debugStream = System.out,
             userAgent = null,
             httpClientConfig = null,

@@ -13,9 +13,8 @@ import javax.validation.constraints.Size
 @RequestMapping("/user")
 @Tag(name = "User")
 class UserController(private val userService: UserService) {
-
     @PostMapping
-    fun createNewUser(@RequestBody @Valid payload: CreateUserPayload): User {
+    fun createNewUser(@RequestBody @Valid payload: CreateUserPayload): UserData {
         return userService.createUser(payload.userName)
     }
 
@@ -35,3 +34,13 @@ data class CreateUserPayload(
     @field:Size(max = 20, message = "Name length should be <= 20")
     val userName: String
 )
+
+data class UserData(
+    val email: String,
+    val id: Long,
+    val name: String,
+)
+
+fun User.toData(): UserData {
+    return UserData(email, id, name = name)
+}
