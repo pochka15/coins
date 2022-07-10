@@ -2,7 +2,7 @@ import React from 'react'
 import { VStack } from '@chakra-ui/react'
 import TaskCard from './task/TaskCard'
 import { useQuery } from 'react-query'
-import { getRoomTasks } from './api/tasks'
+import { getRoomTasks } from '../api/tasks'
 
 const ROOM_ID = 1
 export const TASKS_QUERY_KEY = 'tasks'

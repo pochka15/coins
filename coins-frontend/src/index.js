@@ -5,8 +5,8 @@ import reportWebVitals from './reportWebVitals'
 import * as serviceWorker from './serviceWorker'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { USOS_CALLBACK_ENDPOINT } from './auth'
-import UsosAuth from './UsosAuth'
+import { USOS_CALLBACK_ENDPOINT } from './security/auth'
+import UsosAuthCallbackPage from './ui-components/UsosAuthCallbackPage'
 import { QueryClient, QueryClientProvider } from 'react-query'
 
 const container = document.getElementById('root')
@@ -19,7 +19,7 @@ root.render(
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<App />} />
-          <Route path={USOS_CALLBACK_ENDPOINT} element={<UsosAuth />} />
+          <Route path={USOS_CALLBACK_ENDPOINT} element={<UsosAuthCallbackPage />} />
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>

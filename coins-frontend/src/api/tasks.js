@@ -1,4 +1,4 @@
-import auth from '../auth'
+import auth from '../security/auth'
 
 /**
  * Get room tasks by room id

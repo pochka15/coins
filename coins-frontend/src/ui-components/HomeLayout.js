@@ -3,27 +3,29 @@ import { HStack, IconButton, Input, useDisclosure } from '@chakra-ui/react'
 import { AddIcon } from '@chakra-ui/icons'
 import { ColorModeSwitcher } from './ColorModeSwitcher'
 import { FiLogIn, FiLogOut } from 'react-icons/fi'
-import auth from './auth'
+import auth from '../security/auth'
 import NewTask from './task/NewTask'
 
-function TopBar() {
+function HomeLayout({ children }) {
   const { isOpen, onOpen, onClose } = useDisclosure()
   return (
     <>
       <HStack>
         <Input placeholder="Find anything" size="md" />
-        <IconButton
-          aria-label="Add new task"
-          icon={<AddIcon />}
-          onClick={onOpen}
-        />
         <ColorModeSwitcher />
         {auth.isLogged() ? (
-          <IconButton
-            aria-label={'Log out'}
-            onClick={() => auth.logout()}
-            icon={<FiLogOut />}
-          />
+          <>
+            <IconButton
+              aria-label={'Log out'}
+              onClick={() => auth.logout()}
+              icon={<FiLogOut />}
+            />
+            <IconButton
+              aria-label="Add new task"
+              icon={<AddIcon />}
+              onClick={onOpen}
+            />
+          </>
         ) : (
           <IconButton
             aria-label={'Log in'}
@@ -33,8 +35,9 @@ function TopBar() {
         )}
       </HStack>
       <NewTask isOpen={isOpen} onClose={onClose} />
+      {children}
     </>
   )
 }
 
-export default TopBar
+export default HomeLayout

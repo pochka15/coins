@@ -12,7 +12,7 @@ import {
   ModalOverlay
 } from '@chakra-ui/react'
 import TaskForm from './TaskForm'
-import { createTask } from '../api/tasks'
+import { createTask } from '../../api/tasks'
 import { TASKS_QUERY_KEY } from '../Home'
 
 /**

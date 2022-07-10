@@ -9,29 +9,30 @@ import {
   TabPanel
 } from '@chakra-ui/react'
 import Tmp from './Tmp'
-import Home from './Home'
-import TopBar from './TopBar'
+import Home from './ui-components/Home'
+import HomeLayout from './ui-components/HomeLayout'
 
 function App() {
   return (
     <ChakraProvider theme={theme}>
-      <TopBar />
-      <Tabs>
-        <TabList>
-          <Tab>Home</Tab>
-          <Tab>Tmp</Tab>
-        </TabList>
+      <HomeLayout>
+        <Tabs>
+          <TabList>
+            <Tab>Home</Tab>
+            <Tab>Tmp</Tab>
+          </TabList>
 
-        <TabPanels>
-          <TabPanel>
-            <Home />
-          </TabPanel>
+          <TabPanels>
+            <TabPanel>
+              <Home />
+            </TabPanel>
 
-          <TabPanel>
-            <Tmp />
-          </TabPanel>
-        </TabPanels>
-      </Tabs>
+            <TabPanel>
+              <Tmp />
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
+      </HomeLayout>
     </ChakraProvider>
   )
 }
