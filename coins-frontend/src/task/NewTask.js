@@ -1,6 +1,8 @@
 import React from 'react'
 import { useMutation, useQueryClient } from 'react-query'
 import {
+  Alert,
+  AlertIcon,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -42,7 +44,14 @@ function NewTask({ isOpen, onClose }) {
         <ModalBody>
           <TaskForm onSubmit={task => mutation.mutate(task)} />
         </ModalBody>
-        <ModalFooter />
+        <ModalFooter>
+          {mutation.isError && (
+            <Alert status="error">
+              <AlertIcon />
+              There was an error when creating a new task: {mutation.error.message}
+            </Alert>
+          )}
+        </ModalFooter>
       </ModalContent>
     </Modal>
   )
