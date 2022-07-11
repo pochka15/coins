@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.web.bind.annotation.*
 import pw.coins.db.generated.tables.pojos.Wallet
 import pw.coins.user.wallet.dtos.NewWallet
+import java.util.*
 
 @RestController
 @RequestMapping("/user/wallet")
@@ -15,7 +16,7 @@ class WalletController(val walletService: WalletService) {
     }
 
     @GetMapping("/{walletId}")
-    fun wallet(@PathVariable walletId: Long): Wallet? {
-        return walletService.getWalletById(walletId)
+    fun wallet(@PathVariable walletId: String): Wallet? {
+        return walletService.getWalletById(UUID.fromString(walletId))
     }
 }

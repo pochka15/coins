@@ -2,10 +2,9 @@ package pw.coins.room
 
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.web.bind.annotation.*
-import pw.coins.db.generated.tables.pojos.Member
-import pw.coins.db.generated.tables.pojos.Room
 import pw.coins.task.TaskData
 import pw.coins.task.TaskService
+import java.util.UUID
 
 @RestController
 @RequestMapping("/room")
@@ -15,18 +14,18 @@ class RoomController(
     val taskService: TaskService
 ) {
     @PostMapping
-    fun createRoom(@RequestBody room: NewRoom): Room {
+    fun createRoom(@RequestBody room: NewRoom): RoomData {
         return roomService.create(room)
     }
 
     @PostMapping("/{roomId}/members")
-    fun addMember(@PathVariable roomId: Long, @RequestBody member: NewMember): Member {
-        return roomService.addMember(roomId, member)
+    fun addMember(@PathVariable roomId: String, @RequestBody associatedUserId: String): MemberData {
+        return roomService.addMember(NewMember(UUID.fromString(roomId), UUID.fromString(roomId)))
     }
 
     @GetMapping("/{id}/members")
-    fun roomMembers(@PathVariable id: Long): List<Member> {
-        return roomService.getMembers(id)
+    fun roomMembers(@PathVariable id: String): List<MemberData> {
+        return roomService.getMembersByRoom(UUID.fromString(id))
     }
 
     @DeleteMapping("/{id}/members/{memberId}")
@@ -35,14 +34,12 @@ class RoomController(
     }
 
     @GetMapping("/{id}/tasks")
-    fun getTasks(@PathVariable id: Long): List<TaskData> {
-        return taskService.getTasksByRoom(id)
+    fun getTasks(@PathVariable id: String): List<TaskData> {
+        return taskService.getTasksByRoom(UUID.fromString(id))
     }
 }
 
-data class NewMember(
-    val associatedUserId: Long
-)
+data class NewMember(val associatedUserId: UUID, val roomId: UUID)
 
 data class NewRoom(
     var name: String

@@ -3,17 +3,20 @@ package pw.coins.task
 import org.springframework.stereotype.Service
 import pw.coins.db.generated.tables.daos.TasksDao
 import pw.coins.db.generated.tables.pojos.Task
+import pw.coins.security.UuidSource
 import pw.coins.task.dtos.NewTask
 import pw.coins.task.dtos.TaskStatus
 import java.time.LocalDate
+import java.util.UUID
 
 @Service
 class TaskService(
     private val tasksDao: TasksDao,
+    val uuidSource: UuidSource,
 ) {
     fun create(newTask: NewTask): TaskData {
         val task = Task(
-            null,
+            uuidSource.genUuid(),
             newTask.title,
             newTask.content,
             newTask.deadline,
@@ -32,22 +35,22 @@ class TaskService(
         return task.toData()
     }
 
-    fun getTask(taskId: Long): Task? {
+    fun getTask(taskId: UUID): Task? {
         return tasksDao.fetchOneById(taskId)
     }
 
-    fun getTasksByRoom(roomId: Long): List<TaskData> {
+    fun getTasksByRoom(roomId: UUID): List<TaskData> {
         val tasks = tasksDao.fetchByRoomId(roomId)
         return tasks.map { it.toData() }
     }
 
-    fun solveTask(taskId: Long) {
+    fun solveTask(taskId: UUID) {
         val task = tasksDao.fetchOneById(taskId)!!
         task.status = TaskStatus.FINISHED.formatted
         tasksDao.update(task)
     }
 
-    fun getUserTasks(userId: Long): List<Task> {
+    fun getUserTasks(userId: UUID): List<Task> {
         return tasksDao.fetchByAuthorUserId(userId)
     }
 }
@@ -64,7 +67,7 @@ private fun Task.toData(): TaskData {
 }
 
 data class TaskData(
-    val id: Long,
+    val id: UUID,
     val title: String,
     val content: String,
     val deadline: LocalDate,

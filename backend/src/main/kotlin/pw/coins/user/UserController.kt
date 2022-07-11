@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.web.bind.annotation.*
 import pw.coins.db.generated.tables.pojos.Member
 import pw.coins.db.generated.tables.pojos.User
+import java.util.*
 import javax.validation.Valid
 import javax.validation.constraints.NotEmpty
 import javax.validation.constraints.Size
@@ -19,13 +20,13 @@ class UserController(private val userService: UserService) {
     }
 
     @GetMapping("/{id}/members")
-    fun findAssociatedMembers(@PathVariable id: Long): List<Member> {
-        return userService.findAssociatedMembers(id)
+    fun findAssociatedMembers(@PathVariable id: String): List<Member> {
+        return userService.findAssociatedMembers(UUID.fromString(id))
     }
 
     @DeleteMapping("/{id}")
-    fun removeUser(@PathVariable id: Long) {
-        userService.removeUserById(id)
+    fun removeUser(@PathVariable id: String) {
+        userService.removeUserById(UUID.fromString(id))
     }
 }
 
@@ -37,10 +38,10 @@ data class CreateUserPayload(
 
 data class UserData(
     val email: String,
-    val id: Long,
+    val id: String,
     val name: String,
 )
 
 fun User.toData(): UserData {
-    return UserData(email, id, name = name)
+    return UserData(email, id.toString(), name = name)
 }

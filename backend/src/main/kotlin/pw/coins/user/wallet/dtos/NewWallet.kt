@@ -1,3 +1,5 @@
 package pw.coins.user.wallet.dtos
 
-data class NewWallet(val name: String, val coinsAmount: Int, val ownerId: Long)
+import java.util.*
+
+data class NewWallet(val name: String, val coinsAmount: Int, val ownerId: UUID)

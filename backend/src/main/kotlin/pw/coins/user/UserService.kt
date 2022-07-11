@@ -5,6 +5,7 @@ import pw.coins.db.generated.tables.daos.MembersDao
 import pw.coins.db.generated.tables.daos.UsersDao
 import pw.coins.db.generated.tables.pojos.Member
 import pw.coins.db.generated.tables.pojos.User
+import java.util.*
 
 @Service
 class UserService(
@@ -23,11 +24,11 @@ class UserService(
         return user.toData()
     }
 
-    fun removeUserById(id: Long) = usersDao.deleteById(id)
+    fun removeUserById(id: UUID) = usersDao.deleteById(id)
 
-    fun getUserById(id: Long): User? = usersDao.fetchOneById(id)
+    fun getUserById(id: UUID): User? = usersDao.fetchOneById(id)
 
-    fun findAssociatedMembers(userId: Long): List<Member> {
+    fun findAssociatedMembers(userId: UUID): List<Member> {
         return membersDao.fetchByUserId(userId)
     }
 
