@@ -3,6 +3,12 @@ spring:
     url: jdbc:${DATABASE_URL}
     username: ${DATABASE_USERNAME}
     password: ${DATABASE_PASSWORD}
+  output:
+    ansi:
+      enabled: always
+  jackson:
+    serialization:
+      indent_output: true
 jooq:
   sql-dialect:Postgres
 logging:
