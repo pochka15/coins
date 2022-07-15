@@ -4,7 +4,7 @@ import TaskCard from './task/TaskCard'
 import { useQuery } from 'react-query'
 import { getRoomTasks } from '../api/tasks'
 
-const ROOM_ID = 1
+export const GLOBAL_ROOM_ID = 'a6041b05-ebb9-4ff0-9b6b-d915d573afb2'
 export const TASKS_QUERY_KEY = 'tasks'
 
 function Home() {
@@ -12,7 +12,7 @@ function Home() {
     data: tasks,
     isFetching,
     error
-  } = useQuery(TASKS_QUERY_KEY, () => getRoomTasks(ROOM_ID))
+  } = useQuery(TASKS_QUERY_KEY, () => getRoomTasks(GLOBAL_ROOM_ID))
 
   if (error)
     return (

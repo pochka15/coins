@@ -7,11 +7,11 @@ declare type Task = {
   status: string
 }
 
-declare type NewTask = {
+declare type TNewTask = {
   title: string
   content: string
   deadline: string
   budget: number
-  roomId: number
-  userId: number
+  roomId: string
+  userId: string
 }

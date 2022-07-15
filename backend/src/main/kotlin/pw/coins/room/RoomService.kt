@@ -5,10 +5,10 @@ import pw.coins.db.generated.tables.daos.RoomsDao
 import pw.coins.db.generated.tables.daos.UsersDao
 import pw.coins.db.generated.tables.pojos.Member
 import pw.coins.db.generated.tables.pojos.Room
+import pw.coins.db.parseUUID
 import pw.coins.room.model.UserWithMember
 import pw.coins.room.model.MembersDao
 import pw.coins.security.UuidSource
-import java.util.*
 
 @Service
 class RoomService(
@@ -24,8 +24,8 @@ class RoomService(
     }
 
     fun addMember(newMember: NewMember): Member {
-        val member = Member(null, UUID.fromString(newMember.associatedUserId), UUID.fromString(newMember.roomId))
-        usersDao.fetchOneById(UUID.fromString(newMember.associatedUserId))
+        val member = Member(null, parseUUID(newMember.associatedUserId), parseUUID(newMember.roomId))
+        usersDao.fetchOneById(parseUUID(newMember.associatedUserId))
             ?: throw Exception("Cannot create a member with non-existing associated user id = ${newMember.associatedUserId}")
 
         membersDao.insert(member)
@@ -38,7 +38,7 @@ class RoomService(
     }
 
     fun getMembersByRoom(roomId: String): MutableList<UserWithMember> {
-        return membersDao.fetchByRoomIdJoiningUser(UUID.fromString(roomId))
+        return membersDao.fetchByRoomIdJoiningUser(parseUUID(roomId))
     }
 
     fun removeMemberById(memberId: Long) {

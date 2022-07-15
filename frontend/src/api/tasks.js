@@ -2,21 +2,24 @@ import auth from '../security/auth'
 
 /**
  * Get room tasks by room id
- * @param {number} roomId
+ * @param {string} roomId
  * @return {Promise<Task[]>}
  */
-export async function getRoomTasks(roomId) {
-  const { data } = await auth.getClient().get(`/room/${roomId}/tasks`)
-  return data
+export function getRoomTasks(roomId) {
+  return auth
+    .getClient()
+    .get(`/room/${roomId}/tasks`)
+    .then(r => r.data)
 }
-
 
 /**
  * Create a new task
- * @param {NewTask} task
+ * @param {TNewTask} task
  * @return {Promise<Task>}
  */
 export async function createTask(task) {
-  const { data } = await auth.getClient().post(`/tasks`, task)
-  return data
+  return auth
+    .getClient()
+    .post(`/tasks`, task)
+    .then(r => r.data)
 }

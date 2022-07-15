@@ -24,7 +24,7 @@ import { TASKS_QUERY_KEY } from '../Home'
  */
 function NewTask({ isOpen, onClose }) {
   const mutation = useMutation(
-    /** @param {NewTask} task */
+    /** @param {TNewTask} task */
     task => createTask(task),
     {
       onSuccess: () => {

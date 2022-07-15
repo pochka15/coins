@@ -1,5 +1,5 @@
-# How tos
+# Coins frontend
 
-```txt
-git push heroku main
-```
+## Setup
+
+- Configure env variables in the Intellij

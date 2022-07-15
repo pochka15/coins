@@ -3,14 +3,14 @@ package pw.coins.user.wallet
 import org.springframework.stereotype.Service
 import pw.coins.db.generated.tables.daos.WalletsDao
 import pw.coins.db.generated.tables.pojos.Wallet
+import pw.coins.db.parseUUID
 import pw.coins.security.UuidSource
 import pw.coins.user.wallet.models.Transaction
-import java.util.*
 
 @Service
 class WalletService(val walletsDao: WalletsDao, val uuidSource: UuidSource) {
     fun getWalletById(id: String): Wallet? {
-        return walletsDao.findById(UUID.fromString(id))
+        return walletsDao.findById(parseUUID(id))
     }
 
     fun createWallet(newWallet: NewWallet): Wallet {
@@ -18,7 +18,7 @@ class WalletService(val walletsDao: WalletsDao, val uuidSource: UuidSource) {
             uuidSource.genUuid(),
             newWallet.coinsAmount,
             newWallet.name,
-            UUID.fromString(newWallet.ownerId)
+            parseUUID(newWallet.ownerId)
         )
         walletsDao.insert(wallet)
 
@@ -30,7 +30,7 @@ class WalletService(val walletsDao: WalletsDao, val uuidSource: UuidSource) {
     }
 
     fun getUserWallets(userId: String): List<Wallet> {
-        return walletsDao.fetchByOwnerId(UUID.fromString(userId))
+        return walletsDao.fetchByOwnerId(parseUUID(userId))
     }
 
     /**

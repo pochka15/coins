@@ -11,10 +11,11 @@ import {
   FormErrorMessage
 } from '@chakra-ui/react'
 import { useForm } from 'react-hook-form'
+import { GLOBAL_ROOM_ID } from '../Home'
 
 /**
  *
- * @param {function(NewTask): void} onSubmit
+ * @param {function(TNewTask): void} onSubmit
  * @return {JSX.Element}
  * @constructor
  */
@@ -27,9 +28,8 @@ function TaskForm({ onSubmit }) {
 
   useEffect(() => {
     register('deadline', { value: '2023-12-03' })
-    register('budget', { value: 10 })
-    register('roomId', { value: 1 })
-    register('userId', { value: 75 })
+    register('roomId', { value: GLOBAL_ROOM_ID })
+    register('userId', { value: '705b19c5-322f-40cf-9216-244d22bf4d2e' })
   }, [register])
 
   // noinspection JSValidateTypes

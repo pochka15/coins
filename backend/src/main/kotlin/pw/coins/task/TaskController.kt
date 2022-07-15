@@ -1,7 +1,9 @@
 package pw.coins.task
 
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.server.ResponseStatusException
 import pw.coins.db.generated.tables.pojos.Task
 import java.time.LocalDate
 import java.util.*
@@ -15,12 +17,14 @@ class TaskController(
 
     @GetMapping("/{task_id}")
     fun getTask(@PathVariable("task_id") id: String): TaskData? {
-        return taskService.getTask(id)?.toData()
+        val task = taskService.getTask(id)
+            ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Couldn't find task with id: $id")
+        return task.toData()
     }
 
     @PostMapping
     fun postTask(@RequestBody task: NewTask): TaskData {
-        return taskService.create(task)
+        return taskService.create(task).toData()
     }
 }
 

@@ -42,6 +42,7 @@ class Auth {
 
   logout() {
     localStorage.removeItem(TOKENS_KEY)
+    window.location.href = '/'
   }
 
   getClient() {
