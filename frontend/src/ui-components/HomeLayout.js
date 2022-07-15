@@ -1,23 +1,21 @@
 import React from 'react'
-import { HStack, IconButton, Input, useDisclosure } from '@chakra-ui/react'
+import { Flex, HStack, IconButton, Input } from '@chakra-ui/react'
 import { AddIcon } from '@chakra-ui/icons'
 import { ColorModeSwitcher } from './ColorModeSwitcher'
 import { FiLogIn, FiLogOut } from 'react-icons/fi'
 import auth from '../security/auth'
-import NewTask from './task/NewTask'
 
-function HomeLayout({ children }) {
-  const { isOpen, onOpen, onClose } = useDisclosure()
+function HomeLayout({ onAddNewTask }) {
   return (
-    <>
+    <Flex marginTop={8} alignItems="center" justify="center">
       <HStack>
-        <Input placeholder="Find anything" size="md" />
+        <Input boxShadow="base" w={600} placeholder="Find anything" size="md" />
         {auth.isLogged() ? (
           <>
             <IconButton
               aria-label="Add new task"
               icon={<AddIcon />}
-              onClick={onOpen}
+              onClick={onAddNewTask}
             />
             <IconButton
               aria-label={'Log out'}
@@ -34,9 +32,7 @@ function HomeLayout({ children }) {
         )}
         <ColorModeSwitcher />
       </HStack>
-      <NewTask isOpen={isOpen} onClose={onClose} />
-      {children}
-    </>
+    </Flex>
   )
 }
 
