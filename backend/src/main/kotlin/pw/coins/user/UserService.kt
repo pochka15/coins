@@ -1,19 +1,21 @@
 package pw.coins.user
 
 import org.springframework.stereotype.Service
-import pw.coins.db.generated.tables.daos.MembersDao
 import pw.coins.db.generated.tables.daos.UsersDao
-import pw.coins.db.generated.tables.pojos.Member
 import pw.coins.db.generated.tables.pojos.User
+import pw.coins.room.model.MembersDao
+import pw.coins.room.model.UserWithMember
+import pw.coins.security.UuidSource
 import java.util.*
 
 @Service
 class UserService(
     private val membersDao: MembersDao,
     private val usersDao: UsersDao,
+    private val uuidSource: UuidSource,
 ) {
-    fun createUser(userName: String, email: String = ""): UserData {
-        val user = User(null, true, userName, email)
+    fun createUser(userName: String, email: String = ""): User {
+        val user = User(uuidSource.genUuid(), true, userName, email)
 
         usersDao.insert(user)
 
@@ -21,19 +23,18 @@ class UserService(
             throw Exception("Couldn't create user with the name '$userName', returned Id is null")
         }
 
-        return user.toData()
+        return user
     }
 
-    fun removeUserById(id: UUID) = usersDao.deleteById(id)
+    fun removeUserById(id: String) = usersDao.deleteById(UUID.fromString(id))
 
-    fun getUserById(id: UUID): User? = usersDao.fetchOneById(id)
+    fun getUserById(id: String): User? = usersDao.fetchOneById(UUID.fromString(id))
 
-    fun findAssociatedMembers(userId: UUID): List<Member> {
-        return membersDao.fetchByUserId(userId)
+    fun findAssociatedMembers(userId: String): List<UserWithMember> {
+        return membersDao.fetchByUserIdJoiningMember(UUID.fromString(userId))
     }
 
-    fun getUser(email: String): UserData? {
-        val user = usersDao.fetchByEmail(email).getOrNull(0) ?: return null
-        return user.toData()
+    fun getUser(email: String): User? {
+        return usersDao.fetchByEmail(email).getOrNull(0)
     }
 }

@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.view.RedirectView
-import pw.coins.user.UserData
 import pw.coins.user.UserService
 import pw.coins.usos.UsosService
 
@@ -41,7 +40,7 @@ class UsosController(
         if (!result) return ResponseEntity.internalServerError().body("Couldn't obtain access token")
 
         val usosUser = usosService.getUser(token)
-        var user: UserData? = userService.getUser(usosUser.email)
+        var user = userService.getUser(usosUser.email)
         if (user == null) user = userService.createUser("${usosUser.firstName} ${usosUser.lastName}", usosUser.email)
         return ResponseEntity.ok(user)
     }

@@ -4,14 +4,13 @@ import org.springframework.stereotype.Service
 import pw.coins.db.generated.tables.daos.WalletsDao
 import pw.coins.db.generated.tables.pojos.Wallet
 import pw.coins.security.UuidSource
-import pw.coins.user.wallet.dtos.NewWallet
-import pw.coins.user.wallet.dtos.Transaction
+import pw.coins.user.wallet.models.Transaction
 import java.util.*
 
 @Service
 class WalletService(val walletsDao: WalletsDao, val uuidSource: UuidSource) {
-    fun getWalletById(id: UUID): Wallet? {
-        return walletsDao.findById(id)
+    fun getWalletById(id: String): Wallet? {
+        return walletsDao.findById(UUID.fromString(id))
     }
 
     fun createWallet(newWallet: NewWallet): Wallet {
@@ -19,7 +18,7 @@ class WalletService(val walletsDao: WalletsDao, val uuidSource: UuidSource) {
             uuidSource.genUuid(),
             newWallet.coinsAmount,
             newWallet.name,
-            newWallet.ownerId
+            UUID.fromString(newWallet.ownerId)
         )
         walletsDao.insert(wallet)
 
@@ -30,8 +29,8 @@ class WalletService(val walletsDao: WalletsDao, val uuidSource: UuidSource) {
         return wallet
     }
 
-    fun getUserWallets(userId: UUID): List<Wallet> {
-        return walletsDao.fetchByOwnerId(userId)
+    fun getUserWallets(userId: String): List<Wallet> {
+        return walletsDao.fetchByOwnerId(UUID.fromString(userId))
     }
 
     /**
@@ -63,4 +62,6 @@ class WalletService(val walletsDao: WalletsDao, val uuidSource: UuidSource) {
         walletsDao.update(from, to)
     }
 }
+
+data class NewWallet(val name: String, val coinsAmount: Int, val ownerId: String)
 

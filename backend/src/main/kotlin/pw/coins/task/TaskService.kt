@@ -4,8 +4,6 @@ import org.springframework.stereotype.Service
 import pw.coins.db.generated.tables.daos.TasksDao
 import pw.coins.db.generated.tables.pojos.Task
 import pw.coins.security.UuidSource
-import pw.coins.task.dtos.NewTask
-import pw.coins.task.dtos.TaskStatus
 import java.time.LocalDate
 import java.util.UUID
 
@@ -35,42 +33,40 @@ class TaskService(
         return task.toData()
     }
 
-    fun getTask(taskId: UUID): Task? {
-        return tasksDao.fetchOneById(taskId)
+    fun getTask(taskId: String): Task? {
+        return tasksDao.fetchOneById(UUID.fromString(taskId))
     }
 
-    fun getTasksByRoom(roomId: UUID): List<TaskData> {
-        val tasks = tasksDao.fetchByRoomId(roomId)
-        return tasks.map { it.toData() }
+    fun getTasksByRoom(roomId: String): List<Task> {
+        return tasksDao.fetchByRoomId(UUID.fromString(roomId))
     }
 
-    fun solveTask(taskId: UUID) {
-        val task = tasksDao.fetchOneById(taskId)!!
+    fun solveTask(taskId: String) {
+        val task = tasksDao.fetchOneById(UUID.fromString(taskId))!!
         task.status = TaskStatus.FINISHED.formatted
         tasksDao.update(task)
     }
 
-    fun getUserTasks(userId: UUID): List<Task> {
-        return tasksDao.fetchByAuthorUserId(userId)
+    fun getUserTasks(userId: String): List<Task> {
+        return tasksDao.fetchByAuthorUserId(UUID.fromString(userId))
     }
 }
 
-private fun Task.toData(): TaskData {
-    return TaskData(
-        id = id,
-        title = title,
-        content = content,
-        deadline = deadline,
-        budget = budget,
-        status = status,
-    )
-}
-
-data class TaskData(
-    val id: UUID,
+data class NewTask(
     val title: String,
-    val content: String,
+    val content: String?,
     val deadline: LocalDate,
     val budget: Int,
-    val status: String,
+    val roomId: UUID,
+    val userId: UUID,
 )
+
+/**
+ * All the possible task status values
+ */
+@Suppress("unused")
+enum class TaskStatus(value: String) {
+    NEW("New"), IN_PROGRESS("In progress"), FINISHED("Finished");
+
+    val formatted = value
+}

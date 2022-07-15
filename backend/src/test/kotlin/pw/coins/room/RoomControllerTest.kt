@@ -1,23 +1,30 @@
 package pw.coins.room
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import org.hamcrest.CoreMatchers.`is`
-import org.hamcrest.CoreMatchers.notNullValue
+import org.hamcrest.CoreMatchers.*
+import org.jooq.DSLContext
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment
 import org.springframework.http.MediaType
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.post
-
+import org.springframework.test.web.servlet.get
+import pw.coins.db.generated.Tables.*
+import pw.coins.user.UserService
+import pw.coins.db.generated.tables.pojos.Room
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
 @AutoConfigureMockMvc
 internal class RoomControllerTest(
     @Autowired val mockMvc: MockMvc,
-    @Autowired val mapper: ObjectMapper,
+    @Autowired val roomService: RoomService,
+    @Autowired val dslContext: DSLContext,
+    @Autowired val userService: UserService,
 ) {
 
     @Test
@@ -25,13 +32,63 @@ internal class RoomControllerTest(
         mockMvc.post("/room") {
             contentType = MediaType.APPLICATION_JSON
             accept = MediaType.APPLICATION_JSON
-            content = mapper.writeValueAsString(NewRoom("test-room"))
+            content = /* language=JSON */ """{"name": "test-room"}"""
         }.andExpect {
             content {
-                jsonPath("$.name", `is`("test-room"))
+                jsonPath("$.name", equalTo("test-room"))
                 jsonPath("$.id", notNullValue())
             }
         }
     }
 
+    @Test
+    fun `add member EXPECT member id is not null`() {
+        val user = userService.createUser("test-user", "test@gmail.com")
+        val room = createRoom("room")
+        mockMvc.post("/room/${room.id}/members") {
+            contentType = MediaType.APPLICATION_JSON
+            accept = MediaType.APPLICATION_JSON
+            content = /* language=JSON */ """{ "associatedUserId": "${user.id}" }"""
+        }.andExpect {
+            content {
+                jsonPath("$.name", equalTo("test-user"))
+                jsonPath("$.id", notNullValue())
+            }
+        }
+    }
+
+    @Test
+    fun fetchByRoomIdJoiningUser() {
+        val room = roomService.create(NewRoom("test-room"))
+        val user = userService.createUser("test-user", "test@gmail.com")
+        roomService.addMember(NewMember(user.id.toString(), room.id.toString()))
+        mockMvc.get("/room/${room.id}/members") {
+            accept = MediaType.APPLICATION_JSON
+        }.andExpect {
+            content {
+                jsonPath("$.length()", equalTo(1))
+                jsonPath("$[0].id", notNullValue())
+                jsonPath("$[0].name", equalTo("test-user"))
+            }
+        }
+    }
+
+    fun createRoom(name: String): Room {
+        return roomService.create(NewRoom(name))
+    }
+
+    @AfterEach
+    fun cleanup() {
+        dslContext
+            .deleteFrom(MEMBERS)
+            .execute()
+
+        dslContext
+            .deleteFrom(ROOMS)
+            .execute()
+
+        dslContext
+            .deleteFrom(USERS)
+            .execute()
+    }
 }

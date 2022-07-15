@@ -1,11 +1,12 @@
 package pw.coins.room
 
 import org.springframework.stereotype.Service
-import pw.coins.db.generated.tables.daos.MembersDao
 import pw.coins.db.generated.tables.daos.RoomsDao
 import pw.coins.db.generated.tables.daos.UsersDao
 import pw.coins.db.generated.tables.pojos.Member
 import pw.coins.db.generated.tables.pojos.Room
+import pw.coins.room.model.UserWithMember
+import pw.coins.room.model.MembersDao
 import pw.coins.security.UuidSource
 import java.util.*
 
@@ -16,15 +17,15 @@ class RoomService(
     private val uuidSource: UuidSource,
     private val usersDao: UsersDao,
 ) {
-    fun create(newRoom: NewRoom): RoomData {
+    fun create(newRoom: NewRoom): Room {
         val room = Room(uuidSource.genUuid(), newRoom.name)
         roomsDao.insert(room)
-        return room.toData()
+        return room
     }
 
-    fun addMember(newMember: NewMember): MemberData {
-        val member = Member(null, newMember.associatedUserId, newMember.roomId)
-        val user = usersDao.fetchOneById(newMember.associatedUserId)
+    fun addMember(newMember: NewMember): Member {
+        val member = Member(null, UUID.fromString(newMember.associatedUserId), UUID.fromString(newMember.roomId))
+        usersDao.fetchOneById(UUID.fromString(newMember.associatedUserId))
             ?: throw Exception("Cannot create a member with non-existing associated user id = ${newMember.associatedUserId}")
 
         membersDao.insert(member)
@@ -33,12 +34,11 @@ class RoomService(
             throw Exception("Couldn't create member for user with an id = ${newMember.associatedUserId}")
         }
 
-        return member.toData(user.name)
+        return member
     }
 
-    fun getMembersByRoom(roomId: UUID): List<MemberData> {
-        val members = membersDao.fetchByRoomId(roomId)
-        return members.map { it.toData("TODO") }
+    fun getMembersByRoom(roomId: String): MutableList<UserWithMember> {
+        return membersDao.fetchByRoomIdJoiningUser(UUID.fromString(roomId))
     }
 
     fun removeMemberById(memberId: Long) {
@@ -46,20 +46,8 @@ class RoomService(
     }
 }
 
-data class RoomData(
-    val id: String,
-    val name: String
+data class NewMember(val associatedUserId: String, val roomId: String)
+
+data class NewRoom(
+    var name: String
 )
-
-data class MemberData(
-    val id: String,
-    val name: String
-)
-
-private fun Room.toData(): RoomData {
-    return RoomData(id.toString(), name)
-}
-
-private fun Member.toData(username: String): MemberData {
-    return MemberData(id.toString(), username)
-}

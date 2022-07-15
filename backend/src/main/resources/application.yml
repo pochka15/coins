@@ -9,14 +9,12 @@ spring:
   jackson:
     serialization:
       indent_output: true
-jooq:
-  sql-dialect:Postgres
 logging:
   level:
     org:
       jooq:
         tools:
-          LoggerListener: DEBUG
+          LoggerListener: info
 teamsbot:
   endpoint: ${TEAMS_BOT_ENDPOINT}
 server:
