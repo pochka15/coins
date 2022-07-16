@@ -25,12 +25,14 @@ class TasksDao(
     fun fetchExtendedTasksByAuthorId(authorId: UUID): MutableList<ExtendedTask> {
         return selectJoinedTasks()
             .where(TASKS.AUTHOR_USER_ID.eq(authorId))
+            .orderBy(TASKS.CREATION_DATE.desc())
             .fetch { toExtendedTask(it) }
     }
 
     fun fetchExtendedTasksByRoomId(roomId: UUID): MutableList<ExtendedTask> {
         return selectJoinedTasks()
             .where(TASKS.ROOM_ID.eq(roomId))
+            .orderBy(TASKS.CREATION_DATE.desc())
             .fetch { toExtendedTask(it) }
     }
 
@@ -53,6 +55,7 @@ class TasksDao(
             title = task.title,
             content = task.content,
             deadline = task.deadline,
+            creationDate = task.creationDate,
             budget = task.budget,
             status = task.status,
             authorUserId = task.authorUserId,

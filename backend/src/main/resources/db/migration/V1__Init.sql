@@ -40,15 +40,16 @@ create table tasks
 (
     id               uuid
         constraint tasks_pk primary key,
-    title            varchar(255) not null,
+    title            varchar(255)             not null,
     content          text,
-    deadline         date         not null,
-    budget           integer      not null,
-    status           varchar(40)  not null,
-    room_id          uuid         not null
+    deadline         date                     not null,
+    creation_date    timestamp with time zone not null,
+    budget           integer                  not null,
+    status           varchar(40)              not null,
+    room_id          uuid                     not null
         constraint tasks_rooms_fk
             references rooms,
-    author_user_id   uuid         not null
+    author_user_id   uuid                     not null
         constraint tasks_author_users_id_fk
             references users,
     assignee_user_id uuid

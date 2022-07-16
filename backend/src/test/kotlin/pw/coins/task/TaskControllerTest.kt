@@ -38,13 +38,14 @@ class TaskControllerTest(
     fun `create task EXPECT correct dto returned`() {
         val room = roomService.create(NewRoom("Test room"))
         val user = userService.createUser("Test user")
-        postTask(room.id.toString(), user.id.toString())
+        postTask(room.id.toString(), user.id.toString(), LocalDate.of(2024, 1, 1))
             .andExpect {
                 content {
                     jsonPath("$.id", notNullValue())
                     jsonPath("$.title", equalTo("Test task"))
                     jsonPath("$.content", equalTo("Test content"))
-                    jsonPath("$.deadline", equalTo("2022-07-15"))
+                    jsonPath("$.deadline", equalTo("2024-01-01"))
+                    jsonPath("$.creationDate", equalTo(LocalDate.now().toString()))
                     jsonPath("$.budget", equalTo(10))
                     jsonPath("$.status", equalTo("New"))
                 }
@@ -96,6 +97,40 @@ class TaskControllerTest(
                 }
             }
 
+    }
+
+    @Test
+    fun `create two tasks and expect tasks are sorted by creation date descending`() {
+        val room = roomService.create(NewRoom("Test room"))
+        val user = userService.createUser("Test user")
+        taskService.create(
+            NewTask(
+                title = "Task 1",
+                content = "Test content",
+                deadline = LocalDate.now(),
+                budget = 10,
+                roomId = room.id.toString(),
+                userId = user.id.toString(),
+            )
+        )
+        taskService.create(
+            NewTask(
+                title = "Task 2",
+                content = "Test content",
+                deadline = LocalDate.now(),
+                budget = 10,
+                roomId = room.id.toString(),
+                userId = user.id.toString(),
+            )
+        )
+        mockMvc.get("/room/${room.id}/tasks") {
+            accept = MediaType.APPLICATION_JSON
+        }.andExpect {
+            content {
+                jsonPath("$[0].title", equalTo("Task 2"))
+                jsonPath("$[1].title", equalTo("Task 1"))
+            }
+        }
     }
 
     fun postTask(roomId: String, userId: String, deadline: LocalDate = LocalDate.now()): ResultActionsDsl {

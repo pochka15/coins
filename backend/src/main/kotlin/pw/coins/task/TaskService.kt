@@ -10,6 +10,7 @@ import pw.coins.task.model.toExtended
 import pw.coins.task.validation.TaskDeadline
 import pw.coins.user.UserService
 import java.time.LocalDate
+import java.time.OffsetDateTime
 import javax.validation.constraints.Max
 import javax.validation.constraints.Min
 import javax.validation.constraints.NotBlank
@@ -27,6 +28,7 @@ class TaskService(
             newTask.title,
             newTask.content,
             newTask.deadline,
+            OffsetDateTime.now(),
             newTask.budget,
             TaskStatus.NEW.formatted,
             parseUUID(newTask.roomId),

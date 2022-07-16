@@ -31,7 +31,7 @@ function TaskForm({ onSubmit, errors }) {
   } = useForm({
     defaultValues: {
       roomId: GLOBAL_ROOM_ID,
-      userId: '705b19c5-322f-40cf-9216-244d22bf4d2e'
+      userId: 'df13e9d0-fe45-41f6-bbc2-e51982b71281'
     }
   })
 
