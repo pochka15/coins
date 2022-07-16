@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useMutation, useQueryClient } from 'react-query'
 import {
   Alert,
@@ -16,6 +16,15 @@ import { createTask } from '../../api/tasks'
 import { TASKS_QUERY_KEY } from '../Home'
 
 /**
+ *
+ * @param {Date} date
+ * @return {string} YYYY-MM-DD
+ */
+function formatDeadline(date) {
+  return date.toISOString().substring(0, 10)
+}
+
+/**
  * Component that wraps and submits task form
  * @param {boolean} isOpen
  * @param {function(): void} onClose
@@ -23,13 +32,20 @@ import { TASKS_QUERY_KEY } from '../Home'
  * @constructor
  */
 function NewTask({ isOpen, onClose }) {
+  const [errors, setErrors] = useState(
+    /** @type {FieldError[]} */
+    []
+  )
+
   const mutation = useMutation(
     /** @param {TNewTask} task */
-    task => createTask(task),
+    task => createTask({ ...task, deadline: formatDeadline(task.deadline) }),
     {
       onSuccess: () => {
         queryClient.invalidateQueries(TASKS_QUERY_KEY).then(() => onClose())
-      }
+        setErrors([])
+      },
+      onError: e => setErrors(e.response.data.errors)
     }
   )
 
@@ -42,13 +58,13 @@ function NewTask({ isOpen, onClose }) {
         <ModalHeader>New task</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <TaskForm onSubmit={task => mutation.mutate(task)} />
+          <TaskForm onSubmit={task => mutation.mutate(task)} errors={errors} />
         </ModalBody>
         <ModalFooter>
           {mutation.isError && (
             <Alert status="error">
               <AlertIcon />
-              There was an error when creating a new task: {mutation.error.message}
+              There was an error when creating a new task
             </Alert>
           )}
         </ModalFooter>

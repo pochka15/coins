@@ -1,51 +1,58 @@
 import React, { useEffect } from 'react'
 import {
-  FormControl,
-  FormLabel,
-  NumberInput,
-  Input,
-  NumberInputField,
-  Textarea,
-  Container,
   Button,
-  FormErrorMessage
+  Container,
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
+  Input,
+  NumberInput,
+  NumberInputField,
+  Textarea
 } from '@chakra-ui/react'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { GLOBAL_ROOM_ID } from '../Home'
+import { CustomDatePicker } from './CustomDatePicker'
 
 /**
  *
  * @param {function(TNewTask): void} onSubmit
+ * @param {FieldError[]} errors
  * @return {JSX.Element}
  * @constructor
  */
-function TaskForm({ onSubmit }) {
+function TaskForm({ onSubmit, errors }) {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting }
-  } = useForm()
+    control,
+    setError,
+    formState: { errors: formErrors, isSubmitting }
+  } = useForm({
+    defaultValues: {
+      roomId: GLOBAL_ROOM_ID,
+      userId: '705b19c5-322f-40cf-9216-244d22bf4d2e'
+    }
+  })
 
   useEffect(() => {
-    register('deadline', { value: '2023-12-03' })
-    register('roomId', { value: GLOBAL_ROOM_ID })
-    register('userId', { value: '705b19c5-322f-40cf-9216-244d22bf4d2e' })
-  }, [register])
+    for (const error of errors) {
+      setError(error.fieldName, { message: error.message })
+    }
+  }, [errors])
 
   // noinspection JSValidateTypes
   return (
     <Container maxW="md">
       <form onSubmit={handleSubmit(onSubmit)}>
-        <FormControl mb={8}>
+        <FormControl mb={8} isInvalid={formErrors.title}>
           <FormLabel htmlFor="title">Title</FormLabel>
           <Input
             id="title"
             type="text"
             {...register('title', { minLength: 1, required: true })}
           />
-          <FormErrorMessage>
-            {errors.title && errors.title.message}
-          </FormErrorMessage>
+          <FormErrorMessage>Title is required</FormErrorMessage>
         </FormControl>
 
         <FormControl mb={8}>
@@ -53,7 +60,24 @@ function TaskForm({ onSubmit }) {
           <Textarea id="content" placeholder="" {...register('content')} />
         </FormControl>
 
-        <FormControl mb={8}>
+        <FormControl mb={8} isInvalid={formErrors.deadline}>
+          <FormLabel htmlFor="deadline">Deadline</FormLabel>
+          <Controller
+            control={control}
+            name="deadline"
+            defaultValue={new Date()}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <CustomDatePicker
+                onChange={x => onChange(x)}
+                onBlur={onBlur}
+                selectedDate={value}
+              />
+            )}
+          />
+          <FormErrorMessage>{formErrors.deadline?.message}</FormErrorMessage>
+        </FormControl>
+
+        <FormControl mb={8} isInvalid={formErrors.budget}>
           <FormLabel htmlFor="budget">Budget</FormLabel>
           <NumberInput>
             <NumberInputField
@@ -61,6 +85,9 @@ function TaskForm({ onSubmit }) {
               {...register('budget', { min: 0, required: true })}
             />
           </NumberInput>
+          <FormErrorMessage>
+            Budget must be a non-negative value
+          </FormErrorMessage>
         </FormControl>
 
         <Button mt={4} type="submit" isLoading={isSubmitting}>

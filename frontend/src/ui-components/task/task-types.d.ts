@@ -11,11 +11,25 @@ declare type Task = {
   assigneeUserId: string | null
 }
 
-declare type TNewTask = {
+declare type ApiNewTask = {
   title: string
   content: string
   deadline: string
   budget: number
   roomId: string
   userId: string
+}
+
+declare type TNewTask = {
+  title: string
+  content: string
+  deadline: Date
+  budget: number
+  roomId: string
+  userId: string
+}
+
+declare type FieldError = {
+  fieldName: String
+  message: String
 }

@@ -14,7 +14,7 @@ export function getRoomTasks(roomId) {
 
 /**
  * Create a new task
- * @param {TNewTask} task
+ * @param {ApiNewTask} task
  * @return {Promise<Task>}
  */
 export async function createTask(task) {

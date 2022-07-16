@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import pw.coins.task.model.ExtendedTask
+import javax.validation.Valid
 
 @RestController
 @RequestMapping("/tasks")
@@ -21,7 +22,7 @@ class TaskController(
     }
 
     @PostMapping
-    fun postTask(@RequestBody task: NewTask): TaskData {
+    fun postTask(@RequestBody @Valid task: NewTask): TaskData {
         return taskService.create(task).toData()
     }
 }

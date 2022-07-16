@@ -39,6 +39,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-jooq")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-parent
     implementation(group = "org.springframework.boot", name = "spring-boot-starter-parent", version = "2.4.5")
     implementation("org.springframework.boot:spring-boot-starter-webflux")

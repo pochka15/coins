@@ -84,7 +84,21 @@ class TaskControllerTest(
         }
     }
 
-    fun postTask(roomId: String, userId: String): ResultActionsDsl {
+    @Test
+    fun `create with deadline one day before today EXPECT bad request`() {
+        val room = roomService.create(NewRoom("Test room"))
+        val user = userService.createUser("Test user")
+        postTask(room.id.toString(), user.id.toString(), LocalDate.now().minusDays(1))
+            .andExpect {
+                status { isBadRequest() }
+                content {
+                    jsonPath("$.errors.length()", equalTo(1))
+                }
+            }
+
+    }
+
+    fun postTask(roomId: String, userId: String, deadline: LocalDate = LocalDate.now()): ResultActionsDsl {
         return mockMvc.post("/tasks") {
             contentType = MediaType.APPLICATION_JSON
             accept = MediaType.APPLICATION_JSON
@@ -92,7 +106,7 @@ class TaskControllerTest(
                             {
                               "title": "Test task",
                               "content": "Test content",
-                              "deadline": "${LocalDate.of(2022, 7, 15)}",
+                              "deadline": "$deadline",
                               "budget": 10,
                               "roomId": "$roomId",
                               "userId": "$userId"
