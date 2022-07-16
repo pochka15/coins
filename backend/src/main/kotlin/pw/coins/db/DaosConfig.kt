@@ -19,9 +19,6 @@ class DaosConfig(
     fun walletsDao(): WalletsDao = WalletsDao(configuration)
 
     @Bean
-    fun tasksDao(): TasksDao = TasksDao(configuration)
-
-    @Bean
     fun teamsConversationsDao(): TeamsConversationsDao = TeamsConversationsDao(configuration)
 
     @Bean

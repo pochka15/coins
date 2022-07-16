@@ -1,19 +1,22 @@
 package pw.coins.task
 
 import org.springframework.stereotype.Service
-import pw.coins.db.generated.tables.daos.TasksDao
 import pw.coins.db.generated.tables.pojos.Task
 import pw.coins.db.parseUUID
 import pw.coins.security.UuidSource
+import pw.coins.task.model.ExtendedTask
+import pw.coins.task.model.TasksDao
+import pw.coins.task.model.toExtended
+import pw.coins.user.UserService
 import java.time.LocalDate
-import java.util.UUID
 
 @Service
 class TaskService(
-    private val tasksDao: TasksDao,
+    val tasksDao: TasksDao,
     val uuidSource: UuidSource,
+    val userService: UserService,
 ) {
-    fun create(newTask: NewTask): Task {
+    fun create(newTask: NewTask): ExtendedTask {
         val task = Task(
             uuidSource.genUuid(),
             newTask.title,
@@ -21,8 +24,8 @@ class TaskService(
             newTask.deadline,
             newTask.budget,
             TaskStatus.NEW.formatted,
-            newTask.roomId,
-            newTask.userId,
+            parseUUID(newTask.roomId),
+            parseUUID(newTask.userId),
             null,
         )
         tasksDao.insert(task)
@@ -31,15 +34,15 @@ class TaskService(
             throw Exception("Couldn't create a new task with title ${newTask.title}, returned Id is null")
         }
 
-        return task
+        return task.toExtended(userService.getUserById(newTask.userId)!!.name)
     }
 
-    fun getTask(taskId: String): Task? {
-        return tasksDao.fetchOneById(parseUUID(taskId))
+    fun getTask(taskId: String): ExtendedTask? {
+        return tasksDao.fetchExtendedTaskByTaskId(parseUUID(taskId))
     }
 
-    fun getTasksByRoom(roomId: String): List<Task> {
-        return tasksDao.fetchByRoomId(parseUUID(roomId))
+    fun getTasksByRoom(roomId: String): List<ExtendedTask> {
+        return tasksDao.fetchExtendedTasksByRoomId(parseUUID(roomId))
     }
 
     fun solveTask(taskId: String) {
@@ -48,8 +51,8 @@ class TaskService(
         tasksDao.update(task)
     }
 
-    fun getUserTasks(userId: String): List<Task> {
-        return tasksDao.fetchByAuthorUserId(parseUUID(userId))
+    fun getUserTasks(userId: String): List<ExtendedTask> {
+        return tasksDao.fetchExtendedTasksByAuthorId(parseUUID(userId))
     }
 }
 
@@ -58,8 +61,8 @@ data class NewTask(
     val content: String?,
     val deadline: LocalDate,
     val budget: Int,
-    val roomId: UUID,
-    val userId: UUID,
+    val roomId: String,
+    val userId: String,
 )
 
 /**

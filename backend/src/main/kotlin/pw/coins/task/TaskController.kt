@@ -4,9 +4,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
-import pw.coins.db.generated.tables.pojos.Task
-import java.time.LocalDate
-import java.util.*
+import pw.coins.task.model.ExtendedTask
 
 @RestController
 @RequestMapping("/tasks")
@@ -29,21 +27,29 @@ class TaskController(
 }
 
 data class TaskData(
-    val id: UUID,
+    val id: String,
     val title: String,
     val content: String,
-    val deadline: LocalDate,
+    val deadline: String,
     val budget: Int,
     val status: String,
+    val author: String,
+    val authorUserId: String,
+    val assignee: String?,
+    val assigneeUserId: String?,
 )
 
-fun Task.toData(): TaskData {
+fun ExtendedTask.toData(): TaskData {
     return TaskData(
-        id = id,
+        id = id.toString(),
         title = title,
         content = content,
-        deadline = deadline,
+        deadline = deadline.toString(),
         budget = budget,
         status = status,
+        author = authorName,
+        authorUserId = authorUserId.toString(),
+        assignee = assigneeName,
+        assigneeUserId = assigneeUserId?.toString()
     )
 }

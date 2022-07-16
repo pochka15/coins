@@ -25,9 +25,9 @@ function Home() {
   // noinspection JSValidateTypes
   return (
     !isFetching && (
-      <VStack>
+      <VStack marginTop={8}>
         {tasks.map(task => (
-          <TaskCard key={task.id}>{task.title}</TaskCard>
+          <TaskCard key={task.id} task={task} />
         ))}
       </VStack>
     )
