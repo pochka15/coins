@@ -58,32 +58,6 @@ create table tasks
 );
 
 
-create table teams_conversations
-(
-    id                         varchar(255) not null
-        constraint teams_conversations_pk
-            primary key,
-    raw_conversation_reference text         not null,
-    user_id                    uuid         not null
-        constraint teams_conversations_users_id_fk
-            references users
-);
-
-
-create table teams_users
-(
-    id               varchar(255) not null
-        constraint teams_user_pk
-            primary key,
-    name             text         not null,
-    "aadObjectId"    text,
-    email            varchar(320),
-    original_user_id uuid         not null
-        constraint teams_users_users_id_fk
-            references users
-);
-
-
 create table usos_tokens
 (
     id           uuid                     not null
