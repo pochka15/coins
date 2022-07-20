@@ -13,7 +13,8 @@ function Home() {
     isFetching,
     error
   } = useQuery(TASKS_QUERY_KEY, () => getRoomTasks(GLOBAL_ROOM_ID), {
-    retry: false
+    retry: false,
+    refetchOnWindowFocus: true
   })
 
   if (error)

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Box, Flex, Heading, Icon, Text, HStack } from '@chakra-ui/react'
+import { Box, Flex, Heading, HStack, Icon, Text } from '@chakra-ui/react'
 import { GiTwoCoins } from 'react-icons/gi'
 
 /**
@@ -30,7 +30,7 @@ function TaskCard({ task }) {
           <Text>Unassigned</Text>
         )}
         <HStack>
-          <Text>{task.budget}</Text>
+          <Text>Reward: {task.budget}</Text>
           <Icon as={GiTwoCoins} />
         </HStack>
       </Flex>
