@@ -3,6 +3,7 @@ package pw.coins.security.filters
 import com.auth0.jwt.interfaces.DecodedJWT
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.http.HttpHeaders.AUTHORIZATION
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.authority.SimpleGrantedAuthority
@@ -28,9 +29,10 @@ class BaseAuthorizationFilter(private val jwtService: JwtService) : OncePerReque
                 jwtService.parseToken(header.substringAfter("Bearer "))
             } catch (e: Exception) {
                 response.contentType = APPLICATION_JSON_VALUE
+                response.status = HttpStatus.BAD_REQUEST.value()
                 ObjectMapper().writeValue(
                     response.outputStream,
-                    mapOf("errorMessage" to e.message)
+                    mapOf("errorMessage" to "Error occurred when trying to parse JWT token")
                 )
                 return
             }

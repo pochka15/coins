@@ -26,3 +26,4 @@ server:
 usos:
   apiKey: ${USOS_API_KEY}
   apiSecret: ${USOS_API_SECRET}
+frontend:url: ${FRONTEND_URL}

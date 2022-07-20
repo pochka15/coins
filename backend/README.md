@@ -18,6 +18,7 @@
    DATABASE_URL=postgresql://localhost:5432/coins;
    DATABASE_USERNAME=akashkou;
    TEAMS_BOT_ENDPOINT=http://localhost:9001;
+   FRONTEND_URL=http://localhost:3000;
    USOS_API_SECRET=;
    USOS_API_KEY=;
    JWT_SECRET=;

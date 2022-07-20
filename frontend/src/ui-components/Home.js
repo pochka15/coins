@@ -24,7 +24,9 @@ function Home() {
           <AlertIcon />
           {error.response.status === 403
             ? 'Please login'
-            : `There was an error when creating a new task. ${error.message}`}
+            : `There was an error when creating a new task. ${
+                error.response.data?.errorMessage || error.message
+              }`}
         </Alert>
       </Container>
     )

@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration
 class UsosConfiguration(
     @Value("\${usos.apiKey}") val apiKey: String,
     @Value("\${usos.apiSecret}") val apiSecret: String,
+    @Value("\${frontend.url}") val deploymentUrl: String,
 ) {
     @Bean
     fun oauthService(): OAuth10aService {
@@ -17,7 +18,7 @@ class UsosConfiguration(
             api = UsosApi(),
             apiKey = apiKey,
             apiSecret = apiSecret,
-            callback = "http://localhost:3000/oauth/usos-callback",
+            callback = "$deploymentUrl/oauth/usos-callback",
             scope = "cards|email",
             debugStream = System.out,
             userAgent = null,
