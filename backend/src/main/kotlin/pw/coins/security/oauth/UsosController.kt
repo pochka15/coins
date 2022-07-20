@@ -3,9 +3,11 @@ package pw.coins.security.oauth
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.scribejava.core.oauth.OAuth10aService
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.springframework.http.ResponseEntity
+import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.server.ResponseStatusException
 import org.springframework.web.servlet.view.RedirectView
+import pw.coins.security.JwtService
 import pw.coins.user.UserService
 import pw.coins.usos.UsosService
 
@@ -18,6 +20,7 @@ class UsosController(
     val usosTokenService: UsosTokenService,
     val usosService: UsosService,
     val userService: UserService,
+    val jwtService: JwtService,
 ) {
     @GetMapping("usos")
     fun authorize(): RedirectView {
@@ -27,22 +30,27 @@ class UsosController(
         return RedirectView(authUrl)
     }
 
-    //    TODO remove Any return type and write wrappers form habr that don't return response entity
     @PostMapping("usos-callback")
-    fun obtainAccessToken(@RequestBody payload: CallbackPayload): ResponseEntity<Any> {
+    fun obtainAccessToken(@RequestBody payload: CallbackPayload): JwtData {
         val cachedToken = usosTokenService.getCachedToken(payload.oauthToken)
-            ?: return ResponseEntity.badRequest()
-                .body("Incorrect oauth token given. Couldn't obtain access token")
+            ?: throw ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Incorrect oauth token given. Couldn't obtain access token"
+            )
 
-//        TODO return user data
         val token = oAuthService.getAccessToken(cachedToken, payload.oauthVerifier)
-        val result = usosTokenService.storeAccessToken(token)
-        if (!result) return ResponseEntity.internalServerError().body("Couldn't obtain access token")
+            ?: throw ResponseStatusException(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "Couldn't obtain access token"
+            )
 
         val usosUser = usosService.getUser(token)
-        var user = userService.getUser(usosUser.email)
-        if (user == null) user = userService.createUser("${usosUser.firstName} ${usosUser.lastName}", usosUser.email)
-        return ResponseEntity.ok(user)
+
+        val user = userService.getUser(usosUser.email)
+            ?: userService.createUser("${usosUser.firstName} ${usosUser.lastName}", usosUser.email)
+        usosTokenService.storeAccessToken(token, user.id)
+
+        return JwtData(jwtService.buildToken(user))
     }
 }
 
@@ -51,4 +59,8 @@ data class CallbackPayload(
     val oauthToken: String,
     @JsonProperty("oauth_verifier")
     val oauthVerifier: String
+)
+
+data class JwtData(
+    val jwtToken: String
 )

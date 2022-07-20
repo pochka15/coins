@@ -16,10 +16,12 @@ import org.springframework.test.web.servlet.get
 import pw.coins.db.generated.Tables.*
 import pw.coins.user.UserService
 import pw.coins.db.generated.tables.pojos.Room
+import pw.coins.security.WithMockCustomUser
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
+@WithMockCustomUser
 internal class RoomControllerTest(
     @Autowired val mockMvc: MockMvc,
     @Autowired val roomService: RoomService,

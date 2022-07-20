@@ -29,10 +29,7 @@ function TaskForm({ onSubmit, errors }) {
     setError,
     formState: { errors: formErrors, isSubmitting }
   } = useForm({
-    defaultValues: {
-      roomId: GLOBAL_ROOM_ID,
-      userId: 'df13e9d0-fe45-41f6-bbc2-e51982b71281'
-    }
+    defaultValues: { roomId: GLOBAL_ROOM_ID }
   })
 
   useEffect(() => {

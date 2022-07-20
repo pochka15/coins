@@ -29,15 +29,9 @@ class Auth {
         oauth_verifier: oauthVerifier
       })
     })
-    if (response.ok) {
-      localStorage.setItem(TOKENS_KEY, oauthToken)
-    } else {
-      const error = new Error(
-        'Unable to finish Oauth login.\nServer response status: ' +
-          response.status
-      )
-      error.status = response.status
-    }
+    /** @type {LoginResponse} */
+    const data = await response.json()
+    localStorage.setItem(TOKENS_KEY, data.jwtToken)
   }
 
   logout() {

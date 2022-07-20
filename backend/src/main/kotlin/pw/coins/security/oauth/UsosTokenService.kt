@@ -7,6 +7,7 @@ import pw.coins.db.generated.tables.daos.UsosTokensDao
 import pw.coins.db.generated.tables.pojos.UsosToken
 import pw.coins.security.UuidSource
 import java.time.OffsetDateTime
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 @Service
@@ -16,8 +17,8 @@ class UsosTokenService(
 ) {
     val cache: ConcurrentHashMap<String, OAuth1RequestToken> = ConcurrentHashMap()
 
-    fun getTokenByKey(key: String): UsosToken? {
-        return dao.fetchByKey(key).getOrNull(0)
+    fun getTokenByUserId(id: UUID): UsosToken? {
+        return dao.fetchByUserId(id).getOrNull(0)
     }
 
     fun cacheRequestToken(token: OAuth1RequestToken) {
@@ -28,19 +29,16 @@ class UsosTokenService(
         return cache[key]
     }
 
-    fun storeAccessToken(token: OAuth1AccessToken): Boolean {
-        val model = UsosToken(
-            uuidSource.genUuid(),
-            token.token,
-            token.tokenSecret,
-            OffsetDateTime.now()
+    fun storeAccessToken(token: OAuth1AccessToken, userId: UUID) {
+        getTokenByUserId(userId)?.let { dao.delete(it) }
+        dao.insert(
+            UsosToken(
+                uuidSource.genUuid(),
+                token.token,
+                token.tokenSecret,
+                OffsetDateTime.now(),
+                userId
+            )
         )
-
-        return try {
-            dao.insert(model)
-            true
-        } catch (e: Exception) {
-            return false
-        }
     }
 }

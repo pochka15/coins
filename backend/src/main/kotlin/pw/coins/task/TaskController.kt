@@ -4,8 +4,16 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
+import pw.coins.db.generated.tables.pojos.User
+import pw.coins.security.PrincipalContext
 import pw.coins.task.model.ExtendedTask
+import pw.coins.task.validation.TaskDeadline
+import java.time.LocalDate
 import javax.validation.Valid
+import javax.validation.constraints.Max
+import javax.validation.constraints.Min
+import javax.validation.constraints.NotBlank
+
 
 @RestController
 @RequestMapping("/tasks")
@@ -22,7 +30,20 @@ class TaskController(
     }
 
     @PostMapping
-    fun postTask(@RequestBody @Valid task: NewTask): TaskData {
+    fun postTask(
+        @RequestBody @Valid newTask: NewTaskPayload,
+        @PrincipalContext user: User
+    ): TaskData {
+        val task = newTask.let {
+            NewTask(
+                it.title,
+                it.content,
+                it.deadline,
+                it.budget,
+                it.roomId,
+                user.id.toString(),
+            )
+        }
         return taskService.create(task).toData()
     }
 }
@@ -56,3 +77,14 @@ fun ExtendedTask.toData(): TaskData {
         assigneeUserId = assigneeUserId?.toString()
     )
 }
+
+data class NewTaskPayload(
+    @field:NotBlank
+    val title: String,
+    val content: String?,
+    @field:TaskDeadline
+    val deadline: LocalDate,
+    @field:Min(1) @field:Max(1000_000, message = "Too big budget")
+    val budget: Int,
+    val roomId: String,
+)

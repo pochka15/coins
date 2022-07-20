@@ -16,9 +16,7 @@ class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     fun handleUUIDParseException(exception: UUIDParseException): Any {
-        return object {
-            val message = "Invalid UUID given"
-        }
+        return mapOf("message" to "Invalid UUID given")
     }
 
     @ExceptionHandler(ConstraintViolationException::class)

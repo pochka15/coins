@@ -1,4 +1,4 @@
-import { ColorModeScript } from '@chakra-ui/react'
+import { ColorModeScript, theme, ChakraProvider } from '@chakra-ui/react'
 import React from 'react'
 import App from './App'
 import reportWebVitals from './reportWebVitals'
@@ -15,14 +15,19 @@ const root = createRoot(container)
 root.render(
   <>
     <ColorModeScript />
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<App />} />
-          <Route path={USOS_CALLBACK_ENDPOINT} element={<UsosAuthCallbackPage />} />
-        </Routes>
-      </BrowserRouter>
-    </QueryClientProvider>
+    <ChakraProvider theme={theme}>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<App />} />
+            <Route
+              path={USOS_CALLBACK_ENDPOINT}
+              element={<UsosAuthCallbackPage />}
+            />
+          </Routes>
+        </BrowserRouter>
+      </QueryClientProvider>
+    </ChakraProvider>
   </>
 )
 

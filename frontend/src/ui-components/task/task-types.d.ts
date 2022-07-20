@@ -17,7 +17,6 @@ declare type ApiNewTask = {
   deadline: string
   budget: number
   roomId: string
-  userId: string
 }
 
 declare type TNewTask = {
@@ -26,7 +25,6 @@ declare type TNewTask = {
   deadline: Date
   budget: number
   roomId: string
-  userId: string
 }
 
 declare type FieldError = {

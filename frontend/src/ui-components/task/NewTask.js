@@ -32,10 +32,7 @@ function formatDeadline(date) {
  * @constructor
  */
 function NewTask({ isOpen, onClose }) {
-  const [errors, setErrors] = useState(
-    /** @type {FieldError[]} */
-    []
-  )
+  const [taskErrors, setTaskErrors] = useState(/** @type {FieldError[]} */ [])
 
   const mutation = useMutation(
     /** @param {TNewTask} task */
@@ -43,9 +40,13 @@ function NewTask({ isOpen, onClose }) {
     {
       onSuccess: () => {
         queryClient.invalidateQueries(TASKS_QUERY_KEY).then(() => onClose())
-        setErrors([])
+        setTaskErrors([])
       },
-      onError: e => setErrors(e.response.data.errors)
+      onError: e => {
+        if (e.response.status === 400) {
+          setTaskErrors(e.response.data.errors)
+        }
+      }
     }
   )
 
@@ -58,13 +59,18 @@ function NewTask({ isOpen, onClose }) {
         <ModalHeader>New task</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <TaskForm onSubmit={task => mutation.mutate(task)} errors={errors} />
+          <TaskForm
+            onSubmit={task => mutation.mutate(task)}
+            errors={taskErrors}
+          />
         </ModalBody>
         <ModalFooter>
           {mutation.isError && (
             <Alert status="error">
               <AlertIcon />
-              There was an error when creating a new task
+              {mutation.error.response.status === 403
+                ? "You don't have permissions to create a task"
+                : `There was an error when creating a new task. ${mutation.error.message}`}
             </Alert>
           )}
         </ModalFooter>

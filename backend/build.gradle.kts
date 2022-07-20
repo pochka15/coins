@@ -76,6 +76,7 @@ dependencies {
     implementation("com.github.scribejava:scribejava-core:8.3.1")
     implementation("com.github.scribejava:scribejava-httpclient-okhttp:8.3.1")
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
+    implementation("com.auth0:java-jwt:4.0.0")
 }
 
 tasks.withType<KotlinCompile> {

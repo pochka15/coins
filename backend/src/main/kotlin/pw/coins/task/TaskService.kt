@@ -7,13 +7,9 @@ import pw.coins.security.UuidSource
 import pw.coins.task.model.ExtendedTask
 import pw.coins.task.model.TasksDao
 import pw.coins.task.model.toExtended
-import pw.coins.task.validation.TaskDeadline
 import pw.coins.user.UserService
 import java.time.LocalDate
 import java.time.OffsetDateTime
-import javax.validation.constraints.Max
-import javax.validation.constraints.Min
-import javax.validation.constraints.NotBlank
 
 
 @Service
@@ -64,12 +60,9 @@ class TaskService(
 }
 
 data class NewTask(
-    @field:NotBlank
     val title: String,
     val content: String?,
-    @field:TaskDeadline
     val deadline: LocalDate,
-    @field:Min(1) @field:Max(1000_000, message = "Too big budget")
     val budget: Int,
     val roomId: String,
     val userId: String,

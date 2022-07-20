@@ -91,7 +91,9 @@ create table usos_tokens
             primary key,
     key          varchar                  not null,
     secret       varchar                  not null,
-    created_date timestamp with time zone not null
+    created_date timestamp with time zone not null,
+    user_id      uuid                     not null
+        constraint usos_tokens_users_id_fk references users
 );
 
 

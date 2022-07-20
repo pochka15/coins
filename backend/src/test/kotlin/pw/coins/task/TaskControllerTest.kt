@@ -1,8 +1,6 @@
 package pw.coins.task
 
-import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.CoreMatchers.notNullValue
-import org.hamcrest.CoreMatchers.nullValue
+import org.hamcrest.CoreMatchers.*
 import org.jooq.DSLContext
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -19,12 +17,14 @@ import pw.coins.db.generated.Tables
 import pw.coins.room.NewRoom
 import pw.coins.room.RoomService
 import pw.coins.security.UuidSource
+import pw.coins.security.WithMockCustomUser
 import pw.coins.user.UserService
 import java.time.LocalDate
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
+@WithMockCustomUser
 class TaskControllerTest(
     @Autowired val mockMvc: MockMvc,
     @Autowired val roomService: RoomService,
@@ -37,17 +37,20 @@ class TaskControllerTest(
     @Test
     fun `create task EXPECT correct dto returned`() {
         val room = roomService.create(NewRoom("Test room"))
-        val user = userService.createUser("Test user")
-        postTask(room.id.toString(), user.id.toString(), LocalDate.of(2024, 1, 1))
+        postTask(room.id.toString(), LocalDate.of(2024, 1, 1))
             .andExpect {
                 content {
                     jsonPath("$.id", notNullValue())
                     jsonPath("$.title", equalTo("Test task"))
                     jsonPath("$.content", equalTo("Test content"))
                     jsonPath("$.deadline", equalTo("2024-01-01"))
-                    jsonPath("$.creationDate", equalTo(LocalDate.now().toString()))
+                    jsonPath("$.creationDate", containsString(LocalDate.now().toString()))
                     jsonPath("$.budget", equalTo(10))
                     jsonPath("$.status", equalTo("New"))
+                    jsonPath("$.author", equalTo("Test user"))
+                    jsonPath("$.authorUserId", notNullValue())
+                    jsonPath("$.assignee", nullValue())
+                    jsonPath("$.assigneeUserId", nullValue())
                 }
             }
     }
@@ -88,8 +91,7 @@ class TaskControllerTest(
     @Test
     fun `create with deadline one day before today EXPECT bad request`() {
         val room = roomService.create(NewRoom("Test room"))
-        val user = userService.createUser("Test user")
-        postTask(room.id.toString(), user.id.toString(), LocalDate.now().minusDays(1))
+        postTask(room.id.toString(), LocalDate.now().minusDays(1))
             .andExpect {
                 status { isBadRequest() }
                 content {
@@ -133,7 +135,7 @@ class TaskControllerTest(
         }
     }
 
-    fun postTask(roomId: String, userId: String, deadline: LocalDate = LocalDate.now()): ResultActionsDsl {
+    fun postTask(roomId: String, deadline: LocalDate = LocalDate.now()): ResultActionsDsl {
         return mockMvc.post("/tasks") {
             contentType = MediaType.APPLICATION_JSON
             accept = MediaType.APPLICATION_JSON
@@ -143,8 +145,7 @@ class TaskControllerTest(
                               "content": "Test content",
                               "deadline": "$deadline",
                               "budget": 10,
-                              "roomId": "$roomId",
-                              "userId": "$userId"
+                              "roomId": "$roomId"
                             }
                         """.trimIndent()
         }

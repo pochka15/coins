@@ -15,8 +15,12 @@ logging:
       jooq:
         tools:
           LoggerListener: info
-teamsbot:
-  endpoint: ${TEAMS_BOT_ENDPOINT}
+      springframework:
+        web:
+          filter:
+            org.springframework.web.filter.CommonsRequestLoggingFilter: debug
+jwt:
+  secret: ${JWT_SECRET}
 server:
   port: 8080
 usos:

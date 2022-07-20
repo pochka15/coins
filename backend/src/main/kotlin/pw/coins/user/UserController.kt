@@ -14,6 +14,7 @@ import javax.validation.constraints.Size
 @RequestMapping("/user")
 @Tag(name = "User")
 class UserController(private val userService: UserService) {
+
     @PostMapping
     fun createNewUser(@RequestBody @Valid payload: CreateUserPayload): UserData {
         return userService.createUser(payload.userName).toData()

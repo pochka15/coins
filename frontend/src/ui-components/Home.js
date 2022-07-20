@@ -1,5 +1,5 @@
 import React from 'react'
-import { Alert, AlertIcon, VStack } from '@chakra-ui/react'
+import { Alert, AlertIcon, Container, VStack } from '@chakra-ui/react'
 import TaskCard from './task/TaskCard'
 import { useQuery } from 'react-query'
 import { getRoomTasks } from '../api/tasks'
@@ -12,20 +12,26 @@ function Home() {
     data: tasks,
     isFetching,
     error
-  } = useQuery(TASKS_QUERY_KEY, () => getRoomTasks(GLOBAL_ROOM_ID))
+  } = useQuery(TASKS_QUERY_KEY, () => getRoomTasks(GLOBAL_ROOM_ID), {
+    retry: false
+  })
 
   if (error)
     return (
-      <Alert status="error">
-        <AlertIcon />
-        There was an error when creating a new task: {error.message}
-      </Alert>
+      <Container maxW="sm" mt={8}>
+        <Alert status="error">
+          <AlertIcon />
+          {error.response.status === 403
+            ? 'Please login'
+            : `There was an error when creating a new task. ${error.message}`}
+        </Alert>
+      </Container>
     )
 
   // noinspection JSValidateTypes
   return (
     !isFetching && (
-      <VStack marginTop={8}>
+      <VStack mt={8}>
         {tasks.map(task => (
           <TaskCard key={task.id} task={task} />
         ))}
