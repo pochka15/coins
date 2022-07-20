@@ -24,7 +24,6 @@ declare type TNewTask = {
   content: string
   deadline: Date
   budget: number
-  roomId: string
 }
 
 declare type FieldError = {

@@ -11,7 +11,6 @@ import {
   Textarea
 } from '@chakra-ui/react'
 import { Controller, useForm } from 'react-hook-form'
-import { GLOBAL_ROOM_ID } from '../Home'
 import { CustomDatePicker } from './CustomDatePicker'
 
 /**
@@ -28,9 +27,7 @@ function TaskForm({ onSubmit, errors }) {
     control,
     setError,
     formState: { errors: formErrors, isSubmitting }
-  } = useForm({
-    defaultValues: { roomId: GLOBAL_ROOM_ID }
-  })
+  } = useForm()
 
   useEffect(() => {
     for (const error of errors) {

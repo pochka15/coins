@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react'
 import TaskForm from './TaskForm'
 import { createTask } from '../../api/tasks'
-import { TASKS_QUERY_KEY } from '../Home'
+import { GLOBAL_ROOM_ID, TASKS_QUERY_KEY } from '../Home'
 
 /**
  *
@@ -22,6 +22,21 @@ import { TASKS_QUERY_KEY } from '../Home'
  */
 function formatDeadline(date) {
   return date.toISOString().substring(0, 10)
+}
+
+/**
+ * Converter
+ * @param {TNewTask} task
+ * @return {ApiNewTask}
+ */
+function toApiTask(task) {
+  return {
+    title: task.title,
+    content: task.content,
+    deadline: formatDeadline(task.deadline),
+    budget: task.budget,
+    roomId: GLOBAL_ROOM_ID
+  }
 }
 
 /**
@@ -35,8 +50,7 @@ function NewTask({ isOpen, onClose }) {
   const [taskErrors, setTaskErrors] = useState(/** @type {FieldError[]} */ [])
 
   const mutation = useMutation(
-    /** @param {TNewTask} task */
-    task => createTask({ ...task, deadline: formatDeadline(task.deadline) }),
+    /** @param {TNewTask} task */ task => createTask(toApiTask(task)),
     {
       onSuccess: () => {
         queryClient.invalidateQueries(TASKS_QUERY_KEY).then(() => onClose())
