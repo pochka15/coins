@@ -17,16 +17,17 @@ import { CustomDatePicker } from './CustomDatePicker'
  *
  * @param {function(TNewTask): void} onSubmit
  * @param {FieldError[]} errors
+ * @param isLoading
  * @return {JSX.Element}
  * @constructor
  */
-function TaskForm({ onSubmit, errors }) {
+function TaskForm({ onSubmit, errors, isLoading }) {
   const {
     register,
     handleSubmit,
     control,
     setError,
-    formState: { errors: formErrors, isSubmitting }
+    formState: { errors: formErrors }
   } = useForm()
 
   useEffect(() => {
@@ -84,7 +85,7 @@ function TaskForm({ onSubmit, errors }) {
           </FormErrorMessage>
         </FormControl>
 
-        <Button mt={4} type="submit" isLoading={isSubmitting}>
+        <Button mt={4} type="submit" isLoading={isLoading}>
           Submit
         </Button>
       </form>

@@ -76,6 +76,7 @@ function NewTask({ isOpen, onClose }) {
           <TaskForm
             onSubmit={task => mutation.mutate(task)}
             errors={taskErrors}
+            isLoading={mutation.isLoading}
           />
         </ModalBody>
         <ModalFooter>
