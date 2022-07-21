@@ -153,20 +153,11 @@ class TaskControllerTest(
 
     @AfterEach
     fun cleanup() {
-        dslContext
-            .deleteFrom(Tables.MEMBERS)
-            .execute()
-
-        dslContext
-            .deleteFrom(Tables.TASKS)
-            .execute()
-
-        dslContext
-            .deleteFrom(Tables.ROOMS)
-            .execute()
-
-        dslContext
-            .deleteFrom(Tables.USERS)
-            .execute()
+        with(dslContext) {
+            deleteFrom(Tables.MEMBERS).execute()
+            deleteFrom(Tables.TASKS).execute()
+            deleteFrom(Tables.ROOMS).execute()
+            deleteFrom(Tables.USERS).execute()
+        }
     }
 }

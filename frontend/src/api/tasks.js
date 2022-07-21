@@ -3,7 +3,7 @@ import auth from '../security/auth'
 /**
  * Get room tasks by room id
  * @param {string} roomId
- * @return {Promise<Task[]>}
+ * @return {Promise<ApiTask[]>}
  */
 export function getRoomTasks(roomId) {
   return auth
@@ -15,7 +15,7 @@ export function getRoomTasks(roomId) {
 /**
  * Create a new task
  * @param {ApiNewTask} task
- * @return {Promise<Task>}
+ * @return {Promise<ApiTask>}
  */
 export async function createTask(task) {
   return auth

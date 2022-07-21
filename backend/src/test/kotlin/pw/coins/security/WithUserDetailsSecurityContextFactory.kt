@@ -13,7 +13,7 @@ class WithUserDetailsSecurityContextFactory(
 ) : WithSecurityContextFactory<WithMockCustomUser> {
 
     override fun createSecurityContext(withUser: WithMockCustomUser): SecurityContext {
-        val user = userService.createUser("Test user", "test-email@gmail.com")
+        val user = userService.createUser(withUser.username, withUser.email)
         val authorities = mutableListOf(SimpleGrantedAuthority("USER"))
         val principal = CustomUserDetails(
             user.name,

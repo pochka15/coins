@@ -16,7 +16,7 @@ create table users
 
 create table members
 (
-    id      bigserial
+    id uuid
         primary key,
     user_id uuid not null
         constraint members_users_fk
@@ -29,7 +29,7 @@ create table members
 
 create table member_role
 (
-    member_id bigint not null
+    member_id uuid not null
         constraint member_role_members_fk
             references members,
     roles     varchar(255)
@@ -39,7 +39,7 @@ create table member_role
 create table tasks
 (
     id               uuid
-        constraint tasks_pk primary key,
+        primary key,
     title            varchar(255)             not null,
     content          text,
     deadline         date                     not null,
@@ -79,10 +79,9 @@ create table wallets
     id           uuid
         primary key,
     coins_amount integer not null,
-    name         varchar(255),
-    owner_id     uuid    not null
-        constraint fkd516f3xp7i3dfxiysb07g76wi
-            references users
+    member_id    uuid    not null
+        constraint wallets_members_id_fk
+            references members
 );
 
 

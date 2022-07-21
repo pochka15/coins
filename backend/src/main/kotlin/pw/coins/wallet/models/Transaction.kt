@@ -1,4 +1,4 @@
-package pw.coins.user.wallet.models
+package pw.coins.wallet.models
 
 import java.util.*
 

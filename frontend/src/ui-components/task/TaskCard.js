@@ -4,7 +4,7 @@ import { GiTwoCoins } from 'react-icons/gi'
 
 /**
  * Card representing task
- * @param {Task} task
+ * @param {ApiTask} task
  * @return {JSX.Element}
  * @constructor
  */

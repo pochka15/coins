@@ -13,7 +13,8 @@ import {
 } from '@chakra-ui/react'
 import TaskForm from './TaskForm'
 import { createTask } from '../../api/tasks'
-import { GLOBAL_ROOM_ID, TASKS_QUERY_KEY } from '../Home'
+import { GLOBAL_ROOM_ID, TASKS_QUERY_KEY } from '../TasksFeed'
+import { extractErrorMessage } from '../../api/api-utils'
 
 /**
  *
@@ -47,7 +48,7 @@ function toApiTask(task) {
  * @constructor
  */
 function NewTask({ isOpen, onClose }) {
-  const [taskErrors, setTaskErrors] = useState(/** @type {FieldError[]} */ [])
+  const [taskErrors, setTaskErrors] = useState(/** @type {TFieldError[]} */ [])
 
   const mutation = useMutation(
     /** @param {TNewTask} task */ task => createTask(toApiTask(task)),
@@ -85,7 +86,8 @@ function NewTask({ isOpen, onClose }) {
               <AlertIcon />
               {mutation.error.response.status === 403
                 ? "You don't have permissions to create a task"
-                : `There was an error when creating a new task. ${mutation.error.message}`}
+                : extractErrorMessage(mutation.error) ||
+                  `There was an error when creating a new task`}
             </Alert>
           )}
         </ModalFooter>

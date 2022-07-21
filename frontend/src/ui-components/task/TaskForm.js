@@ -16,7 +16,7 @@ import { CustomDatePicker } from './CustomDatePicker'
 /**
  *
  * @param {function(TNewTask): void} onSubmit
- * @param {FieldError[]} errors
+ * @param {TFieldError[]} errors
  * @param isLoading
  * @return {JSX.Element}
  * @constructor

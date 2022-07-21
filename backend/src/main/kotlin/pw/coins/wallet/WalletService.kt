@@ -1,14 +1,24 @@
-package pw.coins.user.wallet
+package pw.coins.wallet
 
 import org.springframework.stereotype.Service
 import pw.coins.db.generated.tables.daos.WalletsDao
 import pw.coins.db.generated.tables.pojos.Wallet
 import pw.coins.db.parseUUID
+import pw.coins.room.model.MemberWithWallet
+import pw.coins.room.model.MembersDao
 import pw.coins.security.UuidSource
-import pw.coins.user.wallet.models.Transaction
+import pw.coins.wallet.models.Transaction
+import java.util.*
+import javax.validation.constraints.Max
+import javax.validation.constraints.Min
+import javax.validation.constraints.NotBlank
 
 @Service
-class WalletService(val walletsDao: WalletsDao, val uuidSource: UuidSource) {
+class WalletService(
+    val walletsDao: WalletsDao,
+    val uuidSource: UuidSource,
+    val membersDao: MembersDao,
+) {
     fun getWalletById(id: String): Wallet? {
         return walletsDao.findById(parseUUID(id))
     }
@@ -17,20 +27,14 @@ class WalletService(val walletsDao: WalletsDao, val uuidSource: UuidSource) {
         val wallet = Wallet(
             uuidSource.genUuid(),
             newWallet.coinsAmount,
-            newWallet.name,
-            parseUUID(newWallet.ownerId)
+            parseUUID(newWallet.memberId)
         )
         walletsDao.insert(wallet)
-
-        if (wallet.id == null) {
-            throw Exception("Couldn't create wallet with the name ${newWallet.name} = ${wallet.id}, returned Id is null")
-        }
-
         return wallet
     }
 
-    fun getUserWallets(userId: String): List<Wallet> {
-        return walletsDao.fetchByOwnerId(parseUUID(userId))
+    fun getWalletByRoomIdAndUserId(roomId: String, userId: String): MemberWithWallet? {
+        return membersDao.fetchByRoomIdAndUserIdJoiningWallet(UUID.fromString(userId), UUID.fromString(roomId))
     }
 
     /**
@@ -63,5 +67,10 @@ class WalletService(val walletsDao: WalletsDao, val uuidSource: UuidSource) {
     }
 }
 
-data class NewWallet(val name: String, val coinsAmount: Int, val ownerId: String)
+data class NewWallet(
+    @field:Min(1) @field:Max(1000_000, message = "Too big amount of coins")
+    val coinsAmount: Int,
+    @field:NotBlank
+    val memberId: String,
+)
 

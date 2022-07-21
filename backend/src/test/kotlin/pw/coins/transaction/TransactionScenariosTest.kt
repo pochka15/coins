@@ -3,7 +3,7 @@ package pw.coins.transaction
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import pw.coins.user.UserService
-import pw.coins.user.wallet.WalletService
+import pw.coins.wallet.WalletService
 
 @SpringBootTest
 class TransactionScenariosTest(

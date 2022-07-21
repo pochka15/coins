@@ -30,13 +30,13 @@ class RoomController(
         return roomService.addMember(member).toData(user.name)
     }
 
-    @GetMapping("/{id}/members")
-    fun roomMembers(@PathVariable id: String): List<MemberData> {
-        return roomService.getMembersByRoom(id).map { it.toData() }
+    @GetMapping("/{roomId}/members")
+    fun roomMembers(@PathVariable roomId: String): List<MemberData> {
+        return roomService.getMembersByRoom(roomId).map { it.toData() }
     }
 
-    @DeleteMapping("/{id}/members/{memberId}")
-    fun removeMember(@PathVariable id: Long, @PathVariable memberId: Long) {
+    @DeleteMapping("/{roomId}/members/{memberId}")
+    fun removeMember(@PathVariable roomId: String, @PathVariable memberId: String) {
         roomService.removeMemberById(memberId)
     }
 

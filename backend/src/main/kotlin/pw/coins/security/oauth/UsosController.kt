@@ -7,9 +7,16 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.springframework.web.servlet.view.RedirectView
+import pw.coins.db.generated.tables.pojos.User
+import pw.coins.room.GLOBAL_ROOM_ID
+import pw.coins.room.NewMember
+import pw.coins.room.RoomService
 import pw.coins.security.JwtService
 import pw.coins.user.UserService
 import pw.coins.usos.UsosService
+import pw.coins.usos.UsosUser
+import pw.coins.wallet.NewWallet
+import pw.coins.wallet.WalletService
 
 
 @RestController
@@ -21,6 +28,8 @@ class UsosController(
     val usosService: UsosService,
     val userService: UserService,
     val jwtService: JwtService,
+    val roomService: RoomService,
+    val walletService: WalletService,
 ) {
     @GetMapping("usos")
     fun authorize(): RedirectView {
@@ -45,12 +54,20 @@ class UsosController(
             )
 
         val usosUser = usosService.getUser(token)
-
-        val user = userService.getUser(usosUser.email)
-            ?: userService.createUser("${usosUser.firstName} ${usosUser.lastName}", usosUser.email)
+        val user = userService.getUser(usosUser.email) ?: runNewUserScenario(usosUser)
         usosTokenService.storeAccessToken(token, user.id)
 
         return JwtData(jwtService.buildToken(user))
+    }
+
+    /**
+     * Scenario that is executed when user hasn't been created yet
+     */
+    private fun runNewUserScenario(usosUser: UsosUser): User {
+        val user = userService.createUser("${usosUser.firstName} ${usosUser.lastName}", usosUser.email)
+        val member = roomService.addMember(NewMember(user.id.toString(), GLOBAL_ROOM_ID))
+        walletService.createWallet(NewWallet(0, member.id.toString()))
+        return user
     }
 }
 

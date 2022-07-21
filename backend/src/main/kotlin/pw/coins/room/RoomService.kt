@@ -6,9 +6,12 @@ import pw.coins.db.generated.tables.daos.UsersDao
 import pw.coins.db.generated.tables.pojos.Member
 import pw.coins.db.generated.tables.pojos.Room
 import pw.coins.db.parseUUID
-import pw.coins.room.model.UserWithMember
 import pw.coins.room.model.MembersDao
+import pw.coins.room.model.UserWithMember
 import pw.coins.security.UuidSource
+import java.util.*
+
+const val GLOBAL_ROOM_ID = "a6041b05-ebb9-4ff0-9b6b-d915d573afb2"
 
 @Service
 class RoomService(
@@ -24,16 +27,11 @@ class RoomService(
     }
 
     fun addMember(newMember: NewMember): Member {
-        val member = Member(null, parseUUID(newMember.associatedUserId), parseUUID(newMember.roomId))
+        val member = Member(uuidSource.genUuid(), parseUUID(newMember.associatedUserId), parseUUID(newMember.roomId))
         usersDao.fetchOneById(parseUUID(newMember.associatedUserId))
             ?: throw Exception("Cannot create a member with non-existing associated user id = ${newMember.associatedUserId}")
 
         membersDao.insert(member)
-
-        if (member.id == null) {
-            throw Exception("Couldn't create member for user with an id = ${newMember.associatedUserId}")
-        }
-
         return member
     }
 
@@ -41,8 +39,8 @@ class RoomService(
         return membersDao.fetchByRoomIdJoiningUser(parseUUID(roomId))
     }
 
-    fun removeMemberById(memberId: Long) {
-        membersDao.deleteById(memberId)
+    fun removeMemberById(memberId: String) {
+        membersDao.deleteById(UUID.fromString(memberId))
     }
 }
 
