@@ -2,7 +2,8 @@ package pw.coins.room.model
 
 import org.jooq.Configuration
 import org.springframework.stereotype.Component
-import pw.coins.db.generated.Tables.*
+import pw.coins.db.generated.Tables.MEMBERS
+import pw.coins.db.generated.Tables.USERS
 import pw.coins.db.generated.tables.pojos.Member
 import java.util.*
 import pw.coins.db.generated.tables.daos.MembersDao as OriginalDao
@@ -46,24 +47,5 @@ class MembersDao(
                     member.into(Member::class.java)
                 )
             }
-    }
-
-    fun fetchByRoomIdAndUserIdJoiningWallet(userId: UUID, roomId: UUID): MemberWithWallet? {
-        return ctx()
-            .select()
-            .from(MEMBERS.join(WALLETS).on(WALLETS.MEMBER_ID.eq(MEMBERS.ID)))
-            .where(MEMBERS.USER_ID.eq(userId).and(MEMBERS.ROOM_ID.eq(roomId)))
-            .fetchOne {
-                val member = it.into(MEMBERS)
-                val wallet = it.into(WALLETS)
-                MemberWithWallet(
-                    member.id,
-                    member.userId,
-                    member.roomId,
-                    wallet.id,
-                    wallet.coinsAmount
-                )
-            }
-
     }
 }

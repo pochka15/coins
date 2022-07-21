@@ -12,10 +12,6 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import pw.coins.db.generated.Tables
-import pw.coins.db.generated.tables.pojos.Member
-import pw.coins.db.generated.tables.pojos.Room
-import pw.coins.db.generated.tables.pojos.User
-import pw.coins.db.generated.tables.pojos.Wallet
 import pw.coins.room.NewMember
 import pw.coins.room.NewRoom
 import pw.coins.room.RoomService
@@ -35,16 +31,43 @@ internal class WalletControllerTest(
 
     @WithMockCustomUser
     @Test
-    fun `crete wallet EXPECT correct amount returned`() {
-        val sandbox = buildSandbox("Test", "test-email@gmail.com", 10)
-        mockMvc.get("/wallet?roomId=${sandbox.room.id}") {
+    fun `create wallet EXPECT correct amount returned`() {
+//        --- Sandbox
+        val room = roomService.create(NewRoom("Test"))
+        val user = userService.getUser("test-email@gmail.com")!!
+        val member = roomService.addMember(NewMember(user.id.toString(), room.id.toString()))
+        val wallet = walletService.createWallet(NewWallet(10, member.id.toString()))
+//        --- End Sandbox
+
+        mockMvc.get("/wallet?roomId=${room.id}") {
             accept = MediaType.APPLICATION_JSON
         }.andExpect {
             content {
-                jsonPath("$.coinsAmount", equalTo(sandbox.wallet.coinsAmount))
+                jsonPath("$.coinsAmount", equalTo(wallet.coinsAmount))
             }
         }
+    }
 
+    @WithMockCustomUser
+    @Test
+    fun `create a wallet for another user EXPECT no read permissions`() {
+//        --- Sandbox
+        val room = roomService.create(NewRoom("Test"))
+
+//        User 1
+        val user = userService.getUser("test-email@gmail.com")!!
+        roomService.addMember(NewMember(user.id.toString(), room.id.toString()))
+
+//        User 2
+        val user2 = userService.createUser("Test user 2", "test-email2@gmail.com")
+        val member2 = roomService.addMember(NewMember(user2.id.toString(), room.id.toString()))
+        val wallet2 = walletService.createWallet(NewWallet(10, member2.id.toString()))
+//        --- End Sandbox
+
+
+        mockMvc.get("/wallet/${wallet2.id}") {
+            accept = MediaType.APPLICATION_JSON
+        }.andExpect { status { isForbidden() } }
     }
 
     @AfterEach
@@ -57,18 +80,4 @@ internal class WalletControllerTest(
         }
     }
 
-    private fun buildSandbox(roomName: String, userEmail: String, coinsAmount: Int): Sandbox {
-        val room = roomService.create(NewRoom(roomName))
-        val user = userService.getUser(userEmail)!!
-        val member = roomService.addMember(NewMember(user.id.toString(), room.id.toString()))
-        val wallet = walletService.createWallet(NewWallet(coinsAmount, member.id.toString()))
-        return Sandbox(user, room, member, wallet)
-    }
 }
-
-data class Sandbox(
-    val user: User,
-    val room: Room,
-    val member: Member,
-    val wallet: Wallet,
-)

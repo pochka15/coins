@@ -1,8 +1,8 @@
-package pw.coins.room.model
+package pw.coins.wallet.models
 
 import java.util.*
 
-data class MemberWithWallet(
+data class ExtendedWallet(
     val memberId: UUID,
     val userId: UUID,
     val roomId: UUID,

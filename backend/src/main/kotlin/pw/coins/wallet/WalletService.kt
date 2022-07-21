@@ -1,13 +1,12 @@
 package pw.coins.wallet
 
 import org.springframework.stereotype.Service
-import pw.coins.db.generated.tables.daos.WalletsDao
 import pw.coins.db.generated.tables.pojos.Wallet
 import pw.coins.db.parseUUID
-import pw.coins.room.model.MemberWithWallet
-import pw.coins.room.model.MembersDao
 import pw.coins.security.UuidSource
+import pw.coins.wallet.models.ExtendedWallet
 import pw.coins.wallet.models.Transaction
+import pw.coins.wallet.models.WalletsDao
 import java.util.*
 import javax.validation.constraints.Max
 import javax.validation.constraints.Min
@@ -17,10 +16,9 @@ import javax.validation.constraints.NotBlank
 class WalletService(
     val walletsDao: WalletsDao,
     val uuidSource: UuidSource,
-    val membersDao: MembersDao,
 ) {
-    fun getWalletById(id: String): Wallet? {
-        return walletsDao.findById(parseUUID(id))
+    fun getWalletById(id: String): ExtendedWallet? {
+        return walletsDao.fetchExtendedWalletById(parseUUID(id))
     }
 
     fun createWallet(newWallet: NewWallet): Wallet {
@@ -33,8 +31,8 @@ class WalletService(
         return wallet
     }
 
-    fun getWalletByRoomIdAndUserId(roomId: String, userId: String): MemberWithWallet? {
-        return membersDao.fetchByRoomIdAndUserIdJoiningWallet(UUID.fromString(userId), UUID.fromString(roomId))
+    fun getWalletByRoomIdAndUserId(roomId: String, userId: String): ExtendedWallet? {
+        return walletsDao.fetchByUserIdAndRoomId(UUID.fromString(userId), UUID.fromString(roomId))
     }
 
     /**
