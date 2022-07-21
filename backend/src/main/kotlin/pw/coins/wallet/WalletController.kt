@@ -31,16 +31,11 @@ class WalletController(val walletService: WalletService) {
 
     @GetMapping
     fun walletByRoomId(@RequestParam roomId: String, @PrincipalContext user: User): WalletData {
-        val wallet = walletService.getWalletByRoomIdAndUserId(roomId, user.id.toString())
+        return walletService.getWalletByRoomIdAndUserId(roomId, user.id.toString())?.toData()
             ?: throw ResponseStatusException(
                 BAD_REQUEST,
                 "Couldn't find a wallet for the user '${user.name}' in the roomId = $roomId"
             )
-        if (wallet.userId != user.id) {
-            throw ResponseStatusException(HttpStatus.FORBIDDEN, "You don't have permissions to get the wallet")
-        }
-        return wallet.toData()
-
     }
 }
 

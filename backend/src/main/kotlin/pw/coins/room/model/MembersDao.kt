@@ -48,4 +48,12 @@ class MembersDao(
                 )
             }
     }
+
+    fun fetchByUserIdAndRoomId(userId: UUID, roomId: UUID): Member? {
+        return ctx()
+            .select()
+            .from(MEMBERS)
+            .where(MEMBERS.USER_ID.eq(userId).and(MEMBERS.ROOM_ID.eq(roomId)))
+            .fetchOneInto(Member::class.java)
+    }
 }

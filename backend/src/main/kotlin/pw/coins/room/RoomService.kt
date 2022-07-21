@@ -1,15 +1,14 @@
 package pw.coins.room
 
 import org.springframework.stereotype.Service
-import pw.coins.db.generated.tables.daos.RoomsDao
 import pw.coins.db.generated.tables.daos.UsersDao
 import pw.coins.db.generated.tables.pojos.Member
 import pw.coins.db.generated.tables.pojos.Room
 import pw.coins.db.parseUUID
 import pw.coins.room.model.MembersDao
+import pw.coins.room.model.RoomsDao
 import pw.coins.room.model.UserWithMember
 import pw.coins.security.UuidSource
-import java.util.*
 
 const val GLOBAL_ROOM_ID = "a6041b05-ebb9-4ff0-9b6b-d915d573afb2"
 
@@ -40,7 +39,15 @@ class RoomService(
     }
 
     fun removeMemberById(memberId: String) {
-        membersDao.deleteById(UUID.fromString(memberId))
+        membersDao.deleteById(parseUUID(memberId))
+    }
+
+    fun getMember(userId: String, roomId: String): Member? {
+        return membersDao.fetchByUserIdAndRoomId(parseUUID(userId), parseUUID(roomId))
+    }
+
+    fun getRoomByMemberId(memberId: String): Room? {
+        return roomsDao.fetchRoomByMemberId(parseUUID(memberId))
     }
 }
 

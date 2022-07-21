@@ -7,7 +7,6 @@ import pw.coins.security.UuidSource
 import pw.coins.wallet.models.ExtendedWallet
 import pw.coins.wallet.models.Transaction
 import pw.coins.wallet.models.WalletsDao
-import java.util.*
 import javax.validation.constraints.Max
 import javax.validation.constraints.Min
 import javax.validation.constraints.NotBlank
@@ -32,7 +31,7 @@ class WalletService(
     }
 
     fun getWalletByRoomIdAndUserId(roomId: String, userId: String): ExtendedWallet? {
-        return walletsDao.fetchByUserIdAndRoomId(UUID.fromString(userId), UUID.fromString(roomId))
+        return walletsDao.fetchByUserIdAndRoomId(parseUUID(userId), parseUUID(roomId))
     }
 
     /**

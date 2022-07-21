@@ -1,10 +1,12 @@
 package pw.coins.task
 
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatus.BAD_REQUEST
+import org.springframework.http.HttpStatus.FORBIDDEN
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import pw.coins.db.generated.tables.pojos.User
+import pw.coins.room.RoomService
 import pw.coins.security.PrincipalContext
 import pw.coins.task.model.ExtendedTask
 import pw.coins.task.validation.TaskDeadline
@@ -20,12 +22,22 @@ import javax.validation.constraints.NotBlank
 @Tag(name = "Task")
 class TaskController(
     private val taskService: TaskService,
+    private val roomService: RoomService,
 ) {
 
     @GetMapping("/{task_id}")
-    fun getTask(@PathVariable("task_id") id: String): TaskData? {
+    fun getTask(
+        @PathVariable("task_id") id: String,
+        @PrincipalContext user: User
+    ): TaskData? {
         val task = taskService.getTask(id)
-            ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Couldn't find task with id: $id")
+            ?: throw ResponseStatusException(BAD_REQUEST, "Couldn't find task with id: $id")
+
+        val room = roomService.getRoomByMemberId(task.authorMemberId.toString())!!
+
+        roomService.getMember(user.id.toString(), room.id.toString())
+            ?: throw ResponseStatusException(FORBIDDEN, "You are not a member of a room where task has been created")
+
         return task.toData()
     }
 
@@ -44,7 +56,11 @@ class TaskController(
                 user.id.toString(),
             )
         }
-        return taskService.create(task).toData()
+        return try {
+            taskService.create(task).toData()
+        } catch (e: MemberNotFoundException) {
+            throw ResponseStatusException(FORBIDDEN, e.message)
+        }
     }
 }
 
@@ -57,9 +73,9 @@ data class TaskData(
     val budget: Int,
     val status: String,
     val author: String,
-    val authorUserId: String,
+    val authorMemberId: String,
     val assignee: String?,
-    val assigneeUserId: String?,
+    val assigneeMemberId: String?,
 )
 
 fun ExtendedTask.toData(): TaskData {
@@ -72,9 +88,9 @@ fun ExtendedTask.toData(): TaskData {
         budget = budget,
         status = status,
         author = authorName,
-        authorUserId = authorUserId.toString(),
+        authorMemberId = authorMemberId.toString(),
         assignee = assigneeName,
-        assigneeUserId = assigneeUserId?.toString()
+        assigneeMemberId = assigneeMemberId?.toString()
     )
 }
 

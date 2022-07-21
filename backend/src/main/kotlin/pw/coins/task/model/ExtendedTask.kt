@@ -13,8 +13,8 @@ data class ExtendedTask(
     val creationDate: OffsetDateTime,
     val budget: Int,
     val status: String,
-    val authorUserId: UUID,
-    val assigneeUserId: UUID?,
+    val authorMemberId: UUID,
+    val assigneeMemberId: UUID?,
     val authorName: String,
     val assigneeName: String?,
 )
@@ -28,8 +28,8 @@ fun Task.toExtended(authorName: String, assigneeName: String? = null): ExtendedT
         creationDate = creationDate,
         budget = budget,
         status = status,
-        authorUserId = authorUserId,
-        assigneeUserId = assigneeUserId,
+        authorMemberId = authorMemberId,
+        assigneeMemberId = assigneeMemberId,
         authorName = authorName,
         assigneeName = assigneeName,
     )

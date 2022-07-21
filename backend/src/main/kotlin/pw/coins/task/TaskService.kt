@@ -3,6 +3,7 @@ package pw.coins.task
 import org.springframework.stereotype.Service
 import pw.coins.db.generated.tables.pojos.Task
 import pw.coins.db.parseUUID
+import pw.coins.room.RoomService
 import pw.coins.security.UuidSource
 import pw.coins.task.model.ExtendedTask
 import pw.coins.task.model.TasksDao
@@ -17,8 +18,13 @@ class TaskService(
     val tasksDao: TasksDao,
     val uuidSource: UuidSource,
     val userService: UserService,
+    val roomService: RoomService,
 ) {
     fun create(newTask: NewTask): ExtendedTask {
+        val member = kotlin.runCatching {
+            roomService.getMember(newTask.userId, newTask.roomId)
+        }.getOrNull() ?: throw MemberNotFoundException("You are not a member of the given room")
+
         val task = Task(
             uuidSource.genUuid(),
             newTask.title,
@@ -28,7 +34,7 @@ class TaskService(
             newTask.budget,
             TaskStatus.NEW.formatted,
             parseUUID(newTask.roomId),
-            parseUUID(newTask.userId),
+            member.id,
             null,
         )
         tasksDao.insert(task)
@@ -54,7 +60,7 @@ class TaskService(
         tasksDao.update(task)
     }
 
-    fun getUserTasks(userId: String): List<ExtendedTask> {
+    fun getMemberTasks(userId: String): List<ExtendedTask> {
         return tasksDao.fetchExtendedTasksByAuthorId(parseUUID(userId))
     }
 }
@@ -77,3 +83,5 @@ enum class TaskStatus(value: String) {
 
     val formatted = value
 }
+
+class MemberNotFoundException(message: String?) : Exception(message)
