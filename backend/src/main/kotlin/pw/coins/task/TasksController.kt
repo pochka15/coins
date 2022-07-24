@@ -1,6 +1,7 @@
 package pw.coins.task
 
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.hibernate.validator.constraints.Length
 import org.springframework.http.HttpStatus.*
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
@@ -119,6 +120,7 @@ fun ExtendedTask.toData(): TaskData {
 data class NewTaskPayload(
     @field:NotBlank
     val title: String,
+    @field:Length(max = 1000, message = "Maximum 1000 characters is allowed in the content")
     val content: String?,
     @field:TaskDeadline
     val deadline: LocalDate,

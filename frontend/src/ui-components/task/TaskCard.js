@@ -24,6 +24,7 @@ import { assignTask } from '../../api/tasks'
 import { GLOBAL_ROOM_ID, TASKS_QUERY_KEY } from '../TasksFeed'
 import { extractErrorMessage } from '../../api/api-utils'
 import { getMember } from '../../api/room'
+import { MarkdownContent } from './MarkdownContent'
 
 function TaskAssigmentModal({ isOpen, onClose, taskId }) {
   const queryClient = useQueryClient()
@@ -110,6 +111,7 @@ function TaskCard({ task }) {
         <Heading as="h3" size="lg" noOfLines={1}>
           {`${task.title}`}
         </Heading>
+        <MarkdownContent value={task.content} />
         <Flex justifyContent="space-between" alignItems="center" marginTop={4}>
           <Text>Deadline: {task.deadline}</Text>
           <Text>Author: {task.author}</Text>
