@@ -1,6 +1,11 @@
 package pw.coins.wallet
 
+import org.jooq.Configuration
+import org.jooq.DSLContext
 import org.springframework.stereotype.Service
+import pw.coins.db.generated.Tables.COINS_LOCKS
+import pw.coins.db.generated.Tables.WALLETS
+import pw.coins.db.generated.tables.pojos.CoinsLock
 import pw.coins.db.generated.tables.pojos.Wallet
 import pw.coins.db.parseUUID
 import pw.coins.security.UuidSource
@@ -15,9 +20,14 @@ import javax.validation.constraints.NotBlank
 class WalletService(
     val walletsDao: WalletsDao,
     val uuidSource: UuidSource,
+    val dslContext: DSLContext,
 ) {
     fun getWalletById(id: String): ExtendedWallet? {
         return walletsDao.fetchExtendedWalletById(parseUUID(id))
+    }
+
+    fun getWalletByMemberId(id: String): Wallet? {
+        return walletsDao.fetchByMemberId(parseUUID(id)).getOrNull(0)
     }
 
     fun createWallet(newWallet: NewWallet): Wallet {
@@ -32,6 +42,30 @@ class WalletService(
 
     fun getWalletByRoomIdAndUserId(roomId: String, userId: String): ExtendedWallet? {
         return walletsDao.fetchByUserIdAndRoomId(parseUUID(userId), parseUUID(roomId))
+    }
+
+    /**
+     * This method is primarily made to lock coins when creating a new task
+     */
+    fun lockCoins(wallet: Wallet, taskId: String, coinsAmount: Int) {
+        val newAmount = wallet.coinsAmount - coinsAmount
+        if (newAmount < 0) throw NotEnoughCoinsException("You don't have enough coins to create a task")
+
+        dslContext.transaction { c: Configuration ->
+            with(c.dsl()) {
+                executeInsert(
+                    newRecord(
+                        COINS_LOCKS,
+                        CoinsLock(uuidSource.genUuid(), newAmount, wallet.id, parseUUID(taskId))
+                    )
+                )
+                executeUpdate(newRecord(
+                    WALLETS,
+                    wallet.also { it.coinsAmount = newAmount }
+                )
+                )
+            }
+        }
     }
 
     /**
@@ -70,4 +104,8 @@ data class NewWallet(
     @field:NotBlank
     val memberId: String,
 )
+
+class WalletNotFoundException(message: String?) : RuntimeException(message)
+class NotEnoughCoinsException(message: String?) : RuntimeException(message)
+
 

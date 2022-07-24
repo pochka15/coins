@@ -9,6 +9,8 @@ import pw.coins.room.RoomService
 import pw.coins.security.PrincipalContext
 import pw.coins.task.model.ExtendedTask
 import pw.coins.task.validation.TaskDeadline
+import pw.coins.wallet.NotEnoughCoinsException
+import pw.coins.wallet.WalletNotFoundException
 import java.time.LocalDate
 import javax.validation.Valid
 import javax.validation.constraints.Max
@@ -56,6 +58,10 @@ class TasksController(
         return try {
             taskService.create(task).toData()
         } catch (e: MemberNotFoundException) {
+            throw ResponseStatusException(NOT_FOUND, e.message)
+        } catch (e: WalletNotFoundException) {
+            throw ResponseStatusException(NOT_FOUND, e.message)
+        } catch (e: NotEnoughCoinsException) {
             throw ResponseStatusException(BAD_REQUEST, e.message)
         }
     }

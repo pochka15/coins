@@ -1,6 +1,9 @@
 package pw.coins.task
 
+import org.jooq.Configuration
+import org.jooq.DSLContext
 import org.springframework.stereotype.Service
+import pw.coins.db.generated.Tables.TASKS
 import pw.coins.db.generated.tables.pojos.Task
 import pw.coins.db.parseUUID
 import pw.coins.room.RoomService
@@ -10,6 +13,8 @@ import pw.coins.task.model.TaskStatus
 import pw.coins.task.model.TasksDao
 import pw.coins.task.model.toExtended
 import pw.coins.user.UserService
+import pw.coins.wallet.WalletNotFoundException
+import pw.coins.wallet.WalletService
 import java.time.LocalDate
 import java.time.OffsetDateTime
 
@@ -20,11 +25,15 @@ class TaskService(
     val uuidSource: UuidSource,
     val userService: UserService,
     val roomService: RoomService,
+    val walletService: WalletService,
+    val dsl: DSLContext,
 ) {
     fun create(newTask: NewTask): ExtendedTask {
-        val member = kotlin.runCatching {
-            roomService.getMemberByUserIdAndRoomId(newTask.userId, newTask.roomId)
-        }.getOrNull() ?: throw MemberNotFoundException("You are not a member of the given room")
+        val member = roomService.getMemberByUserIdAndRoomId(newTask.userId, newTask.roomId)
+            ?: throw MemberNotFoundException("You are not a member of the given room")
+
+        val wallet = walletService.getWalletByMemberId(member.id.toString())
+            ?: throw WalletNotFoundException("Couldn't find a wallet for the given task author")
 
         val task = Task(
             uuidSource.genUuid(),
@@ -38,10 +47,9 @@ class TaskService(
             member.id,
             null,
         )
-        tasksDao.insert(task)
-
-        if (task.id == null) {
-            throw Exception("Couldn't create a new task with title ${newTask.title}, returned Id is null")
+        dsl.transaction { c: Configuration ->
+            with(c.dsl()) { executeInsert(newRecord(TASKS, task)) }
+            walletService.lockCoins(wallet, task.id.toString(), task.budget)
         }
 
         return task.toExtended(userService.getUserById(newTask.userId)!!.name)
@@ -116,7 +124,7 @@ data class NewTask(
     val userId: String,
 )
 
-class MemberNotFoundException(message: String?) : Exception(message)
-class TaskNotFoundException(message: String?) : Exception(message)
-class AssignmentException(message: String?) : Exception(message)
-class TaskStatusException(message: String?) : Exception(message)
+class MemberNotFoundException(message: String?) : RuntimeException(message)
+class TaskNotFoundException(message: String?) : RuntimeException(message)
+class AssignmentException(message: String?) : RuntimeException(message)
+class TaskStatusException(message: String?) : RuntimeException(message)

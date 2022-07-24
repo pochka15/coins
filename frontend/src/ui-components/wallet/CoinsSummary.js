@@ -4,6 +4,8 @@ import { useQuery } from 'react-query'
 import { getWallet } from '../../api/wallets'
 import { GLOBAL_ROOM_ID } from '../TasksFeed'
 
+export const WALLET_KEY = 'wallet'
+
 function CoinsAmount({ children }) {
   const { colorMode } = useColorMode()
   const gradient =
@@ -33,7 +35,7 @@ function CoinsSummary() {
     data: wallet,
     isFetching,
     isError
-  } = useQuery(['wallet'], () => getWallet(GLOBAL_ROOM_ID), {
+  } = useQuery([WALLET_KEY], () => getWallet(GLOBAL_ROOM_ID), {
     retry: false,
     refetchOnWindowFocus: true
   })

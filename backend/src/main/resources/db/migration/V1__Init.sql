@@ -84,6 +84,20 @@ create table wallets
             references members
 );
 
+create table coins_locks
+(
+    id        uuid
+        constraint coins_locks_pk
+            primary key,
+    amount    integer,
+    wallet_id uuid not null
+        constraint coins_locks_wallets_id_fk
+            references wallets,
+    task_id   uuid not null
+        constraint coins_locks_tasks_id_fk
+            references tasks
+);
+
 
 INSERT INTO public.rooms (id, name)
 VALUES ('a6041b05-ebb9-4ff0-9b6b-d915d573afb2', 'Global');

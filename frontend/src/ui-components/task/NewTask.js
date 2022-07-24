@@ -15,6 +15,14 @@ import TaskForm from './TaskForm'
 import { createTask } from '../../api/tasks'
 import { GLOBAL_ROOM_ID, TASKS_QUERY_KEY } from '../TasksFeed'
 import { extractErrorMessage } from '../../api/api-utils'
+import { WALLET_KEY } from '../wallet/CoinsSummary'
+
+/**
+ * @typedef {{
+ *   formErrors: TFieldError[],
+ *   errorMessage: string
+ * }} TErrorsContainer
+ */
 
 /**
  *
@@ -41,6 +49,14 @@ function toApiTask(task) {
 }
 
 /**
+ * @return {TErrorsContainer}
+ * @constructor
+ */
+function ErrorsContainer() {
+  return { formErrors: [], errorMessage: '' }
+}
+
+/**
  * Component that wraps and submits task form
  * @param {boolean} isOpen
  * @param {function(): void} onClose
@@ -48,20 +64,28 @@ function toApiTask(task) {
  * @constructor
  */
 function NewTask({ isOpen, onClose }) {
-  const [taskErrors, setTaskErrors] = useState(/** @type {TFieldError[]} */ [])
+  const [container, setContainer] = useState(ErrorsContainer())
   const queryClient = useQueryClient()
 
   const mutation = useMutation(
     /** @param {TNewTask} task */ task => createTask(toApiTask(task)),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(TASKS_QUERY_KEY).then(() => onClose())
-        setTaskErrors([])
+        queryClient
+          .invalidateQueries(TASKS_QUERY_KEY)
+          .then(() => queryClient.invalidateQueries(WALLET_KEY))
+          .then(() => onClose())
+        setContainer(ErrorsContainer())
       },
       onError: e => {
-        if (e.response.status === 400) {
-          setTaskErrors(e.response.data.errors)
-        }
+        setContainer({
+          formErrors: e.response.data.errors || [],
+          errorMessage:
+            e.response.status === 403
+              ? "You don't have permissions to create a task"
+              : extractErrorMessage(e) ||
+                `There was an error when creating a new task`
+        })
       }
     }
   )
@@ -75,18 +99,15 @@ function NewTask({ isOpen, onClose }) {
         <ModalBody>
           <TaskForm
             onSubmit={task => mutation.mutate(task)}
-            errors={taskErrors}
+            errors={container.formErrors}
             isLoading={mutation.isLoading}
           />
         </ModalBody>
         <ModalFooter>
-          {mutation.isError && (
+          {container.errorMessage && (
             <Alert status="error">
               <AlertIcon />
-              {mutation.error.response.status === 403
-                ? "You don't have permissions to create a task"
-                : extractErrorMessage(mutation.error) ||
-                  `There was an error when creating a new task`}
+              {container.errorMessage}
             </Alert>
           )}
         </ModalFooter>
