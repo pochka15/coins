@@ -1,19 +1,23 @@
 package pw.coins.room
 
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.server.ResponseStatusException
 import pw.coins.db.generated.tables.pojos.Member
 import pw.coins.db.generated.tables.pojos.Room
+import pw.coins.db.generated.tables.pojos.User
 import pw.coins.room.model.UserWithMember
+import pw.coins.security.PrincipalContext
 import pw.coins.task.TaskData
 import pw.coins.task.TaskService
 import pw.coins.task.toData
 import pw.coins.user.UserService
 
 @RestController
-@RequestMapping("/room")
+@RequestMapping("/rooms")
 @Tag(name = "Room")
-class RoomController(
+class RoomsController(
     val roomService: RoomService,
     val taskService: TaskService,
     val userService: UserService,
@@ -33,6 +37,13 @@ class RoomController(
     @GetMapping("/{roomId}/members")
     fun roomMembers(@PathVariable roomId: String): List<MemberData> {
         return roomService.getMembersByRoom(roomId).map { it.toData() }
+    }
+
+    @GetMapping("/{roomId}/members/me")
+    fun getMe(@PathVariable roomId: String, @PrincipalContext user: User): MemberData {
+        val member = roomService.getMemberByUserIdAndRoomId(user.id.toString(), roomId)
+            ?: throw ResponseStatusException(NOT_FOUND, "Couldn't find member")
+        return member.toData(user.name)
     }
 
     @DeleteMapping("/{roomId}/members/{memberId}")

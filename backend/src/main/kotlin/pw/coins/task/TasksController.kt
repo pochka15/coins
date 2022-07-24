@@ -1,8 +1,7 @@
 package pw.coins.task
 
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.springframework.http.HttpStatus.BAD_REQUEST
-import org.springframework.http.HttpStatus.FORBIDDEN
+import org.springframework.http.HttpStatus.*
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import pw.coins.db.generated.tables.pojos.User
@@ -20,7 +19,7 @@ import javax.validation.constraints.NotBlank
 @RestController
 @RequestMapping("/tasks")
 @Tag(name = "Task")
-class TaskController(
+class TasksController(
     private val taskService: TaskService,
     private val roomService: RoomService,
 ) {
@@ -33,10 +32,8 @@ class TaskController(
         val task = taskService.getTask(id)
             ?: throw ResponseStatusException(BAD_REQUEST, "Couldn't find task with id: $id")
 
-        val room = roomService.getRoomByMemberId(task.authorMemberId.toString())!!
-
-        roomService.getMember(user.id.toString(), room.id.toString())
-            ?: throw ResponseStatusException(FORBIDDEN, "You are not a member of a room where task has been created")
+        roomService.getMemberByUserIdAndRoomId(user.id.toString(), task.roomId.toString())
+            ?: throw ResponseStatusException(FORBIDDEN, "You are not a member of the room where task has been created")
 
         return task.toData()
     }
@@ -59,6 +56,25 @@ class TaskController(
         return try {
             taskService.create(task).toData()
         } catch (e: MemberNotFoundException) {
+            throw ResponseStatusException(BAD_REQUEST, e.message)
+        }
+    }
+
+    @PostMapping("/{taskId}/assignee")
+    fun assignTask(
+        @PathVariable taskId: String,
+        @RequestBody payload: AssignTaskPayload,
+        @PrincipalContext user: User,
+    ): TaskData {
+        return try {
+            taskService.assign(taskId, payload.assigneeMemberId, user.id.toString()).toData()
+        } catch (e: MemberNotFoundException) {
+            throw ResponseStatusException(NOT_FOUND, e.message)
+        } catch (e: TaskNotFoundException) {
+            throw ResponseStatusException(NOT_FOUND, e.message)
+        } catch (e: TaskStatusException) {
+            throw ResponseStatusException(BAD_REQUEST, e.message)
+        } catch (e: AssignmentException) {
             throw ResponseStatusException(FORBIDDEN, e.message)
         }
     }
@@ -86,7 +102,7 @@ fun ExtendedTask.toData(): TaskData {
         deadline = deadline.toString(),
         creationDate = creationDate.toString(),
         budget = budget,
-        status = status,
+        status = status.formatted,
         author = authorName,
         authorMemberId = authorMemberId.toString(),
         assignee = assigneeName,
@@ -104,3 +120,5 @@ data class NewTaskPayload(
     val budget: Int,
     val roomId: String,
 )
+
+data class AssignTaskPayload(val assigneeMemberId: String)

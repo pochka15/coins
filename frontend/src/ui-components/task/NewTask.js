@@ -49,6 +49,7 @@ function toApiTask(task) {
  */
 function NewTask({ isOpen, onClose }) {
   const [taskErrors, setTaskErrors] = useState(/** @type {TFieldError[]} */ [])
+  const queryClient = useQueryClient()
 
   const mutation = useMutation(
     /** @param {TNewTask} task */ task => createTask(toApiTask(task)),
@@ -64,8 +65,6 @@ function NewTask({ isOpen, onClose }) {
       }
     }
   )
-
-  const queryClient = useQueryClient()
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>

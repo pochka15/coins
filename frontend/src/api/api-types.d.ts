@@ -1,4 +1,4 @@
-declare type ApiNewTask = {
+interface ApiNewTask {
   title: string
   content: string
   deadline: string
@@ -6,7 +6,7 @@ declare type ApiNewTask = {
   roomId: string
 }
 
-declare type ApiTask = {
+interface ApiTask {
   id: number
   title: string
   content: string
@@ -19,8 +19,13 @@ declare type ApiTask = {
   assigneeUserId: string | null
 }
 
-declare type ApiWallet = {
+interface ApiWallet {
   id: string
   coinsAmount: number
   memberId: string
+}
+
+interface ApiMember {
+  id: string
+  name: string
 }

@@ -14,6 +14,8 @@ import org.springframework.test.web.servlet.ResultActionsDsl
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 import pw.coins.db.generated.Tables
+import pw.coins.db.generated.tables.pojos.Room
+import pw.coins.db.generated.tables.pojos.User
 import pw.coins.room.NewMember
 import pw.coins.room.NewRoom
 import pw.coins.room.RoomService
@@ -75,14 +77,7 @@ class TaskControllerTest(
         roomService.addMember(NewMember(user.id.toString(), room.id.toString()))
         roomService.addMember(NewMember(anotherUser.id.toString(), room.id.toString()))
         val task = taskService.create(
-            NewTask(
-                title = "Test task",
-                content = "Test content",
-                deadline = LocalDate.of(2022, 7, 15),
-                budget = 10,
-                roomId = room.id.toString(),
-                userId = anotherUser.id.toString(),
-            )
+            buildNewTask(room, anotherUser)
         )
         mockMvc.get("/tasks/${task.id}") {
             accept = MediaType.APPLICATION_JSON
@@ -95,16 +90,7 @@ class TaskControllerTest(
         val room = roomService.create(NewRoom("Test room"))
         val user = userService.getUser("test-email@gmail.com")!!
         roomService.addMember(NewMember(user.id.toString(), room.id.toString()))
-        val task = taskService.create(
-            NewTask(
-                title = "Test task",
-                content = "Test content",
-                deadline = LocalDate.of(2022, 7, 15),
-                budget = 10,
-                roomId = room.id.toString(),
-                userId = user.id.toString(),
-            )
-        )
+        val task = taskService.create(buildNewTask(room, user))
         mockMvc.get("/tasks/${task.id}") {
             accept = MediaType.APPLICATION_JSON
         }.andExpect {
@@ -153,7 +139,7 @@ class TaskControllerTest(
                 userId = user.id.toString(),
             )
         )
-        mockMvc.get("/room/${room.id}/tasks") {
+        mockMvc.get("/rooms/${room.id}/tasks") {
             accept = MediaType.APPLICATION_JSON
         }.andExpect {
             content {
@@ -169,19 +155,49 @@ class TaskControllerTest(
         val user = userService.createUser("Test user")
         roomService.addMember(NewMember(user.id.toString(), room.id.toString()))
         val task = taskService.create(
-            NewTask(
-                title = "Test task",
-                content = "Test content",
-                deadline = LocalDate.of(2022, 7, 15),
-                budget = 10,
-                roomId = room.id.toString(),
-                userId = user.id.toString(),
-            )
+            buildNewTask(room, user)
         )
         mockMvc.get("/tasks/${task.id}") {
             accept = MediaType.APPLICATION_JSON
         }.andExpect { status { isForbidden() } }
     }
+
+    @Test
+    fun `create two members then assign task EXPECT task has correct status and assignee`() {
+        val room = roomService.create(NewRoom("Test room"))
+        val user = userService.getUser("test-email@gmail.com")!!
+        val anotherUser = userService.createUser("Test user")
+        val member = roomService.addMember(NewMember(user.id.toString(), room.id.toString()))
+        roomService.addMember(NewMember(anotherUser.id.toString(), room.id.toString()))
+        val task = taskService.create(buildNewTask(room, anotherUser))
+        mockMvc.post("/tasks/${task.id}/assignee") {
+            contentType = MediaType.APPLICATION_JSON
+            accept = MediaType.APPLICATION_JSON
+            content = /* language=JSON */ """
+                            {
+                              "assigneeMemberId": "${member.id}"
+                            }
+                        """.trimIndent()
+        }.andExpect {
+            content {
+                jsonPath("$.status", equalTo("Assigned"))
+                jsonPath("$.assigneeMemberId", equalTo(member.id.toString()))
+            }
+        }
+    }
+
+    private fun buildNewTask(
+        room: Room,
+        anotherUser: User
+    ) = NewTask(
+        title = "Test task",
+        content = "Test content",
+        deadline = LocalDate.of(2022, 7, 15),
+        budget = 10,
+        roomId = room.id.toString(),
+        userId = anotherUser.id.toString(),
+    )
+
 
     fun postTask(roomId: String, deadline: LocalDate = LocalDate.now()): ResultActionsDsl {
         return mockMvc.post("/tasks") {

@@ -66,7 +66,7 @@ class UsosController(
     private fun runNewUserScenario(usosUser: UsosUser): User {
         val user = userService.createUser("${usosUser.firstName} ${usosUser.lastName}", usosUser.email)
         val member = roomService.addMember(NewMember(user.id.toString(), GLOBAL_ROOM_ID))
-        walletService.createWallet(NewWallet(0, member.id.toString()))
+        walletService.createWallet(NewWallet(100, member.id.toString()))
         return user
     }
 }

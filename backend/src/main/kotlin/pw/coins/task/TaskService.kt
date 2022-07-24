@@ -6,6 +6,7 @@ import pw.coins.db.parseUUID
 import pw.coins.room.RoomService
 import pw.coins.security.UuidSource
 import pw.coins.task.model.ExtendedTask
+import pw.coins.task.model.TaskStatus
 import pw.coins.task.model.TasksDao
 import pw.coins.task.model.toExtended
 import pw.coins.user.UserService
@@ -22,7 +23,7 @@ class TaskService(
 ) {
     fun create(newTask: NewTask): ExtendedTask {
         val member = kotlin.runCatching {
-            roomService.getMember(newTask.userId, newTask.roomId)
+            roomService.getMemberByUserIdAndRoomId(newTask.userId, newTask.roomId)
         }.getOrNull() ?: throw MemberNotFoundException("You are not a member of the given room")
 
         val task = Task(
@@ -32,7 +33,7 @@ class TaskService(
             newTask.deadline,
             OffsetDateTime.now(),
             newTask.budget,
-            TaskStatus.NEW.formatted,
+            TaskStatus.NEW.name,
             parseUUID(newTask.roomId),
             member.id,
             null,
@@ -63,6 +64,47 @@ class TaskService(
     fun getMemberTasks(userId: String): List<ExtendedTask> {
         return tasksDao.fetchExtendedTasksByAuthorId(parseUUID(userId))
     }
+
+    fun assign(taskId: String, assigneeMemberId: String, requestedUserId: String): ExtendedTask {
+        val member = roomService.getMemberById(assigneeMemberId)
+            ?: throw MemberNotFoundException("Given assignee is not found")
+
+        val extendedTask = getTask(taskId)
+            ?: throw TaskNotFoundException("Couldn't find the task with an id $taskId")
+
+        val message = when (extendedTask.status) {
+            TaskStatus.ASSIGNED -> "You cannot reassign a task"
+            TaskStatus.FINISHED -> "You cannot assign a task. The task has already been solved"
+            TaskStatus.NEW -> null
+        }
+        if (message != null) throw TaskStatusException(message)
+
+        if (member.userId != parseUUID(requestedUserId)) {
+            throw AssignmentException("You can assign task only to yourself")
+        }
+
+        if (extendedTask.roomId != member.roomId) {
+            throw AssignmentException("You are not a member of the room where task is created")
+        }
+
+        val task = extendedTask.run {
+            Task(
+                id,
+                title,
+                content,
+                deadline,
+                creationDate,
+                budget,
+                TaskStatus.ASSIGNED.name,
+                roomId,
+                authorMemberId,
+                parseUUID(assigneeMemberId),
+            )
+        }
+
+        tasksDao.update(task)
+        return getTask(taskId)!!
+    }
 }
 
 data class NewTask(
@@ -74,14 +116,7 @@ data class NewTask(
     val userId: String,
 )
 
-/**
- * All the possible task status values
- */
-@Suppress("unused")
-enum class TaskStatus(value: String) {
-    NEW("New"), IN_PROGRESS("In progress"), FINISHED("Finished");
-
-    val formatted = value
-}
-
 class MemberNotFoundException(message: String?) : Exception(message)
+class TaskNotFoundException(message: String?) : Exception(message)
+class AssignmentException(message: String?) : Exception(message)
+class TaskStatusException(message: String?) : Exception(message)

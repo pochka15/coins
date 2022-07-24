@@ -2,8 +2,8 @@ import React from 'react'
 import { Alert, AlertIcon, VStack } from '@chakra-ui/react'
 import TaskCard from './task/TaskCard'
 import { useQuery } from 'react-query'
-import { getRoomTasks } from '../api/tasks'
 import { extractErrorMessage } from '../api/api-utils'
+import { getRoomTasks } from '../api/room'
 
 export const GLOBAL_ROOM_ID = 'a6041b05-ebb9-4ff0-9b6b-d915d573afb2'
 export const TASKS_QUERY_KEY = 'tasks'
@@ -15,7 +15,8 @@ function TasksFeed() {
     error
   } = useQuery(TASKS_QUERY_KEY, () => getRoomTasks(GLOBAL_ROOM_ID), {
     retry: false,
-    refetchOnWindowFocus: true
+    refetchOnWindowFocus: true,
+    refetchInterval: 60 * 1000 // minute
   })
 
   if (error)

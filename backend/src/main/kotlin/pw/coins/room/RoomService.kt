@@ -42,12 +42,16 @@ class RoomService(
         membersDao.deleteById(parseUUID(memberId))
     }
 
-    fun getMember(userId: String, roomId: String): Member? {
+    fun getMemberByUserIdAndRoomId(userId: String, roomId: String): Member? {
         return membersDao.fetchByUserIdAndRoomId(parseUUID(userId), parseUUID(roomId))
     }
 
     fun getRoomByMemberId(memberId: String): Room? {
         return roomsDao.fetchRoomByMemberId(parseUUID(memberId))
+    }
+
+    fun getMemberById(memberId: String): Member? {
+        return membersDao.fetchOneById(parseUUID(memberId))
     }
 }
 
