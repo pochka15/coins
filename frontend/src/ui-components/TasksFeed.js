@@ -1,9 +1,17 @@
 import React, { useState } from 'react'
-import { Alert, AlertIcon, Link, useColorMode, VStack } from '@chakra-ui/react'
+import {
+  Alert,
+  AlertIcon,
+  Link,
+  Spinner,
+  useColorMode,
+  VStack
+} from '@chakra-ui/react'
 import TaskCard from './task/TaskCard'
 import { useQuery } from 'react-query'
 import { extractErrorMessage } from '../api/api-utils'
 import { getRoomTasks } from '../api/room'
+import auth from '../security/auth'
 
 export const GLOBAL_ROOM_ID = 'a6041b05-ebb9-4ff0-9b6b-d915d573afb2'
 export const TASKS_QUERY_KEY = 'tasks'
@@ -28,6 +36,7 @@ function UsosLabel() {
         fontWeight="extrabold"
         onMouseEnter={() => setIsLinkFocused(true)}
         onMouseLeave={() => setIsLinkFocused(false)}
+        onClick={() => auth.startLogin()}
       >
         Login via
       </Link>
@@ -39,6 +48,7 @@ function UsosLabel() {
         onMouseEnter={() => setIsLinkFocused(true)}
         onMouseLeave={() => setIsLinkFocused(false)}
         as={isLinkFocused ? 'u' : 'p'}
+        onClick={() => auth.startLogin()}
       >
         USOS
       </Link>
@@ -58,6 +68,18 @@ function TasksFeed() {
   })
 
   const shouldLogin = error && error.response.status === 403
+
+  if (isFetching) {
+    return (
+      <Spinner
+        thickness="4px"
+        speed="0.65s"
+        emptyColor="gray.200"
+        color="blue.500"
+        size="xl"
+      />
+    )
+  }
 
   if (shouldLogin) return <UsosLabel />
 
