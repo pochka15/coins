@@ -4,7 +4,7 @@ import {
   AlertIcon,
   Link,
   Spinner,
-  useColorMode,
+  useColorModeValue,
   VStack
 } from '@chakra-ui/react'
 import TaskCard from './task/TaskCard'
@@ -17,17 +17,12 @@ export const GLOBAL_ROOM_ID = 'a6041b05-ebb9-4ff0-9b6b-d915d573afb2'
 export const TASKS_QUERY_KEY = 'tasks'
 
 function UsosLabel() {
-  const { colorMode } = useColorMode()
+  const gradient = useColorModeValue('linear(to-l, #7928CA, #FF0080)', [
+    'linear(to-tr, teal.300, yellow.400)',
+    'linear(to-t, blue.200, teal.500)',
+    'linear(to-b, orange.100, purple.300)'
+  ])
   const [isLinkFocused, setIsLinkFocused] = useState(false)
-
-  const gradient =
-    colorMode === 'light'
-      ? 'linear(to-l, #7928CA, #FF0080)'
-      : [
-          'linear(to-tr, teal.300, yellow.400)',
-          'linear(to-t, blue.200, teal.500)',
-          'linear(to-b, orange.100, purple.300)'
-        ]
 
   return (
     <VStack>

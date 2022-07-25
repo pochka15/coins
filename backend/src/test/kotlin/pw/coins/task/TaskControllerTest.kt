@@ -10,10 +10,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.ResultActionsDsl
-import org.springframework.test.web.servlet.get
-import org.springframework.test.web.servlet.post
+import org.springframework.test.web.servlet.*
 import pw.coins.db.generated.Tables
 import pw.coins.db.generated.tables.pojos.Member
 import pw.coins.db.generated.tables.pojos.Room
@@ -199,6 +196,20 @@ class TaskControllerTest(
             .andExpect { status { isNotFound() } }
     }
 
+    @Test
+    fun `delete task EXPECT coins are unlocked`() {
+        val member = room().member(me())
+        val wallet = walletService.createWallet(NewWallet(100, member.id.toString()))
+        val task = member.task(member.roomId)
+
+        mockMvc.delete("/tasks/${task.id}")
+            .andExpect { status { is2xxSuccessful() } }
+
+        getWallet(wallet.id.toString()).andExpect {
+            jsonPath("$.coinsAmount", equalTo(100))
+        }
+    }
+
     fun postTask(roomId: String, deadline: LocalDate = LocalDate.now()): ResultActionsDsl {
         return mockMvc.post("/tasks") {
             contentType = MediaType.APPLICATION_JSON
@@ -213,6 +224,10 @@ class TaskControllerTest(
                             }
                         """.trimIndent()
         }
+    }
+
+    fun getWallet(walletId: String): ResultActionsDsl {
+        return mockMvc.get("/wallet/${walletId}") { accept = MediaType.APPLICATION_JSON }
     }
 
     @AfterEach

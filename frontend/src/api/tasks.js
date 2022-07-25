@@ -36,3 +36,15 @@ export async function unassignTask(taskId) {
     .post(`/tasks/${taskId}/unassign`)
     .then(r => r.data)
 }
+
+/**
+ * Delete task
+ * @param {string} taskId
+ * @return Promise<AxiosResponse>
+ */
+export async function deleteTask(taskId) {
+  return auth
+    .getClient()
+    .delete(`/tasks/${taskId}`)
+    .then(r => r.data)
+}

@@ -5,10 +5,12 @@ import org.jooq.DSLContext
 import org.springframework.stereotype.Service
 import pw.coins.db.generated.Tables.COINS_LOCKS
 import pw.coins.db.generated.Tables.WALLETS
+import pw.coins.db.generated.tables.daos.CoinsLocksDao
 import pw.coins.db.generated.tables.pojos.CoinsLock
 import pw.coins.db.generated.tables.pojos.Wallet
 import pw.coins.db.parseUUID
 import pw.coins.security.UuidSource
+import pw.coins.task.TaskNotFoundException
 import pw.coins.wallet.models.ExtendedWallet
 import pw.coins.wallet.models.Transaction
 import pw.coins.wallet.models.WalletsDao
@@ -21,6 +23,7 @@ class WalletService(
     val walletsDao: WalletsDao,
     val uuidSource: UuidSource,
     val dslContext: DSLContext,
+    val locksDao: CoinsLocksDao,
 ) {
     fun getWalletById(id: String): ExtendedWallet? {
         return walletsDao.fetchExtendedWalletById(parseUUID(id))
@@ -56,16 +59,27 @@ class WalletService(
                 executeInsert(
                     newRecord(
                         COINS_LOCKS,
-                        CoinsLock(uuidSource.genUuid(), newAmount, wallet.id, parseUUID(taskId))
+                        CoinsLock(uuidSource.genUuid(), coinsAmount, wallet.id, parseUUID(taskId))
                     )
                 )
-                executeUpdate(newRecord(
-                    WALLETS,
-                    wallet.also { it.coinsAmount = newAmount }
-                )
+                executeUpdate(
+                    newRecord(
+                        WALLETS, wallet.also { it.coinsAmount = newAmount }
+                    )
                 )
             }
         }
+    }
+
+    fun unlockCoins(taskId: String) {
+        val lock = locksDao.fetchByTaskId(parseUUID(taskId)).getOrNull(0)
+            ?: throw TaskNotFoundException("Couldn't find a task with an id = $taskId")
+
+        val wallet = walletsDao.fetchOneById(lock.walletId)
+        wallet.coinsAmount += lock.amount
+
+        locksDao.deleteById(lock.id)
+        walletsDao.update(wallet)
     }
 
     /**

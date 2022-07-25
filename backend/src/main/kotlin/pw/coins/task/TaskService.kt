@@ -126,6 +126,16 @@ class TaskService(
         tasksDao.update(task)
         return getTask(taskId)!!
     }
+
+    fun deleteTask(taskId: String, requestedUserId: String) {
+        val task = tasksDao.fetchOneById(parseUUID(taskId))
+        val member = roomService.getMemberById(task.authorMemberId.toString())!!
+        if (member.userId != parseUUID(requestedUserId)) {
+            throw PermissionsException("You cannot delete task, you are not an author")
+        }
+        walletService.unlockCoins(taskId)
+        tasksDao.deleteById(task.id)
+    }
 }
 
 data class NewTask(

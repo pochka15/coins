@@ -19,7 +19,6 @@ import javax.validation.constraints.Max
 import javax.validation.constraints.Min
 import javax.validation.constraints.NotBlank
 
-
 @RestController
 @RequestMapping("/tasks")
 @Tag(name = "Task")
@@ -40,6 +39,18 @@ class TasksController(
             ?: throw ResponseStatusException(FORBIDDEN, "You are not a member of the room where task has been created")
 
         return task.toData()
+    }
+
+    @DeleteMapping("/{task_id}")
+    fun deleteTask(
+        @PathVariable("task_id") id: String,
+        @PrincipalContext user: User
+    ) {
+        try {
+            taskService.deleteTask(id, user.id.toString())
+        } catch (e: PermissionsException) {
+            throw ResponseStatusException(BAD_REQUEST, e.message)
+        }
     }
 
     @PostMapping
