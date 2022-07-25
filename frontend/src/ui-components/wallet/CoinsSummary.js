@@ -29,15 +29,16 @@ function CoinsAmount({ children }) {
 function CoinsSummary() {
   const {
     data: wallet,
-    isFetching,
+    isLoading,
     isError
   } = useQuery([WALLET_KEY], () => getWallet(GLOBAL_ROOM_ID), {
     retry: false,
-    refetchOnWindowFocus: true
+    refetchOnWindowFocus: true,
+    keepPreviousData: true
   })
 
   return (
-    !isFetching &&
+    !isLoading &&
     !isError && (
       <VStack width="2xs">
         <CoinsAmount>{wallet.coinsAmount}</CoinsAmount>

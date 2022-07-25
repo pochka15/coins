@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   Alert,
   AlertIcon,
@@ -15,6 +15,12 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverCloseButton,
+  PopoverContent,
+  PopoverTrigger,
   Spinner,
   Text,
   useColorModeValue,
@@ -49,6 +55,119 @@ function useMember() {
     }
   )
   return { data, isFetching, isError }
+}
+
+function PopoverError({
+  errorMessage,
+  onHoverChange,
+  children,
+  onClose: propOnClose
+}) {
+  const { isOpen, onOpen, onClose } = useDisclosure()
+  useEffect(() => {
+    if (errorMessage) onOpen()
+  }, [errorMessage])
+
+  return (
+    <Popover
+      returnFocusOnClose={false}
+      isOpen={isOpen}
+      onClose={() => {
+        onClose()
+        propOnClose()
+      }}
+      closeOnBlur={false}
+    >
+      <PopoverTrigger>{children}</PopoverTrigger>
+      <PopoverContent>
+        <PopoverArrow />
+        <PopoverCloseButton
+          onMouseEnter={() => onHoverChange(true)}
+          onMouseLeave={() => onHoverChange(false)}
+        />
+        <PopoverBody>
+          <Alert status="error" mt={8}>
+            <AlertIcon />
+            {errorMessage}
+          </Alert>
+        </PopoverBody>
+      </PopoverContent>
+    </Popover>
+  )
+}
+
+function AssignmentButton({ onHoverChange, member, taskId }) {
+  const queryClient = useQueryClient()
+  const [errorMessage, setErrorMessage] = useState('')
+
+  const mutation = useMutation(() => assignTask(taskId, member.id), {
+    onSuccess: () => {
+      queryClient.invalidateQueries(TASKS_QUERY_KEY).then()
+      setErrorMessage('')
+    },
+    onError: e => {
+      setErrorMessage(
+        buildErrorMessage(
+          e,
+          `You don't have permissions to assign the task`,
+          'An error occurred when assigning the task'
+        )
+      )
+    }
+  })
+
+  return (
+    <PopoverError
+      errorMessage={errorMessage}
+      onHoverChange={onHoverChange}
+      onClose={() => setErrorMessage('')}
+    >
+      <Button
+        onMouseEnter={() => onHoverChange(true)}
+        onMouseLeave={() => onHoverChange(false)}
+        onClick={() => mutation.mutate()}
+      >
+        Assign to me
+      </Button>
+    </PopoverError>
+  )
+}
+
+function ClearAssignmentButton({ onHoverChange, taskId }) {
+  const queryClient = useQueryClient()
+  const [errorMessage, setErrorMessage] = useState('')
+
+  const mutation = useMutation(() => unassignTask(taskId), {
+    onSuccess: () => {
+      queryClient.invalidateQueries(TASKS_QUERY_KEY).then()
+      setErrorMessage('')
+    },
+    onError: e => {
+      setErrorMessage(
+        buildErrorMessage(
+          e,
+          `You don't have permissions to unassign the task`,
+          'An error occurred when clearing assignee'
+        )
+      )
+    }
+  })
+
+  return (
+    <PopoverError
+      errorMessage={errorMessage}
+      onHoverChange={onHoverChange}
+      onClose={() => setErrorMessage('')}
+    >
+      <Button
+        onMouseEnter={() => onHoverChange(true)}
+        onMouseLeave={() => onHoverChange(false)}
+        onClick={() => mutation.mutate()}
+      >
+        Unassign
+      </Button>
+    </PopoverError>
+  )
 }
 
 /**
@@ -122,129 +241,15 @@ function TaskEditor({ isOpen, onClose, task }) {
   )
 }
 
-function TaskAssigmentModal({ isOpen, onClose, taskId, member }) {
-  const queryClient = useQueryClient()
-  const [error, setError] = useState('')
-
-  const mutation = useMutation(
-    /** @param {string} assigneeMemberId */
-    assigneeMemberId => assignTask(taskId, assigneeMemberId),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(TASKS_QUERY_KEY).then(() => onClose())
-        setError('')
-      },
-      onError: e => {
-        setError(
-          buildErrorMessage(
-            e,
-            `You don't have permissions to assign the task`,
-            'An error occurred when assigning the task'
-          )
-        )
-      }
-    }
-  )
-
-  return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>Assignee</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>
-          <Text>Do you want to assign the task to yourself?</Text>
-          {error && (
-            <Alert status="error" mt={8}>
-              <AlertIcon />
-              {error}
-            </Alert>
-          )}
-        </ModalBody>
-        <ModalFooter>
-          <HStack>
-            <Button onClick={onClose}>No</Button>
-            <Button
-              onClick={() => mutation.mutate(member.id)}
-              variant="outline"
-            >
-              Yes
-            </Button>
-          </HStack>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
-  )
-}
-
-function TaskUnassigmentModal({ isOpen, onClose, taskId }) {
-  const queryClient = useQueryClient()
-  const [error, setError] = useState('')
-
-  const mutation = useMutation(() => unassignTask(taskId), {
-    onSuccess: () => {
-      queryClient.invalidateQueries(TASKS_QUERY_KEY).then(() => onClose())
-      setError('')
-    },
-    onError: e => {
-      setError(
-        buildErrorMessage(
-          e,
-          `You don't have permissions to unassign the task`,
-          'An error occurred when clearing assignee'
-        )
-      )
-    }
-  })
-
-  return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>Assignee</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>
-          <Text>Do you want to unassign the task?</Text>
-          {error && (
-            <Alert status="error" mt={8}>
-              <AlertIcon />
-              {error}
-            </Alert>
-          )}
-        </ModalBody>
-        <ModalFooter>
-          <HStack>
-            <Button onClick={onClose}>No</Button>
-            <Button onClick={() => mutation.mutate()} variant="outline">
-              Yes
-            </Button>
-          </HStack>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
-  )
-}
-
 /**
  *
  * @param {ApiTask} task
  * @param {function(boolean): void} onHoverChange
+ * @param {ApiMember} member
  * @return {JSX.Element}
  * @constructor
  */
-function Assignee({ task, onHoverChange }) {
-  const {
-    isOpen: isOpenAssign,
-    onOpen: onOpenAssign,
-    onClose: onCloseAssign
-  } = useDisclosure()
-
-  const {
-    isOpen: isOpenUnassign,
-    onOpen: onOpenUnassign,
-    onClose: onCloseUnassign
-  } = useDisclosure()
-
+function Assignee({ task, onHoverChange, member }) {
   const { data, isFetching, isError } = useMember()
   const isAssignedToMe = data?.id === task.assigneeMemberId
   const isAssigned = task.assignee !== null
@@ -252,40 +257,20 @@ function Assignee({ task, onHoverChange }) {
   return (
     <>
       {!isAssigned ? (
-        <Button
-          onClick={onOpenAssign}
-          onMouseEnter={() => onHoverChange(true)}
-          onMouseLeave={() => onHoverChange(false)}
-        >
-          Unassigned
-        </Button>
+        <AssignmentButton
+          onHoverChange={onHoverChange}
+          member={member}
+          taskId={task.id}
+        />
       ) : isError ? (
         <Text color="red.500">Error :(</Text>
       ) : isFetching ? (
         <Spinner />
       ) : isAssignedToMe ? (
-        <Button
-          onMouseEnter={() => onHoverChange(true)}
-          onMouseLeave={() => onHoverChange(false)}
-          colorScheme="pink"
-          onClick={onOpenUnassign}
-        >
-          Unassign
-        </Button>
+        <ClearAssignmentButton onHoverChange={onHoverChange} taskId={task.id} />
       ) : (
         <Text as="b">Assignee: {task.assignee}</Text>
       )}
-      <TaskAssigmentModal
-        isOpen={isOpenAssign}
-        onClose={onCloseAssign}
-        taskId={task.id}
-        member={data}
-      />
-      <TaskUnassigmentModal
-        isOpen={isOpenUnassign}
-        onClose={onCloseUnassign}
-        taskId={task.id}
-      />
     </>
   )
 }
@@ -325,7 +310,11 @@ function TaskCard({ task }) {
         <Flex marginTop={4} gap={4} align="center">
           <Text w="11rem">Deadline: {task.deadline}</Text>
           <Text w="3xs">Author: {task.author}</Text>
-          <Assignee task={task} onHoverChange={setIsHoveringAssignee} />
+          <Assignee
+            task={task}
+            onHoverChange={setIsHoveringAssignee}
+            member={member}
+          />
           <HStack>
             <Text>Reward: {task.budget}</Text>
             <Icon as={GiTwoCoins} />

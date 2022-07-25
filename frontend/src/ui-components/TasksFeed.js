@@ -54,17 +54,18 @@ function UsosLabel() {
 function TasksFeed() {
   const {
     data: tasks,
-    isFetching,
+    isLoading,
     error
   } = useQuery(TASKS_QUERY_KEY, () => getRoomTasks(GLOBAL_ROOM_ID), {
     retry: false,
     refetchOnWindowFocus: true,
-    refetchInterval: 60 * 1000 // minute
+    refetchInterval: 60 * 1000, // minute
+    keepPreviousData: true
   })
 
   const shouldLogin = error && error.response.status === 403
 
-  if (isFetching) {
+  if (isLoading) {
     return (
       <Spinner
         thickness="4px"
@@ -88,13 +89,11 @@ function TasksFeed() {
 
   // noinspection JSValidateTypes
   return (
-    !isFetching && (
-      <VStack width="2xl">
-        {tasks.map(task => (
-          <TaskCard key={task.id} task={task} />
-        ))}
-      </VStack>
-    )
+    <VStack width="2xl">
+      {tasks.map(task => (
+        <TaskCard key={task.id} task={task} />
+      ))}
+    </VStack>
   )
 }
 
