@@ -126,8 +126,9 @@ function AssignmentButton({ onHoverChange, member, taskId }) {
         onMouseEnter={() => onHoverChange(true)}
         onMouseLeave={() => onHoverChange(false)}
         onClick={() => mutation.mutate()}
+        variant="ghost"
       >
-        Assign to me
+        <Text as="u">Assign to me</Text>
       </Button>
     </PopoverError>
   )
@@ -163,8 +164,9 @@ function ClearAssignmentButton({ onHoverChange, taskId }) {
         onMouseEnter={() => onHoverChange(true)}
         onMouseLeave={() => onHoverChange(false)}
         onClick={() => mutation.mutate()}
+        variant="ghost"
       >
-        Unassign
+        <Text as="u">Unassign</Text>
       </Button>
     </PopoverError>
   )
