@@ -21,6 +21,18 @@ export async function createTask(task) {
 export async function assignTask(taskId, assigneeMemberId) {
   return auth
     .getClient()
-    .post(`/tasks/${taskId}/assignee`, { assigneeMemberId })
+    .post(`/tasks/${taskId}/assign`, { assigneeMemberId })
+    .then(r => r.data)
+}
+
+/**
+ * Assign a task to the given assigneeMemberId
+ * @param {string} taskId
+ * @return {Promise<ApiTask>}
+ */
+export async function unassignTask(taskId) {
+  return auth
+    .getClient()
+    .post(`/tasks/${taskId}/unassign`)
     .then(r => r.data)
 }

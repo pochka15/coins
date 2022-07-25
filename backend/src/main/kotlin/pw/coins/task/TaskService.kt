@@ -113,6 +113,19 @@ class TaskService(
         tasksDao.update(task)
         return getTask(taskId)!!
     }
+
+    fun unassignTask(taskId: String, requestedUserId: String): ExtendedTask {
+        val task = tasksDao.fetchOneById(parseUUID(taskId))
+        val member = roomService.getMemberById(task.assigneeMemberId.toString())!!
+        if (member.userId != parseUUID(requestedUserId)) {
+            throw PermissionsException("You cannot unassign the task, you are not an assignee")
+        }
+
+        task.status = TaskStatus.NEW.name
+        task.assigneeMemberId = null
+        tasksDao.update(task)
+        return getTask(taskId)!!
+    }
 }
 
 data class NewTask(
@@ -128,3 +141,4 @@ class MemberNotFoundException(message: String?) : RuntimeException(message)
 class TaskNotFoundException(message: String?) : RuntimeException(message)
 class AssignmentException(message: String?) : RuntimeException(message)
 class TaskStatusException(message: String?) : RuntimeException(message)
+class PermissionsException(message: String?) : RuntimeException(message)

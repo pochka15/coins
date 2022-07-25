@@ -14,9 +14,9 @@ interface ApiTask {
   budget: number
   status: string
   author: string
-  authorUserId: string
+  authorMemberId: string
   assignee: string | null
-  assigneeUserId: string | null
+  assigneeMemberId: string | null
 }
 
 interface ApiWallet {

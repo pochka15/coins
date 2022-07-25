@@ -162,7 +162,7 @@ class TaskControllerTest(
             mem to task
         }
 
-        mockMvc.post("/tasks/${task.id}/assignee") {
+        mockMvc.post("/tasks/${task.id}/assign") {
             contentType = MediaType.APPLICATION_JSON
             accept = MediaType.APPLICATION_JSON
             content = /* language=JSON */ """

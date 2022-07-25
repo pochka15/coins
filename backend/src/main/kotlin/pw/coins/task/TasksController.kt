@@ -13,6 +13,7 @@ import pw.coins.task.validation.TaskDeadline
 import pw.coins.wallet.NotEnoughCoinsException
 import pw.coins.wallet.WalletNotFoundException
 import java.time.LocalDate
+import javax.naming.NoPermissionException
 import javax.validation.Valid
 import javax.validation.constraints.Max
 import javax.validation.constraints.Min
@@ -67,7 +68,19 @@ class TasksController(
         }
     }
 
-    @PostMapping("/{taskId}/assignee")
+    @PostMapping("/{taskId}/unassign")
+    fun unassignTask(
+        @PathVariable taskId: String,
+        @PrincipalContext user: User,
+    ): TaskData {
+        return try {
+            taskService.unassignTask(taskId, user.id.toString()).toData()
+        } catch (e: NoPermissionException) {
+            throw ResponseStatusException(BAD_REQUEST, e.message)
+        }
+    }
+
+    @PostMapping("/{taskId}/assign")
     fun assignTask(
         @PathVariable taskId: String,
         @RequestBody payload: AssignTaskPayload,
