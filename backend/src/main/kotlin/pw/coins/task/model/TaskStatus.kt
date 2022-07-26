@@ -6,7 +6,8 @@ package pw.coins.task.model
 enum class TaskStatus(value: String) {
     NEW("New"),
     ASSIGNED("Assigned"),
-    FINISHED("Finished");
+    REVIEWING("Reviewing"),
+    CLOSED("Closed");
 
     val formatted = value
 }

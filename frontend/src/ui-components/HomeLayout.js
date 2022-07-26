@@ -11,10 +11,9 @@ function HomeLayout({ onAddNewTask, children }) {
       <Flex marginTop={4} alignItems="center" justify="center">
         <HStack>
           <Input
+            width={['3xs', 'sm', 'md', 'xl']}
             boxShadow="base"
-            w={600}
             placeholder="Find anything"
-            size="md"
           />
           {auth.isLogged() ? (
             <>

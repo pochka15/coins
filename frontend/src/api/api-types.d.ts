@@ -12,7 +12,7 @@ interface ApiTask {
   content: string
   deadline: string
   budget: number
-  status: string
+  status: 'New' | 'Assigned' | 'Reviewing' | 'Closed'
   author: string
   authorMemberId: string
   assignee: string | null

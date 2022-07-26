@@ -53,7 +53,7 @@ class RoomsController(
 
     @GetMapping("/{id}/tasks")
     fun getTasks(@PathVariable id: String): List<TaskData> {
-        return taskService.getTasksByRoom(id).map { it.toData() }
+        return taskService.getExtendedTasksByRoom(id).map { it.toData() }
     }
 }
 

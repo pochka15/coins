@@ -8,6 +8,7 @@ import {
   Heading,
   HStack,
   Icon,
+  IconButton,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -23,17 +24,25 @@ import {
   PopoverTrigger,
   Spinner,
   Text,
+  Tooltip,
+  useBoolean,
   useColorModeValue,
   useDisclosure
 } from '@chakra-ui/react'
 import { GiTwoCoins } from 'react-icons/gi'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
-import { assignTask, deleteTask, unassignTask } from '../../api/tasks'
+import {
+  assignTask,
+  deleteTask,
+  solveTask,
+  unassignTask
+} from '../../api/tasks'
 import { GLOBAL_ROOM_ID, TASKS_QUERY_KEY } from '../TasksFeed'
 import { extractErrorMessage } from '../../api/api-utils'
 import { getMember } from '../../api/room'
 import { MarkdownContent } from './MarkdownContent'
 import { RiDeleteBin7Line } from 'react-icons/ri'
+import { MdDone } from 'react-icons/md'
 import { WALLET_KEY } from '../wallet/CoinsSummary'
 
 function buildErrorMessage(
@@ -43,6 +52,19 @@ function buildErrorMessage(
 ) {
   if (error.response.status === 403) return noPermissionsMessage
   return extractErrorMessage(error) || defaultMessage
+}
+
+/**
+ * Get all the utility info about member
+ * @param {ApiTask} task
+ * @param {ApiMember} member
+ * @return {{isAssignee: boolean, isAuthor: boolean}}
+ */
+function identify(task, member) {
+  return {
+    isAuthor: task.authorMemberId === member?.id,
+    isAssignee: task.assigneeMemberId === member?.id
+  }
 }
 
 function useMember() {
@@ -57,34 +79,26 @@ function useMember() {
   return { data, isFetching, isError }
 }
 
-function PopoverError({
-  errorMessage,
-  onHoverChange,
-  children,
-  onClose: propOnClose
-}) {
+function PopoverError({ errorMessage, children, onClose: propOnClose }) {
   const { isOpen, onOpen, onClose } = useDisclosure()
   useEffect(() => {
     if (errorMessage) onOpen()
-  }, [errorMessage])
+  }, [errorMessage, onOpen])
 
   return (
     <Popover
       returnFocusOnClose={false}
+      closeOnBlur={false}
       isOpen={isOpen}
       onClose={() => {
         onClose()
         propOnClose()
       }}
-      closeOnBlur={false}
     >
       <PopoverTrigger>{children}</PopoverTrigger>
       <PopoverContent>
         <PopoverArrow />
-        <PopoverCloseButton
-          onMouseEnter={() => onHoverChange(true)}
-          onMouseLeave={() => onHoverChange(false)}
-        />
+        <PopoverCloseButton />
         <PopoverBody>
           <Alert status="error" mt={8}>
             <AlertIcon />
@@ -96,11 +110,11 @@ function PopoverError({
   )
 }
 
-function AssignmentButton({ onHoverChange, member, taskId }) {
+function AssignmentButton({ member, task }) {
   const queryClient = useQueryClient()
   const [errorMessage, setErrorMessage] = useState('')
 
-  const mutation = useMutation(() => assignTask(taskId, member.id), {
+  const mutation = useMutation(() => assignTask(task.id, member.id), {
     onSuccess: () => {
       queryClient.invalidateQueries(TASKS_QUERY_KEY).then()
       setErrorMessage('')
@@ -119,26 +133,20 @@ function AssignmentButton({ onHoverChange, member, taskId }) {
   return (
     <PopoverError
       errorMessage={errorMessage}
-      onHoverChange={onHoverChange}
       onClose={() => setErrorMessage('')}
     >
-      <Button
-        onMouseEnter={() => onHoverChange(true)}
-        onMouseLeave={() => onHoverChange(false)}
-        onClick={() => mutation.mutate()}
-        variant="ghost"
-      >
+      <Button onClick={() => mutation.mutate()} variant="ghost">
         <Text as="u">Assign to me</Text>
       </Button>
     </PopoverError>
   )
 }
 
-function ClearAssignmentButton({ onHoverChange, taskId }) {
+function ClearAssignmentButton({ task }) {
   const queryClient = useQueryClient()
   const [errorMessage, setErrorMessage] = useState('')
 
-  const mutation = useMutation(() => unassignTask(taskId), {
+  const mutation = useMutation(() => unassignTask(task.id), {
     onSuccess: () => {
       queryClient.invalidateQueries(TASKS_QUERY_KEY).then()
       setErrorMessage('')
@@ -157,15 +165,9 @@ function ClearAssignmentButton({ onHoverChange, taskId }) {
   return (
     <PopoverError
       errorMessage={errorMessage}
-      onHoverChange={onHoverChange}
       onClose={() => setErrorMessage('')}
     >
-      <Button
-        onMouseEnter={() => onHoverChange(true)}
-        onMouseLeave={() => onHoverChange(false)}
-        onClick={() => mutation.mutate()}
-        variant="ghost"
-      >
+      <Button onClick={() => mutation.mutate()} variant="ghost">
         <Text as="u">Unassign</Text>
       </Button>
     </PopoverError>
@@ -184,28 +186,24 @@ function TaskEditor({ isOpen, onClose, task }) {
   const queryClient = useQueryClient()
   const [error, setError] = useState('')
 
-  const mutation = useMutation(
-    /** @param {string} taskId */
-    taskId => deleteTask(taskId),
-    {
-      onSuccess: () => {
-        queryClient
-          .invalidateQueries(TASKS_QUERY_KEY)
-          .then(() => queryClient.invalidateQueries(WALLET_KEY))
-          .then(() => onClose())
-        setError('')
-      },
-      onError: e => {
-        setError(
-          buildErrorMessage(
-            e,
-            `You don't have permissions to delete task`,
-            'An error occurred when deleting a task'
-          )
+  const mutation = useMutation(() => deleteTask(task.id), {
+    onSuccess: () => {
+      queryClient
+        .invalidateQueries(TASKS_QUERY_KEY)
+        .then(() => queryClient.invalidateQueries(WALLET_KEY))
+        .then(() => onClose())
+      setError('')
+    },
+    onError: e => {
+      setError(
+        buildErrorMessage(
+          e,
+          `You don't have permissions to delete task`,
+          'An error occurred when deleting a task'
         )
-      }
+      )
     }
-  )
+  })
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -215,7 +213,7 @@ function TaskEditor({ isOpen, onClose, task }) {
         <ModalCloseButton />
         <ModalBody>
           <Text>
-            Do you want to delete this task? You will receive {task.budget}{' '}
+            Do you want to delete this task? You will receive your {task.budget}{' '}
             coins back
           </Text>
           {error && (
@@ -229,8 +227,7 @@ function TaskEditor({ isOpen, onClose, task }) {
           <HStack>
             <Button onClick={onClose}>No</Button>
             <Button
-              rightIcon={<RiDeleteBin7Line />}
-              onClick={() => mutation.mutate(task.id)}
+              onClick={() => mutation.mutate()}
               variant="outline"
               colorScheme="red"
             >
@@ -246,34 +243,92 @@ function TaskEditor({ isOpen, onClose, task }) {
 /**
  *
  * @param {ApiTask} task
- * @param {function(boolean): void} onHoverChange
- * @param {ApiMember} member
  * @return {JSX.Element}
  * @constructor
  */
-function Assignee({ task, onHoverChange, member }) {
-  const { data, isFetching, isError } = useMember()
-  const isAssignedToMe = data?.id === task.assigneeMemberId
+function Assignee({ task }) {
+  const { data: member, isFetching, isError } = useMember()
+  const isAssignedToMe = member?.id === task.assigneeMemberId
   const isAssigned = task.assignee !== null
 
   return (
     <>
       {!isAssigned ? (
-        <AssignmentButton
-          onHoverChange={onHoverChange}
-          member={member}
-          taskId={task.id}
-        />
+        <AssignmentButton member={member} task={task} />
       ) : isError ? (
-        <Text color="red.500">Error :(</Text>
+        <Text color='red.500'>Error :(</Text>
       ) : isFetching ? (
         <Spinner />
       ) : isAssignedToMe ? (
-        <ClearAssignmentButton onHoverChange={onHoverChange} taskId={task.id} />
+        <ClearAssignmentButton task={task} />
       ) : (
-        <Text as="b">Assignee: {task.assignee}</Text>
+        <Text as='b'>Assignee: {task.assignee}</Text>
       )}
     </>
+  )
+}
+
+function SolveTaskButton({ taskId }) {
+  const queryClient = useQueryClient()
+  const [errorMessage, setErrorMessage] = useState('')
+
+  const mutation = useMutation(() => solveTask(taskId), {
+    onSuccess: () => {
+      queryClient.invalidateQueries(TASKS_QUERY_KEY).then()
+      setErrorMessage('')
+    },
+    onError: e => {
+      setErrorMessage(
+        buildErrorMessage(
+          e,
+          `You don't have permissions to solve this task`,
+          'An error occurred when solving the task'
+        )
+      )
+    }
+  })
+
+  if (errorMessage) {
+    return (
+      <Alert status='error' marginLeft={8}>
+        <AlertIcon />
+        {errorMessage}
+      </Alert>
+    )
+  }
+
+  return (
+    <Tooltip label='Solve task'>
+      <IconButton
+        aria-label='Solve task'
+        icon={<MdDone />}
+        color='green'
+        onClick={() => mutation.mutate()}
+      />
+    </Tooltip>
+  )
+}
+
+function TaskModifiersPanel({ task, disabled }) {
+  const { data: member } = useMember()
+  const { isOpen, onOpen, onClose } = useDisclosure()
+  const me = identify(task, member)
+  const canSolve = me.isAssignee && task.status === 'Assigned'
+
+  if (disabled) return null
+  return (
+    <Flex justifyContent='start' gap={2}>
+      {canSolve && <SolveTaskButton taskId={task.id} />}
+      {me.isAuthor && (
+        <IconButton
+          onClick={onOpen}
+          icon={<RiDeleteBin7Line />}
+          aria-label='Edit task'
+          color='tomato'
+        />
+      )}
+      <TaskEditor isOpen={isOpen} onClose={onClose} task={task} />
+    </Flex>
   )
 }
 
@@ -284,47 +339,44 @@ function Assignee({ task, onHoverChange, member }) {
  * @constructor
  */
 function TaskCard({ task }) {
-  const { isOpen: isTaskEditorOpen, onOpen, onClose } = useDisclosure()
-  const { data: member } = useMember()
-  const [isHoveringCard, setIsHoveringCard] = useState(false)
-  const [isHoveringAssignee, setIsHoveringAssignee] = useState(false)
-  const isMine = task.authorMemberId === member?.id
-  const color = useColorModeValue('blackAlpha.300', 'whiteAlpha.100')
+  const [isHovering, setIsHovering] = useBoolean()
+  const hoverColor = useColorModeValue('blackAlpha.300', 'whiteAlpha.100')
+  const color = isHovering ? hoverColor : ''
 
   return (
-    <>
-      <Box
-        p={8}
-        w={['1xl', '2xl', '3xl']}
-        borderWidth="1px"
-        borderRadius="lg"
-        overflow="hidden"
-        bgColor={isHoveringCard && isMine && color}
-        onMouseEnter={() => setIsHoveringCard(true)}
-        onMouseLeave={() => setIsHoveringCard(false)}
-        cursor={isHoveringCard && isMine && 'pointer'}
-        onClick={() => !isHoveringAssignee && isMine && onOpen()}
-      >
-        <Heading as="h3" size="lg" noOfLines={1}>
+    <Box
+      p={8}
+      w={['1xl', '2xl', '3xl']}
+      borderWidth='1px'
+      borderRadius='lg'
+      overflow='hidden'
+      bgColor={color}
+      onMouseEnter={setIsHovering.on}
+      onMouseLeave={setIsHovering.off}
+    >
+      <Flex justifyContent='space-between'>
+        <Heading as='h3' size='lg' noOfLines={1} maxWidth={'xs'}>
           {`${task.title}`}
         </Heading>
-        <MarkdownContent value={task.content} />
-        <Flex marginTop={4} gap={4} align="center">
-          <Text w="11rem">Deadline: {task.deadline}</Text>
-          <Text w="3xs">Author: {task.author}</Text>
-          <Assignee
-            task={task}
-            onHoverChange={setIsHoveringAssignee}
-            member={member}
-          />
-          <HStack>
-            <Text>Reward: {task.budget}</Text>
-            <Icon as={GiTwoCoins} />
-          </HStack>
-        </Flex>
-      </Box>
-      <TaskEditor isOpen={isTaskEditorOpen} onClose={onClose} task={task} />
-    </>
+        <TaskModifiersPanel task={task} disabled={!isHovering} />
+      </Flex>
+
+      <MarkdownContent value={task.content} />
+
+      <Flex marginTop={4} gap={4} align='center'>
+        <Text w='11rem'>Deadline: {task.deadline}</Text>
+        <Text w='3xs'>Author: {task.author}</Text>
+        {task.status === 'Reviewing' ? (
+          <Text>Reviewing</Text>
+        ) : (
+          <Assignee task={task} />
+        )}
+        <HStack>
+          <Text>Reward: {task.budget}</Text>
+          <Icon as={GiTwoCoins} />
+        </HStack>
+      </Flex>
+    </Box>
   )
 }
 

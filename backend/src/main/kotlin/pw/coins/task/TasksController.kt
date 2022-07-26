@@ -10,6 +10,7 @@ import pw.coins.room.RoomService
 import pw.coins.security.PrincipalContext
 import pw.coins.task.model.ExtendedTask
 import pw.coins.task.validation.TaskDeadline
+import pw.coins.wallet.LockNotFoundException
 import pw.coins.wallet.NotEnoughCoinsException
 import pw.coins.wallet.WalletNotFoundException
 import java.time.LocalDate
@@ -32,7 +33,7 @@ class TasksController(
         @PathVariable("task_id") id: String,
         @PrincipalContext user: User
     ): TaskData? {
-        val task = taskService.getTask(id)
+        val task = taskService.getExtendedTask(id)
             ?: throw ResponseStatusException(BAD_REQUEST, "Couldn't find task with id: $id")
 
         roomService.getMemberByUserIdAndRoomId(user.id.toString(), task.roomId.toString())
@@ -50,6 +51,10 @@ class TasksController(
             taskService.deleteTask(id, user.id.toString())
         } catch (e: PermissionsException) {
             throw ResponseStatusException(BAD_REQUEST, e.message)
+        } catch (e: LockNotFoundException) {
+            throw ResponseStatusException(BAD_REQUEST, e.message)
+        } catch (e: TaskNotFoundException) {
+            throw ResponseStatusException(NOT_FOUND, e.message)
         }
     }
 
@@ -88,6 +93,8 @@ class TasksController(
             taskService.unassignTask(taskId, user.id.toString()).toData()
         } catch (e: NoPermissionException) {
             throw ResponseStatusException(BAD_REQUEST, e.message)
+        } catch (e: TaskStatusException) {
+            throw ResponseStatusException(BAD_REQUEST, e.message)
         }
     }
 
@@ -107,6 +114,42 @@ class TasksController(
             throw ResponseStatusException(BAD_REQUEST, e.message)
         } catch (e: AssignmentException) {
             throw ResponseStatusException(FORBIDDEN, e.message)
+        }
+    }
+
+    @PostMapping("/{taskId}/solve")
+    fun solveTask(
+        @PathVariable("taskId") taskId: String,
+        @PrincipalContext user: User
+    ): TaskData {
+        return try {
+            taskService.solveTask(taskId, user.id.toString()).toData()
+        } catch (e: TaskNotFoundException) {
+            throw ResponseStatusException(NOT_FOUND, e.message)
+        } catch (e: MemberNotFoundException) {
+            throw ResponseStatusException(NOT_FOUND, e.message)
+        } catch (e: PermissionsException) {
+            throw ResponseStatusException(BAD_REQUEST, e.message)
+        } catch (e: TaskStatusException) {
+            throw ResponseStatusException(BAD_REQUEST, e.message)
+        }
+    }
+
+    @PostMapping("/{taskId}/accept")
+    fun acceptTask(
+        @PathVariable("taskId") taskId: String,
+        @PrincipalContext user: User
+    ): TaskData {
+        return try {
+            taskService.acceptTask(taskId, user.id.toString()).toData()
+        } catch (e: TaskNotFoundException) {
+            throw ResponseStatusException(NOT_FOUND, e.message)
+        } catch (e: WalletNotFoundException) {
+            throw ResponseStatusException(NOT_FOUND, e.message)
+        } catch (e: PermissionsException) {
+            throw ResponseStatusException(BAD_REQUEST, e.message)
+        } catch (e: TaskStatusException) {
+            throw ResponseStatusException(BAD_REQUEST, e.message)
         }
     }
 }

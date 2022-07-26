@@ -89,7 +89,7 @@ function TasksFeed() {
 
   // noinspection JSValidateTypes
   return (
-    <VStack width="2xl">
+    <VStack>
       {tasks.map(task => (
         <TaskCard key={task.id} task={task} />
       ))}

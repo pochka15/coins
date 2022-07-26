@@ -10,10 +10,10 @@ import pw.coins.db.generated.tables.pojos.CoinsLock
 import pw.coins.db.generated.tables.pojos.Wallet
 import pw.coins.db.parseUUID
 import pw.coins.security.UuidSource
-import pw.coins.task.TaskNotFoundException
 import pw.coins.wallet.models.ExtendedWallet
 import pw.coins.wallet.models.Transaction
 import pw.coins.wallet.models.WalletsDao
+import java.util.*
 import javax.validation.constraints.Max
 import javax.validation.constraints.Min
 import javax.validation.constraints.NotBlank
@@ -71,15 +71,13 @@ class WalletService(
         }
     }
 
-    fun unlockCoins(taskId: String) {
-        val lock = locksDao.fetchByTaskId(parseUUID(taskId)).getOrNull(0)
-            ?: throw TaskNotFoundException("Couldn't find a task with an id = $taskId")
-
-        val wallet = walletsDao.fetchOneById(lock.walletId)
+    fun transferLockedCoins(lock: CoinsLock, wallet: Wallet) {
         wallet.coinsAmount += lock.amount
-
-        locksDao.deleteById(lock.id)
         walletsDao.update(wallet)
+    }
+
+    fun deleteLockById(id: UUID) {
+        locksDao.deleteById(id)
     }
 
     /**
@@ -121,5 +119,6 @@ data class NewWallet(
 
 class WalletNotFoundException(message: String?) : RuntimeException(message)
 class NotEnoughCoinsException(message: String?) : RuntimeException(message)
+class LockNotFoundException(message: String?) : RuntimeException(message)
 
 

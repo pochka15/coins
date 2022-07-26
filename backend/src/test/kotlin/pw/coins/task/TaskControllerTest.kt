@@ -2,6 +2,7 @@ package pw.coins.task
 
 import org.assertj.core.api.Assertions.assertThat
 import org.hamcrest.CoreMatchers.*
+import org.hamcrest.Matchers.emptyString
 import org.jooq.DSLContext
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -159,15 +160,7 @@ class TaskControllerTest(
             mem to task
         }
 
-        mockMvc.post("/tasks/${task.id}/assign") {
-            contentType = MediaType.APPLICATION_JSON
-            accept = MediaType.APPLICATION_JSON
-            content = /* language=JSON */ """
-                            {
-                              "assigneeMemberId": "${member.id}"
-                            }
-                        """.trimIndent()
-        }.andExpect {
+        postAssign(task.id, member.id).andExpect {
             content {
                 jsonPath("$.status", equalTo("Assigned"))
                 jsonPath("$.assigneeMemberId", equalTo(member.id.toString()))
@@ -183,7 +176,7 @@ class TaskControllerTest(
         postTask(member.roomId.toString(), LocalDate.of(2024, 1, 1))
             .andExpect { status { isBadRequest() } }
 
-        assertThat(taskService.getTasksByRoom(member.roomId.toString()))
+        assertThat(taskService.getExtendedTasksByRoom(member.roomId.toString()))
             .hasSize(0)
     }
 
@@ -207,6 +200,79 @@ class TaskControllerTest(
 
         getWallet(wallet.id.toString()).andExpect {
             jsonPath("$.coinsAmount", equalTo(100))
+        }
+    }
+
+    @Test
+    fun `assign and solve task EXPECT status is reviewing`() {
+        val (me, task) = with(room()) {
+            val me = member(me())
+            me to member("Test")
+                .wallet(100)
+                .task(id)
+        }
+        postAssign(task.id, me.id)
+        mockMvc.post("/tasks/${task.id}/solve") {
+            accept = MediaType.APPLICATION_JSON
+        }.andExpect {
+            content {
+                jsonPath("$.status", equalTo("Reviewing"))
+                jsonPath("$.assigneeMemberId", equalTo(me.id.toString()))
+            }
+        }
+    }
+
+
+    @Test
+    fun `solve task EXPECT bad request`() {
+        val task = with(room()) {
+            member(me())
+            member("Test")
+                .wallet(100)
+                .task(id)
+        }
+        mockMvc.post("/tasks/${task.id}/solve") {
+            accept = MediaType.APPLICATION_JSON
+        }.andExpect {
+            status { isBadRequest() }
+        }
+    }
+
+    @Test
+    fun `accept task EXPECT coins transaction is committed`() {
+        val room = room()
+        val me = room.member(me()).wallet(100)
+        val him = room.member("Test").wallet(100)
+        val task = me.task(room.id)
+        taskService.assign(task.id.toString(), him.id.toString(), him.userId.toString())
+        taskService.solveTask(task.id.toString(), him.userId.toString())
+
+        mockMvc.post("/tasks/${task.id}/accept") {
+            accept = MediaType.APPLICATION_JSON
+        }.andExpect {
+            content {
+                jsonPath("$.status", equalTo("Closed"))
+                jsonPath("$.assigneeMemberId", equalTo(him.id.toString()))
+            }
+        }
+
+        val myWallet = walletService.getWalletByMemberId(me.id.toString())!!
+        val hisWallet = walletService.getWalletByMemberId(him.id.toString())!!
+        assertThat(myWallet.coinsAmount).isEqualTo(90)
+        assertThat(hisWallet.coinsAmount).isEqualTo(110)
+    }
+
+    @Test
+    fun `accept new task EXPECT bad request`() {
+        val room = room()
+        val me = room.member(me()).wallet(100)
+        val task = me.task(room.id)
+
+        mockMvc.post("/tasks/${task.id}/accept") {
+            accept = MediaType.APPLICATION_JSON
+        }.andExpect {
+            status { isBadRequest() }
+            content { jsonPath("$.message", `is`(not(emptyString()))) }
         }
     }
 
@@ -270,5 +336,18 @@ class TaskControllerTest(
                 userId = userId.toString(),
             )
         )
+    }
+
+    private fun postAssign(
+        taskId: UUID,
+        assigneeMemberId: UUID
+    ) = mockMvc.post("/tasks/$taskId/assign") {
+        contentType = MediaType.APPLICATION_JSON
+        accept = MediaType.APPLICATION_JSON
+        content = /* language=JSON */ """
+                                {
+                                  "assigneeMemberId": "$assigneeMemberId"
+                                }
+                            """.trimIndent()
     }
 }

@@ -48,3 +48,15 @@ export async function deleteTask(taskId) {
     .delete(`/tasks/${taskId}`)
     .then(r => r.data)
 }
+
+/**
+ * Solve task
+ * @param {string} taskId
+ * @return {Promise<ApiTask>}
+ */
+export async function solveTask(taskId) {
+  return auth
+    .getClient()
+    .post(`/tasks/${taskId}/solve`)
+    .then(r => r.data)
+}

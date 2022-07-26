@@ -40,7 +40,7 @@ function CoinsSummary() {
   return (
     !isLoading &&
     !isError && (
-      <VStack width="2xs">
+      <VStack>
         <CoinsAmount>{wallet.coinsAmount}</CoinsAmount>
         <Text fontSize="4xl">Coins</Text>
       </VStack>
