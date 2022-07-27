@@ -29,7 +29,6 @@ internal class RoomControllerTest(
     @Autowired val dslContext: DSLContext,
     @Autowired val userService: UserService,
 ) {
-
     @Test
     fun `create room EXPECT correct name and id returned`() {
         mockMvc.post("/rooms") {
@@ -82,16 +81,10 @@ internal class RoomControllerTest(
 
     @AfterEach
     fun cleanup() {
-        dslContext
-            .deleteFrom(MEMBERS)
-            .execute()
-
-        dslContext
-            .deleteFrom(ROOMS)
-            .execute()
-
-        dslContext
-            .deleteFrom(USERS)
-            .execute()
+        with(dslContext) {
+            deleteFrom(MEMBERS).execute()
+            deleteFrom(ROOMS).execute()
+            deleteFrom(USERS).execute()
+        }
     }
 }

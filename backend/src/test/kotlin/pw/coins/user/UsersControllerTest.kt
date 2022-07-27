@@ -1,8 +1,7 @@
 package pw.coins.user
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.hamcrest.CoreMatchers.`is`
-import org.hamcrest.CoreMatchers.notNullValue
+import org.hamcrest.CoreMatchers.*
 import org.jooq.DSLContext
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -11,8 +10,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 import pw.coins.db.generated.Tables
+import pw.coins.room.NewMember
+import pw.coins.room.NewRoom
+import pw.coins.room.RoomService
 import pw.coins.security.WithMockCustomUser
 
 @AutoConfigureMockMvc
@@ -22,6 +25,8 @@ internal class UsersControllerTest(
     @Autowired val mockMvc: MockMvc,
     @Autowired val mapper: ObjectMapper,
     @Autowired val dslContext: DSLContext,
+    @Autowired val roomService: RoomService,
+    @Autowired val userService: UserService,
 ) {
 
     @Test
@@ -42,10 +47,28 @@ internal class UsersControllerTest(
         }
     }
 
+    @Test
+    fun `add user to the rooms EXPECT correct available rooms returned`() {
+        val me = me()
+        val room1 = roomService.create(NewRoom("room1"))
+        val room2 = roomService.create(NewRoom("room2"))
+        roomService.addMember(NewMember(me.id, room1.id))
+        roomService.addMember(NewMember(me.id, room2.id))
+
+        mockMvc.get("/users/${me.id}/availableRooms") {
+            accept = MediaType.APPLICATION_JSON
+        }.andDo { print() }
+    }
+
+
     @AfterEach
     fun cleanup() {
-        dslContext
-            .deleteFrom(Tables.USERS)
-            .execute()
+        with(dslContext) {
+            deleteFrom(Tables.MEMBERS).execute()
+            deleteFrom(Tables.ROOMS).execute()
+            deleteFrom(Tables.USERS).execute()
+        }
     }
+
+    private fun me() = userService.getUser("test-email@gmail.com")!!
 }

@@ -49,6 +49,10 @@ class RoomService(
     fun getMemberById(memberId: UUID): Member? {
         return membersDao.fetchOneById(memberId)
     }
+
+    fun getAvailableRooms(userId: UUID): List<Room> {
+        return roomsDao.fetchUserRooms(userId)
+    }
 }
 
 data class NewMember(val associatedUserId: UUID, val roomId: UUID)

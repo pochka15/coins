@@ -29,3 +29,8 @@ interface ApiMember {
   id: string
   name: string
 }
+
+interface ApiRoom {
+  id: string
+  name: string
+}
