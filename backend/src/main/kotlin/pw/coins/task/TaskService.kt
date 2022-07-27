@@ -113,6 +113,24 @@ class TaskService(
         return getExtendedTask(taskId)!!
     }
 
+    fun rejectTask(taskId: UUID, requestedUserId: UUID): ExtendedTask {
+        val task = findTask(taskId)
+            ?: throw TaskNotFoundException("Couldn't find a task that must be accepted")
+
+        val author = task.findAuthor()!!
+        if (author.userId != requestedUserId) {
+            throw PermissionsException("You are not permitted to reject this task. You are not the author")
+        }
+
+        if (task.status != TaskStatus.REVIEWING.name) {
+            throw TaskStatusException("Task must have a 'Reviewing' status in order to reject it")
+        }
+
+        task.status = TaskStatus.ASSIGNED.name
+        tasksDao.update(task)
+        return getExtendedTask(taskId)!!
+    }
+
 
     fun assign(taskId: UUID, assigneeMemberId: UUID, requestedUserId: UUID): ExtendedTask {
         val assignee = roomService.getMemberById(assigneeMemberId)

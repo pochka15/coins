@@ -276,6 +276,37 @@ class TaskControllerTest(
         }
     }
 
+    @Test
+    fun `reject assigned task expect bad request`() {
+        val room = room()
+        val me = room.member(me()).wallet(100)
+        val him = room.member("Him")
+        val task = me.task(room.id).assign(him)
+
+        mockMvc.post("/tasks/${task.id}/reject") {
+            accept = MediaType.APPLICATION_JSON
+        }.andExpect {
+            status { isBadRequest() }
+        }
+    }
+
+    @Test
+    fun `reject task expect task now has status assigned`() {
+        val room = room()
+        val me = room.member(me()).wallet(100)
+        val him = room.member("Him")
+        val task = me.task(room.id).assign(him).solve(him)
+
+        mockMvc.post("/tasks/${task.id}/reject") {
+            accept = MediaType.APPLICATION_JSON
+        }.andExpect {
+            content {
+                jsonPath("$.status", equalTo("Assigned"))
+                jsonPath("$.assigneeMemberId", equalTo(him.id.toString()))
+            }
+        }
+    }
+
     fun postTask(roomId: String, deadline: LocalDate = LocalDate.now()): ResultActionsDsl {
         return mockMvc.post("/tasks") {
             contentType = MediaType.APPLICATION_JSON
@@ -322,7 +353,15 @@ class TaskControllerTest(
     }
 
     private fun Member.wallet(coinsAmount: Int): Member {
-        return also { walletService.createWallet(NewWallet(coinsAmount, id)) }
+        return apply { walletService.createWallet(NewWallet(coinsAmount, id)) }
+    }
+
+    private fun ExtendedTask.assign(member: Member): ExtendedTask {
+        return apply { taskService.assign(id, member.id, member.userId) }
+    }
+
+    private fun ExtendedTask.solve(member: Member): ExtendedTask {
+        return apply { taskService.solveTask(id, member.userId) }
     }
 
     private fun Member.task(roomId: UUID, title: String = "Test task"): ExtendedTask {

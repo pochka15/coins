@@ -60,3 +60,27 @@ export async function solveTask(taskId) {
     .post(`/tasks/${taskId}/solve`)
     .then(r => r.data)
 }
+
+/**
+ * Accept task
+ * @param {string} taskId
+ * @return {Promise<ApiTask>}
+ */
+export async function acceptTask(taskId) {
+  return auth
+    .getClient()
+    .post(`/tasks/${taskId}/accept`)
+    .then(r => r.data)
+}
+
+/**
+ * Reject task
+ * @param {string} taskId
+ * @return {Promise<ApiTask>}
+ */
+export async function rejectTask(taskId) {
+  return auth
+    .getClient()
+    .post(`/tasks/${taskId}/reject`)
+    .then(r => r.data)
+}

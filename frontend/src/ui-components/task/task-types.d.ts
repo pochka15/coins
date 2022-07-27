@@ -1,11 +1,22 @@
-declare type TNewTask = {
+interface TNewTask {
   title: string
   content: string
   deadline: Date
   budget: number
 }
 
-declare type TFieldError = {
+interface TFieldError {
   fieldName: String
   message: String
+}
+
+declare interface TMemberInformation {
+  isAssignee: boolean
+  isAuthor: boolean
+}
+
+declare interface TTaskPermissions {
+  canSolve: boolean
+  canAccept: boolean
+  canReject: boolean
 }

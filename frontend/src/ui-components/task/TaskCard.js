@@ -32,8 +32,10 @@ import {
 import { GiTwoCoins } from 'react-icons/gi'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import {
+  acceptTask,
   assignTask,
   deleteTask,
+  rejectTask,
   solveTask,
   unassignTask
 } from '../../api/tasks'
@@ -58,12 +60,27 @@ function buildErrorMessage(
  * Get all the utility info about member
  * @param {ApiTask} task
  * @param {ApiMember} member
- * @return {{isAssignee: boolean, isAuthor: boolean}}
+ * @return {TMemberInformation}
  */
-function identify(task, member) {
+function getInfoAboutMember(task, member) {
   return {
     isAuthor: task.authorMemberId === member?.id,
     isAssignee: task.assigneeMemberId === member?.id
+  }
+}
+
+/**
+ *
+ * @param {ApiTask} task
+ * @param {TMemberInformation} memberInfo
+ * @return {TTaskPermissions}
+ */
+function getTaskPermissions(task, memberInfo) {
+  const canAccept = memberInfo.isAuthor && task.status === 'Reviewing'
+  return {
+    canSolve: memberInfo.isAssignee && task.status === 'Assigned',
+    canAccept,
+    canReject: canAccept
   }
 }
 
@@ -135,7 +152,7 @@ function AssignmentButton({ member, task }) {
       errorMessage={errorMessage}
       onClose={() => setErrorMessage('')}
     >
-      <Button onClick={() => mutation.mutate()} variant="ghost">
+      <Button onClick={mutation.mutate} variant="ghost">
         <Text as="u">Assign to me</Text>
       </Button>
     </PopoverError>
@@ -167,7 +184,7 @@ function ClearAssignmentButton({ task }) {
       errorMessage={errorMessage}
       onClose={() => setErrorMessage('')}
     >
-      <Button onClick={() => mutation.mutate()} variant="ghost">
+      <Button onClick={mutation.mutate} variant="ghost">
         <Text as="u">Unassign</Text>
       </Button>
     </PopoverError>
@@ -185,6 +202,13 @@ function ClearAssignmentButton({ task }) {
 function TaskEditor({ isOpen, onClose, task }) {
   const queryClient = useQueryClient()
   const [error, setError] = useState('')
+
+  const prefix = 'Do you want to delete this task?'
+  const suffix =
+    task.status === 'Closed'
+      ? ''
+      : ` You will receive your ${task.budget} coins back`
+  const text = prefix + suffix
 
   const mutation = useMutation(() => deleteTask(task.id), {
     onSuccess: () => {
@@ -212,10 +236,7 @@ function TaskEditor({ isOpen, onClose, task }) {
         <ModalHeader>{task.title}</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <Text>
-            Do you want to delete this task? You will receive your {task.budget}{' '}
-            coins back
-          </Text>
+          <Text>{text}</Text>
           {error && (
             <Alert status="error" mt={8}>
               <AlertIcon />
@@ -227,7 +248,7 @@ function TaskEditor({ isOpen, onClose, task }) {
           <HStack>
             <Button onClick={onClose}>No</Button>
             <Button
-              onClick={() => mutation.mutate()}
+              onClick={mutation.mutate}
               variant="outline"
               colorScheme="red"
             >
@@ -256,23 +277,23 @@ function Assignee({ task }) {
       {!isAssigned ? (
         <AssignmentButton member={member} task={task} />
       ) : isError ? (
-        <Text color='red.500'>Error :(</Text>
+        <Text color="red.500">Error :(</Text>
       ) : isFetching ? (
         <Spinner />
       ) : isAssignedToMe ? (
         <ClearAssignmentButton task={task} />
       ) : (
-        <Text as='b'>Assignee: {task.assignee}</Text>
+        <Text as="b">Assignee: {task.assignee}</Text>
       )}
     </>
   )
 }
 
-function SolveTaskButton({ taskId }) {
+function SolveTaskButton({ task }) {
   const queryClient = useQueryClient()
   const [errorMessage, setErrorMessage] = useState('')
 
-  const mutation = useMutation(() => solveTask(taskId), {
+  const mutation = useMutation(() => solveTask(task.id), {
     onSuccess: () => {
       queryClient.invalidateQueries(TASKS_QUERY_KEY).then()
       setErrorMessage('')
@@ -290,7 +311,7 @@ function SolveTaskButton({ taskId }) {
 
   if (errorMessage) {
     return (
-      <Alert status='error' marginLeft={8}>
+      <Alert status="error" marginLeft={8}>
         <AlertIcon />
         {errorMessage}
       </Alert>
@@ -298,13 +319,100 @@ function SolveTaskButton({ taskId }) {
   }
 
   return (
-    <Tooltip label='Solve task'>
+    <Tooltip label="Solve task">
       <IconButton
-        aria-label='Solve task'
+        aria-label="Solve task"
         icon={<MdDone />}
-        color='green'
-        onClick={() => mutation.mutate()}
+        onClick={mutation.mutate}
+        variant="ghost"
       />
+    </Tooltip>
+  )
+}
+
+function AcceptTaskButton({ task }) {
+  const queryClient = useQueryClient()
+  const [errorMessage, setErrorMessage] = useState('')
+
+  const mutation = useMutation(() => acceptTask(task.id), {
+    onSuccess: () => {
+      queryClient
+        .invalidateQueries(TASKS_QUERY_KEY)
+        .then(() => queryClient.invalidateQueries(WALLET_KEY))
+
+      setErrorMessage('')
+    },
+    onError: e => {
+      setErrorMessage(
+        buildErrorMessage(
+          e,
+          `You don't have permissions to accept this task`,
+          'An error occurred when accepting the task'
+        )
+      )
+    }
+  })
+
+  if (errorMessage) {
+    return (
+      <Alert status="error" marginLeft={8}>
+        <AlertIcon />
+        {errorMessage}
+      </Alert>
+    )
+  }
+
+  return (
+    <Tooltip label="Accept task">
+      <Button
+        onClick={mutation.mutate}
+        aria-label="Accept task"
+        variant="ghost"
+      >
+        👍
+      </Button>
+    </Tooltip>
+  )
+}
+
+function RejectTaskButton({ task }) {
+  const queryClient = useQueryClient()
+  const [errorMessage, setErrorMessage] = useState('')
+
+  const mutation = useMutation(() => rejectTask(task.id), {
+    onSuccess: () => {
+      queryClient.invalidateQueries(TASKS_QUERY_KEY).then()
+      setErrorMessage('')
+    },
+    onError: e => {
+      setErrorMessage(
+        buildErrorMessage(
+          e,
+          `You don't have permissions to reject this task`,
+          'An error occurred when rejecting the task'
+        )
+      )
+    }
+  })
+
+  if (errorMessage) {
+    return (
+      <Alert status="error" marginLeft={8}>
+        <AlertIcon />
+        {errorMessage}
+      </Alert>
+    )
+  }
+
+  return (
+    <Tooltip label="Reject task">
+      <Button
+        onClick={mutation.mutate}
+        aria-label="Reject task"
+        variant="ghost"
+      >
+        👎
+      </Button>
     </Tooltip>
   )
 }
@@ -312,19 +420,23 @@ function SolveTaskButton({ taskId }) {
 function TaskModifiersPanel({ task, disabled }) {
   const { data: member } = useMember()
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const me = identify(task, member)
-  const canSolve = me.isAssignee && task.status === 'Assigned'
+  const me = getInfoAboutMember(task, member)
+  const permissions = getTaskPermissions(task, me)
 
   if (disabled) return null
+
   return (
-    <Flex justifyContent='start' gap={2}>
-      {canSolve && <SolveTaskButton taskId={task.id} />}
+    <Flex justifyContent="start">
+      {permissions.canSolve && <SolveTaskButton task={task} />}
+      {permissions.canAccept && <AcceptTaskButton task={task} />}
+      {permissions.canReject && <RejectTaskButton task={task} />}
+
       {me.isAuthor && (
         <IconButton
           onClick={onOpen}
           icon={<RiDeleteBin7Line />}
-          aria-label='Edit task'
-          color='tomato'
+          aria-label="Edit task"
+          variant="ghost"
         />
       )}
       <TaskEditor isOpen={isOpen} onClose={onClose} task={task} />
@@ -347,15 +459,15 @@ function TaskCard({ task }) {
     <Box
       p={8}
       w={['1xl', '2xl', '3xl']}
-      borderWidth='1px'
-      borderRadius='lg'
-      overflow='hidden'
+      borderWidth="1px"
+      borderRadius="lg"
+      overflow="hidden"
       bgColor={color}
       onMouseEnter={setIsHovering.on}
       onMouseLeave={setIsHovering.off}
     >
-      <Flex justifyContent='space-between'>
-        <Heading as='h3' size='lg' noOfLines={1} maxWidth={'xs'}>
+      <Flex justifyContent="space-between">
+        <Heading as="h3" size="lg" noOfLines={1} maxWidth={'xs'}>
           {`${task.title}`}
         </Heading>
         <TaskModifiersPanel task={task} disabled={!isHovering} />
@@ -363,11 +475,13 @@ function TaskCard({ task }) {
 
       <MarkdownContent value={task.content} />
 
-      <Flex marginTop={4} gap={4} align='center'>
-        <Text w='11rem'>Deadline: {task.deadline}</Text>
-        <Text w='3xs'>Author: {task.author}</Text>
+      <Flex marginTop={4} gap={4} align="center">
+        <Text w="11rem">Deadline: {task.deadline}</Text>
+        <Text w="3xs">Author: {task.author}</Text>
         {task.status === 'Reviewing' ? (
           <Text>Reviewing</Text>
+        ) : task.status === 'Closed' ? (
+          <Text>Closed ({task.assignee})</Text>
         ) : (
           <Assignee task={task} />
         )}

@@ -153,6 +153,22 @@ class TasksController(
             throw ResponseStatusException(BAD_REQUEST, e.message)
         }
     }
+
+    @PostMapping("/{taskId}/reject")
+    fun rejectTask(
+        @PathVariable("taskId") taskId: UUID,
+        @PrincipalContext user: User
+    ): TaskData {
+        return try {
+            taskService.rejectTask(taskId, user.id).toData()
+        } catch (e: TaskNotFoundException) {
+            throw ResponseStatusException(NOT_FOUND, e.message)
+        } catch (e: PermissionsException) {
+            throw ResponseStatusException(BAD_REQUEST, e.message)
+        } catch (e: TaskStatusException) {
+            throw ResponseStatusException(BAD_REQUEST, e.message)
+        }
+    }
 }
 
 data class TaskData(
