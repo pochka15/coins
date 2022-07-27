@@ -176,7 +176,7 @@ class TaskControllerTest(
         postTask(member.roomId.toString(), LocalDate.of(2024, 1, 1))
             .andExpect { status { isBadRequest() } }
 
-        assertThat(taskService.getExtendedTasksByRoom(member.roomId.toString()))
+        assertThat(taskService.getExtendedTasksByRoom(member.roomId))
             .hasSize(0)
     }
 
@@ -192,7 +192,7 @@ class TaskControllerTest(
     @Test
     fun `delete task EXPECT coins are unlocked`() {
         val member = room().member(me())
-        val wallet = walletService.createWallet(NewWallet(100, member.id.toString()))
+        val wallet = walletService.createWallet(NewWallet(100, member.id))
         val task = member.task(member.roomId)
 
         mockMvc.delete("/tasks/${task.id}")
@@ -244,8 +244,8 @@ class TaskControllerTest(
         val me = room.member(me()).wallet(100)
         val him = room.member("Test").wallet(100)
         val task = me.task(room.id)
-        taskService.assign(task.id.toString(), him.id.toString(), him.userId.toString())
-        taskService.solveTask(task.id.toString(), him.userId.toString())
+        taskService.assign(task.id, him.id, him.userId)
+        taskService.solveTask(task.id, him.userId)
 
         mockMvc.post("/tasks/${task.id}/accept") {
             accept = MediaType.APPLICATION_JSON
@@ -256,8 +256,8 @@ class TaskControllerTest(
             }
         }
 
-        val myWallet = walletService.getWalletByMemberId(me.id.toString())!!
-        val hisWallet = walletService.getWalletByMemberId(him.id.toString())!!
+        val myWallet = walletService.getWalletByMemberId(me.id)!!
+        val hisWallet = walletService.getWalletByMemberId(him.id)!!
         assertThat(myWallet.coinsAmount).isEqualTo(90)
         assertThat(hisWallet.coinsAmount).isEqualTo(110)
     }
@@ -313,16 +313,16 @@ class TaskControllerTest(
     private fun me() = userService.getUser("test-email@gmail.com")!!
 
     private fun Room.member(user: User): Member {
-        return roomService.addMember(NewMember(user.id.toString(), id.toString()))
+        return roomService.addMember(NewMember(user.id, id))
     }
 
     private fun Room.member(userName: String): Member {
         val user = userService.createUser(userName)
-        return roomService.addMember(NewMember(user.id.toString(), id.toString()))
+        return roomService.addMember(NewMember(user.id, id))
     }
 
     private fun Member.wallet(coinsAmount: Int): Member {
-        return also { walletService.createWallet(NewWallet(coinsAmount, id.toString())) }
+        return also { walletService.createWallet(NewWallet(coinsAmount, id)) }
     }
 
     private fun Member.task(roomId: UUID, title: String = "Test task"): ExtendedTask {
@@ -332,8 +332,8 @@ class TaskControllerTest(
                 content = "Test content",
                 deadline = LocalDate.of(2028, 7, 15),
                 budget = 10,
-                roomId = roomId.toString(),
-                userId = userId.toString(),
+                roomId = roomId,
+                userId = userId,
             )
         )
     }

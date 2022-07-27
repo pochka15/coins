@@ -8,7 +8,6 @@ import pw.coins.db.generated.Tables.WALLETS
 import pw.coins.db.generated.tables.daos.CoinsLocksDao
 import pw.coins.db.generated.tables.pojos.CoinsLock
 import pw.coins.db.generated.tables.pojos.Wallet
-import pw.coins.db.parseUUID
 import pw.coins.security.UuidSource
 import pw.coins.wallet.models.ExtendedWallet
 import pw.coins.wallet.models.Transaction
@@ -16,7 +15,6 @@ import pw.coins.wallet.models.WalletsDao
 import java.util.*
 import javax.validation.constraints.Max
 import javax.validation.constraints.Min
-import javax.validation.constraints.NotBlank
 
 @Service
 class WalletService(
@@ -25,32 +23,32 @@ class WalletService(
     val dslContext: DSLContext,
     val locksDao: CoinsLocksDao,
 ) {
-    fun getWalletById(id: String): ExtendedWallet? {
-        return walletsDao.fetchExtendedWalletById(parseUUID(id))
+    fun getWalletById(id: UUID): ExtendedWallet? {
+        return walletsDao.fetchExtendedWalletById(id)
     }
 
-    fun getWalletByMemberId(id: String): Wallet? {
-        return walletsDao.fetchByMemberId(parseUUID(id)).getOrNull(0)
+    fun getWalletByMemberId(id: UUID): Wallet? {
+        return walletsDao.fetchByMemberId(id).getOrNull(0)
     }
 
     fun createWallet(newWallet: NewWallet): Wallet {
         val wallet = Wallet(
             uuidSource.genUuid(),
             newWallet.coinsAmount,
-            parseUUID(newWallet.memberId)
+            newWallet.memberId
         )
         walletsDao.insert(wallet)
         return wallet
     }
 
-    fun getWalletByRoomIdAndUserId(roomId: String, userId: String): ExtendedWallet? {
-        return walletsDao.fetchByUserIdAndRoomId(parseUUID(userId), parseUUID(roomId))
+    fun getWalletByRoomIdAndUserId(roomId: UUID, userId: UUID): ExtendedWallet? {
+        return walletsDao.fetchByUserIdAndRoomId(userId, roomId)
     }
 
     /**
      * This method is primarily made to lock coins when creating a new task
      */
-    fun lockCoins(wallet: Wallet, taskId: String, coinsAmount: Int) {
+    fun lockCoins(wallet: Wallet, taskId: UUID, coinsAmount: Int) {
         val newAmount = wallet.coinsAmount - coinsAmount
         if (newAmount < 0) throw NotEnoughCoinsException("You don't have enough coins to create a task")
 
@@ -59,7 +57,7 @@ class WalletService(
                 executeInsert(
                     newRecord(
                         COINS_LOCKS,
-                        CoinsLock(uuidSource.genUuid(), coinsAmount, wallet.id, parseUUID(taskId))
+                        CoinsLock(uuidSource.genUuid(), coinsAmount, wallet.id, taskId)
                     )
                 )
                 executeUpdate(
@@ -113,8 +111,7 @@ class WalletService(
 data class NewWallet(
     @field:Min(1) @field:Max(1000_000, message = "Too big amount of coins")
     val coinsAmount: Int,
-    @field:NotBlank
-    val memberId: String,
+    val memberId: UUID,
 )
 
 class WalletNotFoundException(message: String?) : RuntimeException(message)

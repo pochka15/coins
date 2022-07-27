@@ -4,11 +4,11 @@ import org.springframework.stereotype.Service
 import pw.coins.db.generated.tables.daos.UsersDao
 import pw.coins.db.generated.tables.pojos.Member
 import pw.coins.db.generated.tables.pojos.Room
-import pw.coins.db.parseUUID
 import pw.coins.room.model.MembersDao
 import pw.coins.room.model.RoomsDao
 import pw.coins.room.model.UserWithMember
 import pw.coins.security.UuidSource
+import java.util.*
 
 const val GLOBAL_ROOM_ID = "a6041b05-ebb9-4ff0-9b6b-d915d573afb2"
 
@@ -26,36 +26,32 @@ class RoomService(
     }
 
     fun addMember(newMember: NewMember): Member {
-        val member = Member(uuidSource.genUuid(), parseUUID(newMember.associatedUserId), parseUUID(newMember.roomId))
-        usersDao.fetchOneById(parseUUID(newMember.associatedUserId))
+        val member = Member(uuidSource.genUuid(), newMember.associatedUserId, newMember.roomId)
+        usersDao.fetchOneById(newMember.associatedUserId)
             ?: throw Exception("Cannot create a member with non-existing associated user id = ${newMember.associatedUserId}")
 
         membersDao.insert(member)
         return member
     }
 
-    fun getMembersByRoom(roomId: String): MutableList<UserWithMember> {
-        return membersDao.fetchByRoomIdJoiningUser(parseUUID(roomId))
+    fun getMembersByRoom(roomId: UUID): MutableList<UserWithMember> {
+        return membersDao.fetchByRoomIdJoiningUser(roomId)
     }
 
-    fun removeMemberById(memberId: String) {
-        membersDao.deleteById(parseUUID(memberId))
+    fun removeMemberById(memberId: UUID) {
+        membersDao.deleteById(memberId)
     }
 
-    fun getMemberByUserIdAndRoomId(userId: String, roomId: String): Member? {
-        return membersDao.fetchByUserIdAndRoomId(parseUUID(userId), parseUUID(roomId))
+    fun getMemberByUserIdAndRoomId(userId: UUID, roomId: UUID): Member? {
+        return membersDao.fetchByUserIdAndRoomId(userId, roomId)
     }
 
-    fun getRoomByMemberId(memberId: String): Room? {
-        return roomsDao.fetchRoomByMemberId(parseUUID(memberId))
-    }
-
-    fun getMemberById(memberId: String): Member? {
-        return membersDao.fetchOneById(parseUUID(memberId))
+    fun getMemberById(memberId: UUID): Member? {
+        return membersDao.fetchOneById(memberId)
     }
 }
 
-data class NewMember(val associatedUserId: String, val roomId: String)
+data class NewMember(val associatedUserId: UUID, val roomId: UUID)
 
 data class NewRoom(
     var name: String

@@ -8,19 +8,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.server.ResponseStatusException
-import pw.coins.db.UUIDParseException
 import javax.validation.ConstraintViolationException
 
 
 @ControllerAdvice
 class GlobalExceptionHandler {
-
-    @ExceptionHandler(UUIDParseException::class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ResponseBody
-    fun handleUUIDParseException(exception: UUIDParseException): Map<String, String> {
-        return mapOf("message" to "Invalid UUID given")
-    }
 
     @ExceptionHandler(ConstraintViolationException::class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)

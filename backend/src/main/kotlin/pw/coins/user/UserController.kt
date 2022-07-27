@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*
 import pw.coins.db.generated.tables.pojos.User
 import pw.coins.room.MemberData
 import pw.coins.room.toData
+import java.util.*
 import javax.validation.Valid
 import javax.validation.constraints.NotEmpty
 import javax.validation.constraints.Size
@@ -21,12 +22,12 @@ class UserController(private val userService: UserService) {
     }
 
     @GetMapping("/{id}/members")
-    fun findAssociatedMembers(@PathVariable id: String): List<MemberData> {
+    fun findAssociatedMembers(@PathVariable id: UUID): List<MemberData> {
         return userService.findAssociatedMembers(id).map { it.toData() }
     }
 
     @DeleteMapping("/{id}")
-    fun removeUser(@PathVariable id: String) {
+    fun removeUser(@PathVariable id: UUID) {
         userService.removeUserById(id)
     }
 }
@@ -39,10 +40,10 @@ data class CreateUserPayload(
 
 data class UserData(
     val email: String,
-    val id: String,
+    val id: UUID,
     val name: String,
 )
 
 fun User.toData(): UserData {
-    return UserData(email, id.toString(), name = name)
+    return UserData(email, id, name = name)
 }

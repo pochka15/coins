@@ -8,7 +8,6 @@ import pw.coins.db.generated.tables.daos.CoinsLocksDao
 import pw.coins.db.generated.tables.pojos.Member
 import pw.coins.db.generated.tables.pojos.Task
 import pw.coins.db.generated.tables.pojos.Wallet
-import pw.coins.db.parseUUID
 import pw.coins.room.RoomService
 import pw.coins.security.UuidSource
 import pw.coins.task.model.ExtendedTask
@@ -20,6 +19,7 @@ import pw.coins.wallet.WalletNotFoundException
 import pw.coins.wallet.WalletService
 import java.time.LocalDate
 import java.time.OffsetDateTime
+import java.util.*
 
 
 @Service
@@ -47,27 +47,27 @@ class TaskService(
             OffsetDateTime.now(),
             newTask.budget,
             TaskStatus.NEW.name,
-            parseUUID(newTask.roomId),
+            newTask.roomId,
             member.id,
             null,
         )
         dsl.transaction { c: Configuration ->
             with(c.dsl()) { executeInsert(newRecord(TASKS, task)) }
-            walletService.lockCoins(wallet, task.id.toString(), task.budget)
+            walletService.lockCoins(wallet, task.id, task.budget)
         }
 
         return task.toExtended(userService.getUserById(newTask.userId)!!.name)
     }
 
-    fun getExtendedTask(taskId: String): ExtendedTask? {
-        return tasksDao.fetchExtendedTaskByTaskId(parseUUID(taskId))
+    fun getExtendedTask(taskId: UUID): ExtendedTask? {
+        return tasksDao.fetchExtendedTaskByTaskId(taskId)
     }
 
-    fun getExtendedTasksByRoom(roomId: String): List<ExtendedTask> {
-        return tasksDao.fetchExtendedTasksByRoomId(parseUUID(roomId))
+    fun getExtendedTasksByRoom(roomId: UUID): List<ExtendedTask> {
+        return tasksDao.fetchExtendedTasksByRoomId(roomId)
     }
 
-    fun solveTask(taskId: String, requestedUserId: String): ExtendedTask {
+    fun solveTask(taskId: UUID, requestedUserId: UUID): ExtendedTask {
         val task = findTask(taskId)
             ?: throw TaskNotFoundException("Couldn't find a task to solve")
 
@@ -78,7 +78,7 @@ class TaskService(
         val assignee = task.findAssignee()
             ?: throw MemberNotFoundException("Task assignee is not found")
 
-        if (assignee.userId.toString() != requestedUserId) {
+        if (assignee.userId != requestedUserId) {
             throw PermissionsException("You are not permitted to solve this task. You are not the assignee")
         }
 
@@ -87,12 +87,12 @@ class TaskService(
         return getExtendedTask(taskId)!!
     }
 
-    fun acceptTask(taskId: String, requestedUserId: String): ExtendedTask {
+    fun acceptTask(taskId: UUID, requestedUserId: UUID): ExtendedTask {
         val task = findTask(taskId)
             ?: throw TaskNotFoundException("Couldn't find a task that must be accepted")
 
         val author = task.findAuthor()!!
-        if (author.userId.toString() != requestedUserId) {
+        if (author.userId != requestedUserId) {
             throw PermissionsException("You are not permitted to accept this task. You are not the author")
         }
 
@@ -101,7 +101,7 @@ class TaskService(
         }
 
 //        TODO think about transactional problems
-        val assigneeWallet = walletService.getWalletByMemberId(task.assigneeMemberId.toString())
+        val assigneeWallet = walletService.getWalletByMemberId(task.assigneeMemberId)
             ?: throw WalletNotFoundException("Assignee doesn't have a wallet. Cannot accept the task")
 
         with(findLock(task)!!) {
@@ -114,7 +114,7 @@ class TaskService(
     }
 
 
-    fun assign(taskId: String, assigneeMemberId: String, requestedUserId: String): ExtendedTask {
+    fun assign(taskId: UUID, assigneeMemberId: UUID, requestedUserId: UUID): ExtendedTask {
         val assignee = roomService.getMemberById(assigneeMemberId)
             ?: throw MemberNotFoundException("Given assignee is not found")
 
@@ -129,7 +129,7 @@ class TaskService(
         }
         if (errorMessage != null) throw TaskStatusException(errorMessage)
 
-        if (assignee.userId.toString() != requestedUserId) {
+        if (assignee.userId != requestedUserId) {
             throw AssignmentException("You can assign task only to yourself")
         }
 
@@ -138,18 +138,18 @@ class TaskService(
         }
 
         task.status = TaskStatus.ASSIGNED.name
-        task.assigneeMemberId = parseUUID(assigneeMemberId)
+        task.assigneeMemberId = assigneeMemberId
 
         tasksDao.update(task)
         return getExtendedTask(taskId)!!
     }
 
-    fun unassignTask(taskId: String, requestedUserId: String): ExtendedTask {
+    fun unassignTask(taskId: UUID, requestedUserId: UUID): ExtendedTask {
         val task = findTask(taskId)
             ?: throw TaskNotFoundException("Couldn't find the task with an id $taskId")
 
-        val member = roomService.getMemberById(task.assigneeMemberId.toString())!!
-        if (member.userId != parseUUID(requestedUserId)) {
+        val member = roomService.getMemberById(task.assigneeMemberId)!!
+        if (member.userId != requestedUserId) {
             throw PermissionsException("You cannot unassign the task, you are not an assignee")
         }
 
@@ -163,13 +163,13 @@ class TaskService(
         return getExtendedTask(taskId)!!
     }
 
-    fun deleteTask(taskId: String, requestedUserId: String) {
+    fun deleteTask(taskId: UUID, requestedUserId: UUID) {
         val task = findTask(taskId)
             ?: throw TaskNotFoundException("Couldn't find a task that must be deleted")
 
         val author = task.findAuthor()!!
 
-        if (author.userId != parseUUID(requestedUserId)) {
+        if (author.userId != requestedUserId) {
             throw PermissionsException("You cannot delete task, you are not an author")
         }
 
@@ -184,10 +184,10 @@ class TaskService(
         tasksDao.deleteById(task.id)
     }
 
-    private fun findTask(taskId: String): Task? = tasksDao.fetchOneById(parseUUID(taskId))
-    private fun Task.findAuthor(): Member? = roomService.getMemberById(authorMemberId.toString())
-    private fun Task.findAssignee(): Member? = roomService.getMemberById(assigneeMemberId.toString())
-    private fun Member.findWallet(): Wallet? = walletService.getWalletByMemberId(id.toString())
+    private fun findTask(taskId: UUID): Task? = tasksDao.fetchOneById(taskId)
+    private fun Task.findAuthor(): Member? = roomService.getMemberById(authorMemberId)
+    private fun Task.findAssignee(): Member? = roomService.getMemberById(assigneeMemberId)
+    private fun Member.findWallet(): Wallet? = walletService.getWalletByMemberId(id)
     private fun findLock(task: Task) = locksDao.fetchByTaskId(task.id).getOrNull(0)
 }
 
@@ -196,8 +196,8 @@ data class NewTask(
     val content: String?,
     val deadline: LocalDate,
     val budget: Int,
-    val roomId: String,
-    val userId: String,
+    val roomId: UUID,
+    val userId: UUID,
 )
 
 class MemberNotFoundException(message: String?) : RuntimeException(message)

@@ -3,10 +3,10 @@ package pw.coins.user
 import org.springframework.stereotype.Service
 import pw.coins.db.generated.tables.daos.UsersDao
 import pw.coins.db.generated.tables.pojos.User
-import pw.coins.db.parseUUID
 import pw.coins.room.model.MembersDao
 import pw.coins.room.model.UserWithMember
 import pw.coins.security.UuidSource
+import java.util.*
 
 @Service
 class UserService(
@@ -26,12 +26,12 @@ class UserService(
         return user
     }
 
-    fun removeUserById(id: String) = usersDao.deleteById(parseUUID(id))
+    fun removeUserById(id: UUID) = usersDao.deleteById(id)
 
-    fun getUserById(id: String): User? = usersDao.fetchOneById(parseUUID(id))
+    fun getUserById(id: UUID): User? = usersDao.fetchOneById(id)
 
-    fun findAssociatedMembers(userId: String): List<UserWithMember> {
-        return membersDao.fetchByUserIdJoiningMember(parseUUID(userId))
+    fun findAssociatedMembers(userId: UUID): List<UserWithMember> {
+        return membersDao.fetchByUserIdJoiningMember(userId)
     }
 
     fun getUser(email: String): User? {

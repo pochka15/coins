@@ -35,8 +35,8 @@ internal class WalletControllerTest(
 //        --- Sandbox
         val room = roomService.create(NewRoom("Test"))
         val user = userService.getUser("test-email@gmail.com")!!
-        val member = roomService.addMember(NewMember(user.id.toString(), room.id.toString()))
-        val wallet = walletService.createWallet(NewWallet(10, member.id.toString()))
+        val member = roomService.addMember(NewMember(user.id, room.id))
+        val wallet = walletService.createWallet(NewWallet(10, member.id))
 //        --- End Sandbox
 
         mockMvc.get("/wallet?roomId=${room.id}") {
@@ -56,12 +56,12 @@ internal class WalletControllerTest(
 
 //        User 1
         val user = userService.getUser("test-email@gmail.com")!!
-        roomService.addMember(NewMember(user.id.toString(), room.id.toString()))
+        roomService.addMember(NewMember(user.id, room.id))
 
 //        User 2
         val user2 = userService.createUser("Test user 2", "test-email2@gmail.com")
-        val member2 = roomService.addMember(NewMember(user2.id.toString(), room.id.toString()))
-        val wallet2 = walletService.createWallet(NewWallet(10, member2.id.toString()))
+        val member2 = roomService.addMember(NewMember(user2.id, room.id))
+        val wallet2 = walletService.createWallet(NewWallet(10, member2.id))
 //        --- End Sandbox
 
 

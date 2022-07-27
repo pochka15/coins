@@ -9,6 +9,7 @@ import pw.coins.db.generated.tables.pojos.User
 import pw.coins.db.generated.tables.pojos.Wallet
 import pw.coins.security.PrincipalContext
 import pw.coins.wallet.models.ExtendedWallet
+import java.util.*
 
 @RestController
 @RequestMapping("/wallet")
@@ -20,7 +21,7 @@ class WalletController(val walletService: WalletService) {
     }
 
     @GetMapping("/{walletId}")
-    fun wallet(@PathVariable walletId: String, @PrincipalContext user: User): WalletData {
+    fun wallet(@PathVariable walletId: UUID, @PrincipalContext user: User): WalletData {
         val wallet = walletService.getWalletById(walletId)
             ?: throw ResponseStatusException(BAD_REQUEST, "Couldn't find a wallet by id = $walletId")
         if (wallet.userId != user.id) {
@@ -30,8 +31,8 @@ class WalletController(val walletService: WalletService) {
     }
 
     @GetMapping
-    fun walletByRoomId(@RequestParam roomId: String, @PrincipalContext user: User): WalletData {
-        return walletService.getWalletByRoomIdAndUserId(roomId, user.id.toString())?.toData()
+    fun walletByRoomId(@RequestParam roomId: UUID, @PrincipalContext user: User): WalletData {
+        return walletService.getWalletByRoomIdAndUserId(roomId, user.id)?.toData()
             ?: throw ResponseStatusException(
                 BAD_REQUEST,
                 "Couldn't find a wallet for the user '${user.name}' in the roomId = $roomId"
@@ -40,19 +41,19 @@ class WalletController(val walletService: WalletService) {
 }
 
 private fun ExtendedWallet.toData(): WalletData {
-    return WalletData(walletId.toString(), coinsAmount, memberId.toString())
+    return WalletData(walletId, coinsAmount, memberId)
 }
 
 data class WalletData(
-    val id: String,
+    val id: UUID,
     val coinsAmount: Int,
-    val memberId: String,
+    val memberId: UUID,
 )
 
 fun Wallet.toData(): WalletData {
     return WalletData(
-        id = id.toString(),
+        id = id,
         coinsAmount = coinsAmount,
-        memberId = memberId.toString(),
+        memberId = memberId,
     )
 }

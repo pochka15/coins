@@ -1,6 +1,7 @@
 package pw.coins.room
 
-import org.hamcrest.CoreMatchers.*
+import org.hamcrest.CoreMatchers.equalTo
+import org.hamcrest.CoreMatchers.notNullValue
 import org.jooq.DSLContext
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -11,12 +12,12 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment
 import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.get
+import org.springframework.test.web.servlet.post
 import pw.coins.db.generated.Tables.*
-import pw.coins.user.UserService
 import pw.coins.db.generated.tables.pojos.Room
 import pw.coins.security.WithMockCustomUser
+import pw.coins.user.UserService
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
@@ -31,7 +32,7 @@ internal class RoomControllerTest(
 
     @Test
     fun `create room EXPECT correct name and id returned`() {
-        mockMvc.post("/room") {
+        mockMvc.post("/rooms") {
             contentType = MediaType.APPLICATION_JSON
             accept = MediaType.APPLICATION_JSON
             content = /* language=JSON */ """{"name": "test-room"}"""
@@ -47,7 +48,7 @@ internal class RoomControllerTest(
     fun `add member EXPECT member id is not null`() {
         val user = userService.createUser("test-user", "test@gmail.com")
         val room = createRoom("room")
-        mockMvc.post("/room/${room.id}/members") {
+        mockMvc.post("/rooms/${room.id}/members") {
             contentType = MediaType.APPLICATION_JSON
             accept = MediaType.APPLICATION_JSON
             content = /* language=JSON */ """{ "associatedUserId": "${user.id}" }"""
@@ -63,8 +64,8 @@ internal class RoomControllerTest(
     fun fetchByRoomIdJoiningUser() {
         val room = roomService.create(NewRoom("test-room"))
         val user = userService.createUser("test-user", "test@gmail.com")
-        roomService.addMember(NewMember(user.id.toString(), room.id.toString()))
-        mockMvc.get("/room/${room.id}/members") {
+        roomService.addMember(NewMember(user.id, room.id))
+        mockMvc.get("/rooms/${room.id}/members") {
             accept = MediaType.APPLICATION_JSON
         }.andExpect {
             content {

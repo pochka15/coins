@@ -17,6 +17,7 @@ import pw.coins.usos.UsosService
 import pw.coins.usos.UsosUser
 import pw.coins.wallet.NewWallet
 import pw.coins.wallet.WalletService
+import java.util.*
 
 
 @RestController
@@ -65,8 +66,8 @@ class UsosController(
      */
     private fun runNewUserScenario(usosUser: UsosUser): User {
         val user = userService.createUser("${usosUser.firstName} ${usosUser.lastName}", usosUser.email)
-        val member = roomService.addMember(NewMember(user.id.toString(), GLOBAL_ROOM_ID))
-        walletService.createWallet(NewWallet(100, member.id.toString()))
+        val member = roomService.addMember(NewMember(user.id, UUID.fromString(GLOBAL_ROOM_ID)))
+        walletService.createWallet(NewWallet(100, member.id))
         return user
     }
 }

@@ -14,6 +14,7 @@ import pw.coins.wallet.LockNotFoundException
 import pw.coins.wallet.NotEnoughCoinsException
 import pw.coins.wallet.WalletNotFoundException
 import java.time.LocalDate
+import java.util.*
 import javax.naming.NoPermissionException
 import javax.validation.Valid
 import javax.validation.constraints.Max
@@ -30,13 +31,13 @@ class TasksController(
 
     @GetMapping("/{task_id}")
     fun getTask(
-        @PathVariable("task_id") id: String,
+        @PathVariable("task_id") id: UUID,
         @PrincipalContext user: User
     ): TaskData? {
         val task = taskService.getExtendedTask(id)
             ?: throw ResponseStatusException(BAD_REQUEST, "Couldn't find task with id: $id")
 
-        roomService.getMemberByUserIdAndRoomId(user.id.toString(), task.roomId.toString())
+        roomService.getMemberByUserIdAndRoomId(user.id, task.roomId)
             ?: throw ResponseStatusException(FORBIDDEN, "You are not a member of the room where task has been created")
 
         return task.toData()
@@ -44,11 +45,11 @@ class TasksController(
 
     @DeleteMapping("/{task_id}")
     fun deleteTask(
-        @PathVariable("task_id") id: String,
+        @PathVariable("task_id") id: UUID,
         @PrincipalContext user: User
     ) {
         try {
-            taskService.deleteTask(id, user.id.toString())
+            taskService.deleteTask(id, user.id)
         } catch (e: PermissionsException) {
             throw ResponseStatusException(BAD_REQUEST, e.message)
         } catch (e: LockNotFoundException) {
@@ -70,7 +71,7 @@ class TasksController(
                 it.deadline,
                 it.budget,
                 it.roomId,
-                user.id.toString(),
+                user.id,
             )
         }
         return try {
@@ -86,11 +87,11 @@ class TasksController(
 
     @PostMapping("/{taskId}/unassign")
     fun unassignTask(
-        @PathVariable taskId: String,
+        @PathVariable taskId: UUID,
         @PrincipalContext user: User,
     ): TaskData {
         return try {
-            taskService.unassignTask(taskId, user.id.toString()).toData()
+            taskService.unassignTask(taskId, user.id).toData()
         } catch (e: NoPermissionException) {
             throw ResponseStatusException(BAD_REQUEST, e.message)
         } catch (e: TaskStatusException) {
@@ -100,12 +101,12 @@ class TasksController(
 
     @PostMapping("/{taskId}/assign")
     fun assignTask(
-        @PathVariable taskId: String,
+        @PathVariable taskId: UUID,
         @RequestBody payload: AssignTaskPayload,
         @PrincipalContext user: User,
     ): TaskData {
         return try {
-            taskService.assign(taskId, payload.assigneeMemberId, user.id.toString()).toData()
+            taskService.assign(taskId, payload.assigneeMemberId, user.id).toData()
         } catch (e: MemberNotFoundException) {
             throw ResponseStatusException(NOT_FOUND, e.message)
         } catch (e: TaskNotFoundException) {
@@ -119,11 +120,11 @@ class TasksController(
 
     @PostMapping("/{taskId}/solve")
     fun solveTask(
-        @PathVariable("taskId") taskId: String,
+        @PathVariable("taskId") taskId: UUID,
         @PrincipalContext user: User
     ): TaskData {
         return try {
-            taskService.solveTask(taskId, user.id.toString()).toData()
+            taskService.solveTask(taskId, user.id).toData()
         } catch (e: TaskNotFoundException) {
             throw ResponseStatusException(NOT_FOUND, e.message)
         } catch (e: MemberNotFoundException) {
@@ -137,11 +138,11 @@ class TasksController(
 
     @PostMapping("/{taskId}/accept")
     fun acceptTask(
-        @PathVariable("taskId") taskId: String,
+        @PathVariable("taskId") taskId: UUID,
         @PrincipalContext user: User
     ): TaskData {
         return try {
-            taskService.acceptTask(taskId, user.id.toString()).toData()
+            taskService.acceptTask(taskId, user.id).toData()
         } catch (e: TaskNotFoundException) {
             throw ResponseStatusException(NOT_FOUND, e.message)
         } catch (e: WalletNotFoundException) {
@@ -155,7 +156,7 @@ class TasksController(
 }
 
 data class TaskData(
-    val id: String,
+    val id: UUID,
     val title: String,
     val content: String,
     val deadline: String,
@@ -163,14 +164,14 @@ data class TaskData(
     val budget: Int,
     val status: String,
     val author: String,
-    val authorMemberId: String,
+    val authorMemberId: UUID,
     val assignee: String?,
-    val assigneeMemberId: String?,
+    val assigneeMemberId: UUID?,
 )
 
 fun ExtendedTask.toData(): TaskData {
     return TaskData(
-        id = id.toString(),
+        id = id,
         title = title,
         content = content,
         deadline = deadline.toString(),
@@ -178,9 +179,9 @@ fun ExtendedTask.toData(): TaskData {
         budget = budget,
         status = status.formatted,
         author = authorName,
-        authorMemberId = authorMemberId.toString(),
+        authorMemberId = authorMemberId,
         assignee = assigneeName,
-        assigneeMemberId = assigneeMemberId?.toString()
+        assigneeMemberId = assigneeMemberId
     )
 }
 
@@ -193,7 +194,7 @@ data class NewTaskPayload(
     val deadline: LocalDate,
     @field:Min(1) @field:Max(1000_000, message = "Too big budget")
     val budget: Int,
-    val roomId: String,
+    val roomId: UUID,
 )
 
-data class AssignTaskPayload(val assigneeMemberId: String)
+data class AssignTaskPayload(val assigneeMemberId: UUID)
