@@ -12,9 +12,9 @@ import pw.coins.wallet.models.ExtendedWallet
 import java.util.*
 
 @RestController
-@RequestMapping("/wallet")
-@Tag(name = "Wallet")
-class WalletController(val walletService: WalletService) {
+@RequestMapping("/wallets")
+@Tag(name = "Wallets")
+class WalletsController(val walletService: WalletService) {
     @PostMapping
     fun createWallet(wallet: NewWallet): WalletData {
         return walletService.createWallet(wallet).toData()

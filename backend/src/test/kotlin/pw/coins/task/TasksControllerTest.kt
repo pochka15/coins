@@ -32,7 +32,7 @@ import java.util.*
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
 @WithMockCustomUser
-class TaskControllerTest(
+class TasksControllerTest(
     @Autowired val mockMvc: MockMvc,
     @Autowired val roomService: RoomService,
     @Autowired val userService: UserService,
@@ -324,7 +324,7 @@ class TaskControllerTest(
     }
 
     fun getWallet(walletId: String): ResultActionsDsl {
-        return mockMvc.get("/wallet/${walletId}") { accept = MediaType.APPLICATION_JSON }
+        return mockMvc.get("/wallets/${walletId}") { accept = MediaType.APPLICATION_JSON }
     }
 
     @AfterEach

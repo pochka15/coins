@@ -12,9 +12,9 @@ import javax.validation.constraints.Size
 
 
 @RestController
-@RequestMapping("/user")
-@Tag(name = "User")
-class UserController(private val userService: UserService) {
+@RequestMapping("/users")
+@Tag(name = "Users")
+class UsersController(private val userService: UserService) {
 
     @PostMapping
     fun createNewUser(@RequestBody @Valid payload: CreateUserPayload): UserData {

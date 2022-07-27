@@ -21,7 +21,7 @@ import pw.coins.user.UserService
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
-internal class WalletControllerTest(
+internal class WalletsControllerTest(
     @Autowired val mockMvc: MockMvc,
     @Autowired val roomService: RoomService,
     @Autowired val userService: UserService,
@@ -39,7 +39,7 @@ internal class WalletControllerTest(
         val wallet = walletService.createWallet(NewWallet(10, member.id))
 //        --- End Sandbox
 
-        mockMvc.get("/wallet?roomId=${room.id}") {
+        mockMvc.get("/wallets?roomId=${room.id}") {
             accept = MediaType.APPLICATION_JSON
         }.andExpect {
             content {
@@ -65,7 +65,7 @@ internal class WalletControllerTest(
 //        --- End Sandbox
 
 
-        mockMvc.get("/wallet/${wallet2.id}") {
+        mockMvc.get("/wallets/${wallet2.id}") {
             accept = MediaType.APPLICATION_JSON
         }.andExpect { status { isForbidden() } }
     }

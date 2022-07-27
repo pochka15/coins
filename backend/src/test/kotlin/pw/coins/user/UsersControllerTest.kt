@@ -18,7 +18,7 @@ import pw.coins.security.WithMockCustomUser
 @AutoConfigureMockMvc
 @SpringBootTest
 @WithMockCustomUser
-internal class UserControllerTest(
+internal class UsersControllerTest(
     @Autowired val mockMvc: MockMvc,
     @Autowired val mapper: ObjectMapper,
     @Autowired val dslContext: DSLContext,
@@ -27,7 +27,7 @@ internal class UserControllerTest(
     @Test
     fun `create a user EXPECT correct dto returned`() {
         val payload = CreateUserPayload("tmp")
-        val post = mockMvc.post("/user", arrayOf<Any?>()) {
+        val post = mockMvc.post("/users", arrayOf<Any?>()) {
             contentType = MediaType.APPLICATION_JSON
             accept = MediaType.APPLICATION_JSON
             content = mapper.writeValueAsString(payload)

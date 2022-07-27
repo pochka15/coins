@@ -8,6 +8,6 @@ import auth from '../security/auth'
 export async function getWallet(roomId) {
   return auth
     .getClient()
-    .get(`/wallet?roomId=${roomId}`)
+    .get(`/wallets?roomId=${roomId}`)
     .then(r => r.data)
 }

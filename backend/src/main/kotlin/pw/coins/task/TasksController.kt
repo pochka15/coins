@@ -23,7 +23,7 @@ import javax.validation.constraints.NotBlank
 
 @RestController
 @RequestMapping("/tasks")
-@Tag(name = "Task")
+@Tag(name = "Tasks")
 class TasksController(
     private val taskService: TaskService,
     private val roomService: RoomService,

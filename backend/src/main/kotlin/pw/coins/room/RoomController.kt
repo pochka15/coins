@@ -17,7 +17,7 @@ import java.util.*
 
 @RestController
 @RequestMapping("/rooms")
-@Tag(name = "Room")
+@Tag(name = "Rooms")
 class RoomsController(
     val roomService: RoomService,
     val taskService: TaskService,
