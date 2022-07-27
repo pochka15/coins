@@ -2,20 +2,13 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jooq.meta.jaxb.ForcedType
 
 plugins {
-    id("org.springframework.boot") version "2.6.3"
+    id("org.springframework.boot") version "2.7.1"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
     id("nu.studer.jooq") version "7.1"
-    kotlin("jvm") version "1.6.10"
-    kotlin("plugin.spring") version "1.6.10"
-    kotlin("plugin.allopen") version "1.6.10"
-    kotlin("kapt") version "1.6.10"
+    kotlin("jvm") version "1.6.21"
+    kotlin("kapt") version "1.6.21"
+    kotlin("plugin.spring") version "1.6.21"
     id("org.flywaydb.flyway") version "8.5.13"
-}
-
-allOpen {
-    annotation("javax.persistence.Entity")
-    annotation("javax.persistence.MappedSuperclass")
-    annotation("javax.persistence.Embeddable")
 }
 
 group = "pw"
@@ -69,7 +62,8 @@ dependencies {
 
 //    Others
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("org.springdoc:springdoc-openapi-ui:1.6.5")
+    implementation("org.springdoc:springdoc-openapi-ui:1.6.9")
+    runtimeOnly("org.springdoc:springdoc-openapi-security:1.6.9")
     kapt("org.springframework.boot:spring-boot-configuration-processor")
 //    Netty was primarily imported to work in pair with the boot-starter-webflux. Maybe it's only necessary for mac M1 (didn't test on other machines)
     implementation("io.netty:netty-all:4.1.74.Final")
@@ -82,8 +76,12 @@ dependencies {
 tasks.withType<KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict", "-Xjvm-default=all")
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
+}
+extensions.configure(JavaPluginExtension::class) {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 tasks.withType<Test> {
