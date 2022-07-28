@@ -1,24 +1,20 @@
 package pw.coins.security
 
+import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
 import pw.coins.security.filters.BaseAuthorizationFilter
 
 
 @Configuration
-@EnableWebSecurity
-class SecurityConfig(
-    val jwtService: JwtService,
-) : WebSecurityConfigurerAdapter() {
-
-    @Throws(Exception::class)
-    override fun configure(security: HttpSecurity) {
-        security
+class SecurityConfig(val jwtService: JwtService) {
+    @Bean
+    fun filterChain(http: HttpSecurity): SecurityFilterChain {
+        return http
             .logout().disable()
             .httpBasic().disable()
             .formLogin().disable()
@@ -46,5 +42,6 @@ class SecurityConfig(
             .anyRequest().authenticated()
             .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and().addFilterBefore(BaseAuthorizationFilter(jwtService), BasicAuthenticationFilter::class.java)
+            .build()
     }
 }
