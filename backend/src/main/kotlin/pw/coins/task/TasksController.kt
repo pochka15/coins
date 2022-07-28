@@ -28,7 +28,6 @@ class TasksController(
     private val taskService: TaskService,
     private val roomService: RoomService,
 ) {
-
     @GetMapping("/{task_id}")
     fun getTask(
         @PathVariable("task_id") id: UUID,

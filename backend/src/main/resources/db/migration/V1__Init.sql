@@ -100,4 +100,4 @@ create table coins_locks
 
 
 INSERT INTO public.rooms (id, name)
-VALUES ('a6041b05-ebb9-4ff0-9b6b-d915d573afb2', 'PW');
+VALUES ('a6041b05-ebb9-4ff0-9b6b-d915d573afb2', 'Global');

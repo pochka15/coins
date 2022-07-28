@@ -13,14 +13,15 @@ function RoomsBar() {
   const {
     data: rooms,
     isFetching,
-    isError
+    isError,
+    error
   } = useQuery(['availableRooms'], getAvailableRooms, {
     refetchOnWindowFocus: true,
     retry: false
   })
 
   if (isError) {
-    return (
+    return error.response.status === 403 ? null : (
       <Text color="tomato">
         Some error occurred when fetching available rooms
       </Text>

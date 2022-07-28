@@ -15,5 +15,6 @@ class CustomUserDetails(
     val id: UUID,
     val email: String
 ) : User(username, password, authorities) {
+    @Suppress("unused")
     val systemUser = SystemUser(id, true, username, email)
 }
