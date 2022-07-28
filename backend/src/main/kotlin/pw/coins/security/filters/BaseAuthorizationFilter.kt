@@ -32,7 +32,18 @@ class BaseAuthorizationFilter(private val jwtService: JwtService) : OncePerReque
                 response.status = HttpStatus.BAD_REQUEST.value()
                 ObjectMapper().writeValue(
                     response.outputStream,
-                    mapOf("errorMessage" to "Error occurred when trying to parse JWT token")
+                    mapOf("message" to "Error occurred when trying to parse JWT token")
+                )
+                return
+            }
+
+//            TODO This is a temporary solution which will be removed later
+            if (token.issuedAt == null) {
+                response.contentType = APPLICATION_JSON_VALUE
+                response.status = HttpStatus.FORBIDDEN.value()
+                ObjectMapper().writeValue(
+                    response.outputStream,
+                    mapOf("message" to "Your JWT is expired")
                 )
                 return
             }

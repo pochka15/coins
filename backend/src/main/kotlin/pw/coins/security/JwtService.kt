@@ -6,6 +6,8 @@ import com.auth0.jwt.interfaces.DecodedJWT
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import pw.coins.db.generated.tables.pojos.User
+import java.time.Instant
+import java.util.*
 
 @Service
 class JwtService(
@@ -17,6 +19,7 @@ class JwtService(
             .withClaim("userId", user.id.toString())
             .withClaim("email", user.email)
             .withClaim("roles", mutableListOf("USER"))
+            .withIssuedAt(Date(Instant.now().toEpochMilli()))
             .sign(Algorithm.HMAC256(jwtSecret))
     }
 
