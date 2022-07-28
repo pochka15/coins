@@ -34,7 +34,7 @@ internal class WalletsControllerTest(
     fun `create wallet EXPECT correct amount returned`() {
 //        --- Sandbox
         val room = roomService.create(NewRoom("Test"))
-        val user = userService.getUser("test-email@gmail.com")!!
+        val user = userService.getUserByEmail("test-email@gmail.com")!!
         val member = roomService.addMember(NewMember(user.id, room.id))
         val wallet = walletService.createWallet(NewWallet(10, member.id))
 //        --- End Sandbox
@@ -55,7 +55,7 @@ internal class WalletsControllerTest(
         val room = roomService.create(NewRoom("Test"))
 
 //        User 1
-        val user = userService.getUser("test-email@gmail.com")!!
+        val user = userService.getUserByEmail("test-email@gmail.com")!!
         roomService.addMember(NewMember(user.id, room.id))
 
 //        User 2

@@ -341,7 +341,7 @@ class TasksControllerTest(
 
     private fun room() = roomService.create(NewRoom("Test room"))
 
-    private fun me() = userService.getUser("test-email@gmail.com")!!
+    private fun me() = userService.getUserByEmail("test-email@gmail.com")!!
 
     private fun Room.member(user: User): Member {
         return roomService.addMember(NewMember(user.id, id))

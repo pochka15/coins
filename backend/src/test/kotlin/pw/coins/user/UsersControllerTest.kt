@@ -70,5 +70,5 @@ internal class UsersControllerTest(
         }
     }
 
-    private fun me() = userService.getUser("test-email@gmail.com")!!
+    private fun me() = userService.getUserByEmail("test-email@gmail.com")!!
 }
