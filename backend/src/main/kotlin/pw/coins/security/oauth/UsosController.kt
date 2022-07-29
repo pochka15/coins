@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.springframework.web.servlet.view.RedirectView
+import pw.coins.db.generated.tables.pojos.UsosUser
 import pw.coins.room.GLOBAL_ROOM_ID
 import pw.coins.room.NewMember
 import pw.coins.room.RoomService
@@ -54,18 +55,34 @@ class UsosController(
                 "Couldn't obtain access token"
             )
 
-//        Next we run 'effects': insert necessary db records and finally store the token 
         val apiUser = usosApi.getUser(token)
         val usosUser = usosService.getUsosUserById(apiUser.id)
         val user = if (usosUser == null) {
-            val user = userService.createUser("${apiUser.firstName} ${apiUser.lastName}", apiUser.email)
-            val member = roomService.addMember(NewMember(user.id, UUID.fromString(GLOBAL_ROOM_ID)))
-            usosService.createUsosUser(apiUser, user.id)
-            walletService.createWallet(NewWallet(100, member.id))
-            user
-        } else userService.getUserById(usosUser.userId)!!
-
+            userService.createUser("${apiUser.firstName} ${apiUser.lastName}", apiUser.email.orEmpty())
+        } else {
+            userService.getUserById(usosUser.userId)!!
+        }
         usosTokenService.storeAccessToken(token, user.id)
+
+//        --- Start hardcoded effects section
+//        This section is used to execute some implicit effects after user is obtained
+//        e.x. automatically create wallets and so on
+        if (usosUser == null) {
+            usosService.createUsosUser(
+                UsosUser(apiUser.id, apiUser.firstName, apiUser.lastName, apiUser.email, user.id)
+            )
+            val member = roomService.addMember(NewMember(user.id, UUID.fromString(GLOBAL_ROOM_ID)))
+            walletService.createWallet(NewWallet(100, member.id))
+        } else {
+//            We need to update current user's fields because user could be created previously without an usosUser 
+            val currentUser = userService.getUserById(usosUser.userId)!!
+                .apply {
+                    name = "${usosUser.firstName} ${usosUser.lastName}"
+                    email = usosUser.email
+                }
+            userService.updateUser(currentUser)
+        }
+//        --- End hardcoded effects section
 
         return JwtData(jwtService.buildToken(user))
     }

@@ -41,7 +41,6 @@ class TasksControllerTest(
     @Autowired val dslContext: DSLContext,
     @Autowired val uuidSource: UuidSource,
 ) {
-
     @Test
     fun `create task EXPECT correct dto returned`() {
         val member = with(room()) { member(me()).wallet(100) }

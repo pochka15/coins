@@ -3,7 +3,7 @@ package pw.coins.user
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.web.bind.annotation.*
 import pw.coins.db.generated.tables.pojos.User
-import pw.coins.room.MemberData
+import pw.coins.room.MemberWithNameData
 import pw.coins.room.RoomData
 import pw.coins.room.RoomService
 import pw.coins.room.toData
@@ -21,14 +21,13 @@ class UsersController(
     val userService: UserService,
     val roomService: RoomService
 ) {
-
     @PostMapping
     fun createNewUser(@RequestBody @Valid payload: CreateUserPayload): UserData {
         return userService.createUser(payload.userName).toData()
     }
 
     @GetMapping("/{id}/members")
-    fun getAssociatedMembers(@PathVariable id: UUID): List<MemberData> {
+    fun getAssociatedMembers(@PathVariable id: UUID): List<MemberWithNameData> {
         return userService.findAssociatedMembers(id).map { it.toData() }
     }
 

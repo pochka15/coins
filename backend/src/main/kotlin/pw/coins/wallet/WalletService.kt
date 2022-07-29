@@ -23,22 +23,14 @@ class WalletService(
     val dslContext: DSLContext,
     val locksDao: CoinsLocksDao,
 ) {
-    fun getWalletById(id: UUID): ExtendedWallet? {
-        return walletsDao.fetchExtendedWalletById(id)
-    }
+    fun getWalletById(id: UUID): ExtendedWallet? = walletsDao.fetchExtendedWalletById(id)
+    fun getWalletByMemberId(id: UUID): Wallet? = walletsDao.fetchByMemberId(id).getOrNull(0)
+    fun createWallet(newWallet: NewWallet): Wallet = createWallets(listOf(newWallet)).single()
 
-    fun getWalletByMemberId(id: UUID): Wallet? {
-        return walletsDao.fetchByMemberId(id).getOrNull(0)
-    }
-
-    fun createWallet(newWallet: NewWallet): Wallet {
-        val wallet = Wallet(
-            uuidSource.genUuid(),
-            newWallet.coinsAmount,
-            newWallet.memberId
-        )
-        walletsDao.insert(wallet)
-        return wallet
+    fun createWallets(wallets: Collection<NewWallet>): List<Wallet> {
+        return wallets.map {
+            Wallet(uuidSource.genUuid(), it.coinsAmount, it.memberId)
+        }.also { walletsDao.insert(it) }
     }
 
     fun getWalletByRoomIdAndUserId(roomId: UUID, userId: UUID): ExtendedWallet? {

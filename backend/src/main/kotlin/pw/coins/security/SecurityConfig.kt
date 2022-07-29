@@ -2,7 +2,7 @@ package pw.coins.security
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.http.HttpMethod
+import org.springframework.http.HttpMethod.*
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.SecurityFilterChain
@@ -22,7 +22,7 @@ class SecurityConfig(val jwtService: JwtService) {
             .and().csrf().disable()
             .authorizeRequests()
             .antMatchers(
-                HttpMethod.GET,
+                GET,
                 "/",
                 "/oauth/usos",
 //                Swagger
@@ -38,8 +38,15 @@ class SecurityConfig(val jwtService: JwtService) {
                 "/swagger-ui/**"
             )
             .permitAll()
-            .antMatchers(HttpMethod.POST, "/oauth/usos-callback").permitAll()
-            .anyRequest().authenticated()
+            .antMatchers(POST, "/oauth/usos-callback").permitAll()
+            .antMatchers("/tasks/**").hasAuthority("USER")
+            .antMatchers("/rooms/**").hasAuthority("USER")
+            .antMatchers("/wallets/**").hasAuthority("USER")
+            .antMatchers(GET, "/users/**").hasAuthority("USER")
+            .antMatchers(POST, "/users").hasAuthority("ADMIN")
+            .antMatchers(DELETE, "/users/**").hasAuthority("ADMIN")
+            .antMatchers(POST, "/admin/**").hasAuthority("ADMIN")
+            .anyRequest().denyAll()
             .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and().addFilterBefore(BaseAuthorizationFilter(jwtService), BasicAuthenticationFilter::class.java)
             .build()

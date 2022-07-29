@@ -32,6 +32,6 @@ data class ApiUsosUser(
     @JsonProperty("last_name")
     val lastName: String,
 
-    @JsonProperty("email")
-    val email: String,
+    @JsonProperty("email", required = false)
+    val email: String?,
 )

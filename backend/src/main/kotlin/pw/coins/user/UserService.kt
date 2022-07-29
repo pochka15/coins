@@ -18,10 +18,10 @@ class UserService(
     fun getUserById(id: UUID): User? = usersDao.fetchOneById(id)
     fun getUserByEmail(email: String): User? = usersDao.fetchByEmail(email).getOrNull(0)
     fun findAssociatedMembers(userId: UUID): List<UserWithMember> = membersDao.fetchByUserIdJoiningMember(userId)
+    fun updateUser(user: User): User = user.also { usersDao.update(it) }
 
-    fun createUser(userName: String, email: String = ""): User {
-        return User(uuidSource.genUuid(), true, userName, email)
+    fun createUser(username: String, email: String = ""): User {
+        return User(uuidSource.genUuid(), true, username, email)
             .also { usersDao.insert(it) }
     }
-
 }

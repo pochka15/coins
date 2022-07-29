@@ -1,7 +1,8 @@
 package pw.coins.user
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.hamcrest.CoreMatchers.*
+import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.CoreMatchers.notNullValue
 import org.jooq.DSLContext
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -16,11 +17,11 @@ import pw.coins.db.generated.Tables
 import pw.coins.room.NewMember
 import pw.coins.room.NewRoom
 import pw.coins.room.RoomService
+import pw.coins.security.WithMockAdmin
 import pw.coins.security.WithMockCustomUser
 
 @AutoConfigureMockMvc
 @SpringBootTest
-@WithMockCustomUser
 internal class UsersControllerTest(
     @Autowired val mockMvc: MockMvc,
     @Autowired val mapper: ObjectMapper,
@@ -28,9 +29,9 @@ internal class UsersControllerTest(
     @Autowired val roomService: RoomService,
     @Autowired val userService: UserService,
 ) {
-
     @Test
-    fun `create a user EXPECT correct dto returned`() {
+    @WithMockAdmin
+    fun `create a user as an admin EXPECT correct dto returned`() {
         val payload = CreateUserPayload("tmp")
         val post = mockMvc.post("/users", arrayOf<Any?>()) {
             contentType = MediaType.APPLICATION_JSON
@@ -48,6 +49,19 @@ internal class UsersControllerTest(
     }
 
     @Test
+    @WithMockCustomUser
+    fun `create a user EXPECT forbidden`() {
+        val payload = CreateUserPayload("tmp")
+        val post = mockMvc.post("/users", arrayOf<Any?>()) {
+            contentType = MediaType.APPLICATION_JSON
+            accept = MediaType.APPLICATION_JSON
+            content = mapper.writeValueAsString(payload)
+        }
+        post.andExpect { status { isForbidden() } }
+    }
+
+    @Test
+    @WithMockCustomUser
     fun `add user to the rooms EXPECT correct available rooms returned`() {
         val me = me()
         val room1 = roomService.create(NewRoom("room1"))

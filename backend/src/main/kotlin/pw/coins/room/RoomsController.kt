@@ -1,6 +1,7 @@
 package pw.coins.room
 
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
@@ -13,6 +14,7 @@ import pw.coins.task.TaskData
 import pw.coins.task.TaskService
 import pw.coins.task.toData
 import pw.coins.user.UserService
+import java.sql.SQLException
 import java.util.*
 
 @RestController
@@ -23,28 +25,25 @@ class RoomsController(
     val taskService: TaskService,
     val userService: UserService,
 ) {
-    @PostMapping
-    fun createRoom(@RequestBody room: NewRoom): RoomData {
-        return roomService.create(room).toData()
-    }
-
     @PostMapping("/{roomId}/members")
     fun addMember(@PathVariable roomId: UUID, @RequestBody payload: NewMemberPayload): MemberData {
-        val member = NewMember(payload.associatedUserId, roomId)
-        val user = userService.getUserById(member.associatedUserId)!!
-        return roomService.addMember(member).toData(user.name)
+        return try {
+            roomService.addMember(NewMember(payload.associatedUserId, roomId)).toData()
+        } catch (e: SQLException) {
+            throw ResponseStatusException(BAD_REQUEST, e.message)
+        }
     }
 
     @GetMapping("/{roomId}/members")
-    fun roomMembers(@PathVariable roomId: UUID): List<MemberData> {
+    fun roomMembers(@PathVariable roomId: UUID): List<MemberWithNameData> {
         return roomService.getMembersByRoom(roomId).map { it.toData() }
     }
 
     @GetMapping("/{roomId}/members/me")
-    fun getMe(@PathVariable roomId: UUID, @PrincipalContext user: User): MemberData {
+    fun getMe(@PathVariable roomId: UUID, @PrincipalContext user: User): MemberWithNameData {
         val member = roomService.getMemberByUserIdAndRoomId(user.id, roomId)
             ?: throw ResponseStatusException(NOT_FOUND, "Couldn't find member")
-        return member.toData(user.name)
+        return MemberWithNameData(member.id, user.name)
     }
 
     @DeleteMapping("/{roomId}/members/{memberId}")
@@ -67,6 +66,12 @@ data class RoomData(
 
 data class MemberData(
     val id: UUID,
+    val userId: UUID,
+    val roomId: UUID
+)
+
+data class MemberWithNameData(
+    val id: UUID,
     val name: String
 )
 
@@ -74,10 +79,5 @@ fun Room.toData(): RoomData {
     return RoomData(id, name)
 }
 
-fun Member.toData(username: String): MemberData {
-    return MemberData(id, username)
-}
-
-fun UserWithMember.toData(): MemberData {
-    return MemberData(member.id, name)
-}
+fun UserWithMember.toData(): MemberWithNameData = MemberWithNameData(member.id, name)
+fun Member.toData(): MemberData = MemberData(id, userId, roomId)
