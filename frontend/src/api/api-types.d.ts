@@ -27,10 +27,20 @@ interface ApiWallet {
 
 interface ApiMember {
   id: string
-  name: string
+  userId: string
+  roomId: string
 }
 
 interface ApiRoom {
   id: string
   name: string
+}
+
+declare type UserRole = 'ADMIN' | 'USER'
+
+interface ApiUser {
+  id: string
+  email: string
+  name: string
+  role: UserRole
 }

@@ -39,10 +39,10 @@ class SecurityConfig(val jwtService: JwtService) {
             )
             .permitAll()
             .antMatchers(POST, "/oauth/usos-callback").permitAll()
-            .antMatchers("/tasks/**").hasAuthority("USER")
-            .antMatchers("/rooms/**").hasAuthority("USER")
-            .antMatchers("/wallets/**").hasAuthority("USER")
-            .antMatchers(GET, "/users/**").hasAuthority("USER")
+            .antMatchers("/tasks/**").hasAnyAuthority("USER", "ADMIN")
+            .antMatchers("/rooms/**").hasAnyAuthority("USER", "ADMIN")
+            .antMatchers("/wallets/**").hasAnyAuthority("USER", "ADMIN")
+            .antMatchers(GET, "/users/**").hasAnyAuthority("USER", "ADMIN")
             .antMatchers(POST, "/users").hasAuthority("ADMIN")
             .antMatchers(DELETE, "/users/**").hasAuthority("ADMIN")
             .antMatchers(POST, "/admin/**").hasAuthority("ADMIN")
@@ -52,3 +52,5 @@ class SecurityConfig(val jwtService: JwtService) {
             .build()
     }
 }
+
+enum class Role { USER, ADMIN }

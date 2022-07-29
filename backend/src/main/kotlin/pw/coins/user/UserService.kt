@@ -5,6 +5,7 @@ import pw.coins.db.generated.tables.daos.UsersDao
 import pw.coins.db.generated.tables.pojos.User
 import pw.coins.room.model.MembersDao
 import pw.coins.room.model.UserWithMember
+import pw.coins.security.Role
 import pw.coins.security.UuidSource
 import java.util.*
 
@@ -21,7 +22,7 @@ class UserService(
     fun updateUser(user: User): User = user.also { usersDao.update(it) }
 
     fun createUser(username: String, email: String = ""): User {
-        return User(uuidSource.genUuid(), true, username, email)
+        return User(uuidSource.genUuid(), true, username, email, Role.USER.name)
             .also { usersDao.insert(it) }
     }
 }

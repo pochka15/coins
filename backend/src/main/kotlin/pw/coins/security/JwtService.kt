@@ -18,7 +18,7 @@ class JwtService(
             .withSubject(user.name)
             .withClaim("userId", user.id.toString())
             .withClaim("email", user.email)
-            .withClaim("roles", mutableListOf("USER"))
+            .withClaim("roles", mutableListOf(user.role))
             .withIssuedAt(Date(Instant.now().toEpochMilli()))
             .sign(Algorithm.HMAC256(jwtSecret))
     }

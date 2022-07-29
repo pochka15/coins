@@ -40,10 +40,10 @@ class RoomsController(
     }
 
     @GetMapping("/{roomId}/members/me")
-    fun getMe(@PathVariable roomId: UUID, @PrincipalContext user: User): MemberWithNameData {
+    fun getMe(@PathVariable roomId: UUID, @PrincipalContext user: User): MemberData {
         val member = roomService.getMemberByUserIdAndRoomId(user.id, roomId)
             ?: throw ResponseStatusException(NOT_FOUND, "Couldn't find member")
-        return MemberWithNameData(member.id, user.name)
+        return MemberData(member.id, user.id, roomId)
     }
 
     @DeleteMapping("/{roomId}/members/{memberId}")

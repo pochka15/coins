@@ -40,6 +40,11 @@ class UsersController(
     fun removeUser(@PathVariable id: UUID) {
         userService.removeUserById(id)
     }
+
+    @GetMapping("/me")
+    fun getMe(@PrincipalContext user: User): UserData {
+        return user.toData()
+    }
 }
 
 data class CreateUserPayload(
@@ -52,8 +57,9 @@ data class UserData(
     val email: String,
     val id: UUID,
     val name: String,
+    val role: String
 )
 
 fun User.toData(): UserData {
-    return UserData(email, id, name = name)
+    return UserData(email, id, name, role)
 }

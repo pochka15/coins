@@ -16,5 +16,5 @@ class CustomUserDetails(
     val email: String
 ) : User(username, password, authorities) {
     @Suppress("unused")
-    val systemUser = SystemUser(id, true, username, email)
+    val systemUser = SystemUser(id, true, username, email, authorities.singleOrNull()?.authority.orEmpty())
 }

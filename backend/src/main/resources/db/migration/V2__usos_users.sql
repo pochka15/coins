@@ -2,6 +2,9 @@ UPDATE rooms
 SET name = 'PW'
 WHERE id = 'a6041b05-ebb9-4ff0-9b6b-d915d573afb2';
 
+alter table users
+    add role varchar(255) default 'USER' not null;
+
 create table usos_users
 (
     id         varchar(32)
