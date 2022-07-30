@@ -77,11 +77,15 @@ function TaskForm({ onSubmit, errors, isLoading }) {
           <NumberInput>
             <NumberInputField
               id="budget"
-              {...register('budget', { min: 0, required: true })}
+              {...register('budget', {
+                min: 0,
+                required: true,
+                setValueAs: parseInt
+              })}
             />
           </NumberInput>
           <FormErrorMessage>
-            Budget must be a non-negative value
+            {formErrors.budget && 'Budget must be a non-negative value'}
           </FormErrorMessage>
         </FormControl>
 

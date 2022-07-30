@@ -23,7 +23,7 @@ import java.util.*
 @RestController
 @RequestMapping("oauth")
 @Tag(name = "Oauth")
-class UsosController(
+class OauthController(
     val oAuthService: OAuth10aService,
     val usosTokenService: UsosTokenService,
     val usosApi: UsosApi,

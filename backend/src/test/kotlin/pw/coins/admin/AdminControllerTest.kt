@@ -27,7 +27,7 @@ internal class AdminControllerTest(
     @Test
     @WithMockCustomUser
     fun `create a room as a user EXPECT no permissions`() {
-        mockMvc.post("/admin") {
+        mockMvc.post("/admin/room") {
             accept = MediaType.APPLICATION_JSON
         }.andExpect {
             status { isForbidden() }
@@ -37,7 +37,7 @@ internal class AdminControllerTest(
     @Test
     @WithMockAdmin
     fun `create a room EXPECT room and members and wallets are created correctly`() {
-        mockMvc.post("/admin") {
+        mockMvc.post("/admin/room") {
             contentType = MediaType.APPLICATION_JSON
             accept = MediaType.APPLICATION_JSON
             content = /* language=JSON */ """

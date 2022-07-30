@@ -14,7 +14,7 @@ import {
 import TaskForm from './TaskForm'
 import { createTask } from '../../api/tasks'
 import { GLOBAL_ROOM_ID, TASKS_QUERY_KEY } from '../TasksFeed'
-import { extractErrorMessage } from '../../api/api-utils'
+import { extractErrorMessage, extractValidationErrors } from '../../api/api-utils'
 import { WALLET_KEY } from '../wallet/CoinsSummary'
 
 /**
@@ -79,7 +79,7 @@ function NewTask({ isOpen, onClose }) {
       },
       onError: e => {
         setContainer({
-          formErrors: e.response.data.errors || [],
+          formErrors: extractValidationErrors(e) || [],
           errorMessage:
             e.response.status === 403
               ? "You don't have permissions to create a task"

@@ -28,7 +28,7 @@ function ChooseRoomLabel() {
   return (
     <VStack>
       <Text fontSize="4xl" fontWeight="extrabold">
-        👈 Please enter any
+        👈 Please enter any room
       </Text>
       <Text
         bgGradient={gradient}
@@ -79,13 +79,14 @@ function UsosLabel() {
 
 function TasksFeed() {
   const room = useCurrentRoom()
+  const enabled = room !== null
 
   const {
     data: tasks,
     isLoading,
     error
-  } = useQuery(TASKS_QUERY_KEY, () => getRoomTasks(room.id), {
-    enabled: room !== null,
+  } = useQuery([TASKS_QUERY_KEY, room.id], () => getRoomTasks(room.id), {
+    enabled,
     retry: false,
     refetchOnWindowFocus: true,
     refetchInterval: 60 * 1000, // minute
@@ -94,7 +95,7 @@ function TasksFeed() {
 
   const shouldLogin = error && error.response.status === 403
 
-  if (room === null) return <ChooseRoomLabel />
+  if (!enabled) return <ChooseRoomLabel />
   if (shouldLogin) return <UsosLabel />
 
   if (isLoading) {

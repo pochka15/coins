@@ -101,7 +101,7 @@ class WalletService(
 }
 
 data class NewWallet(
-    @field:Min(1) @field:Max(1000_000, message = "Too big amount of coins")
+    @field:Min(1) @field:Max(1000_000, message = "too big amount of coins")
     val coinsAmount: Int,
     val memberId: UUID,
 )

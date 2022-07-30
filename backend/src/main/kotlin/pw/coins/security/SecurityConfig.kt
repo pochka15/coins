@@ -46,6 +46,7 @@ class SecurityConfig(val jwtService: JwtService) {
             .antMatchers(POST, "/users").hasAuthority("ADMIN")
             .antMatchers(DELETE, "/users/**").hasAuthority("ADMIN")
             .antMatchers(POST, "/admin/**").hasAuthority("ADMIN")
+            .antMatchers("/usos/**").hasAuthority("ADMIN")
             .anyRequest().denyAll()
             .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and().addFilterBefore(BaseAuthorizationFilter(jwtService), BasicAuthenticationFilter::class.java)

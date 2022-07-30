@@ -44,3 +44,31 @@ interface ApiUser {
   name: string
   role: UserRole
 }
+
+interface Participant {
+  id: string
+  firstName: string
+  lastName: string
+}
+
+interface ParticipantWithState extends Participant {
+  isEnabled: boolean
+}
+
+interface ApiCourseEdition {
+  courseId: string
+  courseName: string
+  participants: Participant[]
+  lecturers: Participant[]
+}
+
+interface ApiNewRoom {
+  name: string
+  participants: Participant[]
+  initialCoinsAmount: number
+}
+
+interface ApiValidationError {
+  fieldName: string
+  message: string
+}

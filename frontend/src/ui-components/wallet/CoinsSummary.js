@@ -2,7 +2,7 @@ import React from 'react'
 import { Text, useColorModeValue, VStack } from '@chakra-ui/react'
 import { useQuery } from 'react-query'
 import { getWallet } from '../../api/wallets'
-import { GLOBAL_ROOM_ID } from '../TasksFeed'
+import { useCurrentRoom } from '../../hooks/use-current-room'
 
 export const WALLET_KEY = 'wallet'
 
@@ -27,15 +27,21 @@ function CoinsAmount({ children }) {
 }
 
 function CoinsSummary() {
+  const room = useCurrentRoom()
+  const enabled = room !== null
+
   const {
     data: wallet,
     isLoading,
     isError
-  } = useQuery([WALLET_KEY], () => getWallet(GLOBAL_ROOM_ID), {
+  } = useQuery([WALLET_KEY, room.id], () => getWallet(room.id), {
     retry: false,
+    enabled,
     refetchOnWindowFocus: true,
     keepPreviousData: true
   })
+
+  if (!enabled) return null
 
   return (
     !isLoading &&

@@ -6,7 +6,6 @@ import { Navigate, useNavigate } from 'react-router-dom'
 import {
   Alert,
   AlertIcon,
-  Box,
   Center,
   HStack,
   IconButton,
@@ -15,6 +14,7 @@ import {
 } from '@chakra-ui/react'
 import { extractErrorMessage } from '../../api/api-utils'
 import { AiOutlineHome } from 'react-icons/ai'
+import NewRoom from './NewRoom'
 
 function Admin() {
   const [errorMessage, setErrorMessage] = useState('')
@@ -73,11 +73,7 @@ function Admin() {
     )
   }
 
-  return (
-    <Box textAlign="center" fontSize="xl">
-      <Text pt={8}>{me.role}</Text>
-    </Box>
-  )
+  return <NewRoom />
 }
 
 export default Admin
