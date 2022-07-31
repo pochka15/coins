@@ -9,6 +9,7 @@ import { USOS_CALLBACK_ENDPOINT } from './security/auth'
 import UsosAuthCallbackPage from './ui-components/UsosAuthCallbackPage'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import Admin from './ui-components/admin/Admin'
+import AdminLayout from './ui-components/admin/AdminLayout'
 
 const container = document.getElementById('root')
 const queryClient = new QueryClient()
@@ -21,7 +22,14 @@ root.render(
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<App />} />
-            <Route path="/admin" element={<Admin />} />
+            <Route
+              path="/admin"
+              element={
+                <AdminLayout>
+                  <Admin />
+                </AdminLayout>
+              }
+            />
             <Route
               path={USOS_CALLBACK_ENDPOINT}
               element={<UsosAuthCallbackPage />}
