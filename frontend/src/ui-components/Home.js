@@ -86,7 +86,7 @@ function Notification({ notification }) {
   const { message } = notification.payload
   const dMessage = useDebounce(message, 3000)
   const [hidden, setHidden] = useBoolean()
-  useEffect(setHidden.off, [notification])
+  useEffect(() => setHidden.off(), [notification, setHidden])
 
   if ((dMessage === message && type !== 'error') || hidden) return null
 
