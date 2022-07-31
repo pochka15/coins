@@ -4,6 +4,7 @@ import { useQuery } from 'react-query'
 import { getAvailableRooms } from '../api/user'
 import { Button, Spinner, Text, VStack } from '@chakra-ui/react'
 import { CURRENT_ROOM_KEY, useCurrentRoom } from '../hooks/use-current-room'
+import auth from '../security/auth'
 
 function RoomsBar() {
   const [_, setRawRoom] = usePersistentContext(CURRENT_ROOM_KEY)
@@ -18,7 +19,10 @@ function RoomsBar() {
   } = useQuery(['availableRooms'], getAvailableRooms, {
     refetchOnWindowFocus: true,
     retry: false,
-    keepPreviousData: true
+    keepPreviousData: true,
+    onError: error => {
+      if (error.response.status === 403) auth.logout()
+    }
   })
 
   if (isError) {
