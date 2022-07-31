@@ -5,11 +5,6 @@ interface TNewTask {
   budget: number
 }
 
-interface TFieldError {
-  fieldName: String
-  message: String
-}
-
 declare interface TMemberInformation {
   isAssignee: boolean
   isAuthor: boolean

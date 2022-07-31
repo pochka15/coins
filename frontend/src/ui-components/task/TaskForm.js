@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import {
   Button,
   Container,
@@ -16,35 +16,27 @@ import { CustomDatePicker } from './CustomDatePicker'
 /**
  *
  * @param {function(TNewTask): void} onSubmit
- * @param {TFieldError[]} errors
  * @param isLoading
  * @return {JSX.Element}
  * @constructor
  */
-function TaskForm({ onSubmit, errors, isLoading }) {
+function TaskForm({ onSubmit, isLoading }) {
   const {
     register,
     handleSubmit,
     control,
-    setError,
     formState: { errors: formErrors }
   } = useForm()
 
-  useEffect(() => {
-    for (const error of errors) {
-      setError(error.fieldName, { message: error.message })
-    }
-  }, [errors])
-
   // noinspection JSValidateTypes
   return (
-    <Container maxW="md">
+    <Container maxW='md'>
       <form onSubmit={handleSubmit(onSubmit)}>
         <FormControl mb={8} isInvalid={formErrors.title}>
-          <FormLabel htmlFor="title">Title</FormLabel>
+          <FormLabel htmlFor='title'>Title</FormLabel>
           <Input
-            id="title"
-            type="text"
+            id='title'
+            type='text'
             {...register('title', { minLength: 1, required: true })}
           />
           <FormErrorMessage>Title is required</FormErrorMessage>

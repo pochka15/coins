@@ -1,8 +1,6 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { useMutation, useQueryClient } from 'react-query'
 import {
-  Alert,
-  AlertIcon,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -16,17 +14,11 @@ import { createTask } from '../../api/tasks'
 import { TASKS_QUERY_KEY } from '../TasksFeed'
 import {
   extractErrorMessage,
-  extractValidationErrors
+  extractValidationErrors,
+  toErrorMessage
 } from '../../api/api-utils'
 import { WALLET_KEY } from '../wallet/CoinsSummary'
 import { useCurrentRoom } from '../../hooks/use-current-room'
-
-/**
- * @typedef {{
- *   formErrors: TFieldError[],
- *   errorMessage: string
- * }} TErrorsContainer
- */
 
 /**
  *
@@ -54,44 +46,43 @@ function toApiTask(task, room) {
 }
 
 /**
- * @return {TErrorsContainer}
- * @constructor
- */
-function ErrorsContainer() {
-  return { formErrors: [], errorMessage: '' }
-}
-
-/**
  * Component that wraps and submits task form
  * @param {boolean} isOpen
  * @param {function(): void} onClose
+ * @param {function(TNotification): void} onNotificationChange
  * @return {JSX.Element}
  * @constructor
  */
-function NewTask({ isOpen, onClose }) {
-  const [container, setContainer] = useState(ErrorsContainer())
+function NewTask({ isOpen, onClose, onNotification }) {
   const queryClient = useQueryClient()
   const room = useCurrentRoom()
 
   const mutation = useMutation(
-    /** @param {TNewTask} task */ task => createTask(toApiTask(task, room)),
+    /** @param {TNewTask} task */task => {
+      onClose()
+      onNotification({
+        type: 'loading',
+        payload: { message: `Uploading ${task.title}` }
+      })
+      return createTask(toApiTask(task, room))
+    },
     {
-      onSuccess: () => {
+      onSuccess: task => {
+        onNotification({
+          type: 'success',
+          payload: { message: `Created task '${task.title}'` }
+        })
         queryClient
           .invalidateQueries(TASKS_QUERY_KEY)
           .then(() => queryClient.invalidateQueries(WALLET_KEY))
-          .then(() => onClose())
-        setContainer(ErrorsContainer())
       },
       onError: e => {
-        setContainer({
-          formErrors: extractValidationErrors(e) || [],
-          errorMessage:
-            e.response.status === 403
-              ? "You don't have permissions to create a task"
-              : extractErrorMessage(e) ||
-                `There was an error when creating a new task`
-        })
+        const validationErrors = extractValidationErrors(e) || []
+        const message =
+          toErrorMessage(validationErrors) ||
+          extractErrorMessage(e) ||
+          `There was an error when creating a new task`
+        onNotification({ type: 'error', payload: { message } })
       }
     }
   )
@@ -105,18 +96,10 @@ function NewTask({ isOpen, onClose }) {
         <ModalBody>
           <TaskForm
             onSubmit={task => mutation.mutate(task)}
-            errors={container.formErrors}
             isLoading={mutation.isLoading}
           />
         </ModalBody>
-        <ModalFooter>
-          {container.errorMessage && (
-            <Alert status="error">
-              <AlertIcon />
-              {container.errorMessage}
-            </Alert>
-          )}
-        </ModalFooter>
+        <ModalFooter />
       </ModalContent>
     </Modal>
   )
