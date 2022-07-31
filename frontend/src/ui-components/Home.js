@@ -14,7 +14,7 @@ import RoomsBar from './RoomsBar'
 import auth from '../security/auth'
 import { useCurrentRoom } from '../hooks/use-current-room'
 
-function UsosLabel() {
+export function UsosLabel(props) {
   const gradient = useColorModeValue('linear(to-l, #7928CA, #FF0080)', [
     'linear(to-tr, teal.300, yellow.400)',
     'linear(to-t, blue.200, teal.500)',
@@ -23,7 +23,7 @@ function UsosLabel() {
   const [isLinkFocused, setIsLinkFocused] = useState(false)
 
   return (
-    <VStack>
+    <VStack {...props}>
       <Link
         fontSize="4xl"
         fontWeight="extrabold"

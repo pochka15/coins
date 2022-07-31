@@ -33,7 +33,6 @@ import { Select } from 'chakra-react-select'
 import { useDebounce } from '../../hooks/use-debounce-component-value'
 import { useQuery } from 'react-query'
 import { getCourseEdition, getCourseIdsByName } from '../../api/usos'
-import auth from '../../security/auth'
 
 const getErrorMessage = error => error.response.data?.message
 const semesterPattern = /20\d{2}[LZ]/
@@ -231,10 +230,7 @@ function Participants({ courseId, semester, onParticipantsChange }) {
     {
       enabled,
       staleTime: 5 * 60 * 1000, // 5 min
-      retry: false,
-      onError(e) {
-        if (e.response.status === 403) auth.startLogin()
-      }
+      retry: false
     }
   )
 

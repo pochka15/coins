@@ -7,7 +7,6 @@ import { getRoomTasks } from '../api/room'
 import auth from '../security/auth'
 import { useCurrentRoom } from '../hooks/use-current-room'
 
-export const GLOBAL_ROOM_ID = 'a6041b05-ebb9-4ff0-9b6b-d915d573afb2'
 export const TASKS_QUERY_KEY = 'tasks'
 
 function TasksFeed() {

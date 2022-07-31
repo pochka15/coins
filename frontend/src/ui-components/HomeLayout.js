@@ -4,8 +4,10 @@ import { AddIcon } from '@chakra-ui/icons'
 import { ColorModeSwitcher } from './ColorModeSwitcher'
 import { FiLogIn, FiLogOut } from 'react-icons/fi'
 import auth from '../security/auth'
+import { useCurrentRoom } from '../hooks/use-current-room'
 
 function HomeLayout({ onAddNewTask, children }) {
+  const room = useCurrentRoom()
   return (
     <>
       <Flex marginTop={4} alignItems="center" justify="center">
@@ -21,6 +23,7 @@ function HomeLayout({ onAddNewTask, children }) {
                 aria-label="Add new task"
                 icon={<AddIcon />}
                 onClick={onAddNewTask}
+                disabled={room === null}
               />
               <IconButton
                 aria-label={'Log out'}

@@ -13,9 +13,13 @@ import {
 } from '@chakra-ui/react'
 import TaskForm from './TaskForm'
 import { createTask } from '../../api/tasks'
-import { GLOBAL_ROOM_ID, TASKS_QUERY_KEY } from '../TasksFeed'
-import { extractErrorMessage, extractValidationErrors } from '../../api/api-utils'
+import { TASKS_QUERY_KEY } from '../TasksFeed'
+import {
+  extractErrorMessage,
+  extractValidationErrors
+} from '../../api/api-utils'
 import { WALLET_KEY } from '../wallet/CoinsSummary'
+import { useCurrentRoom } from '../../hooks/use-current-room'
 
 /**
  * @typedef {{
@@ -36,15 +40,16 @@ function formatDeadline(date) {
 /**
  * Converter
  * @param {TNewTask} task
+ * @param {ApiRoom} room
  * @return {ApiNewTask}
  */
-function toApiTask(task) {
+function toApiTask(task, room) {
   return {
     title: task.title,
     content: task.content,
     deadline: formatDeadline(task.deadline),
     budget: task.budget,
-    roomId: GLOBAL_ROOM_ID
+    roomId: room.id
   }
 }
 
@@ -66,9 +71,10 @@ function ErrorsContainer() {
 function NewTask({ isOpen, onClose }) {
   const [container, setContainer] = useState(ErrorsContainer())
   const queryClient = useQueryClient()
+  const room = useCurrentRoom()
 
   const mutation = useMutation(
-    /** @param {TNewTask} task */ task => createTask(toApiTask(task)),
+    /** @param {TNewTask} task */ task => createTask(toApiTask(task, room)),
     {
       onSuccess: () => {
         queryClient

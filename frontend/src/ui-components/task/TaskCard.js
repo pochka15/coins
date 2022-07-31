@@ -39,13 +39,14 @@ import {
   solveTask,
   unassignTask
 } from '../../api/tasks'
-import { GLOBAL_ROOM_ID, TASKS_QUERY_KEY } from '../TasksFeed'
+import { TASKS_QUERY_KEY } from '../TasksFeed'
 import { extractErrorMessage } from '../../api/api-utils'
 import { getMember } from '../../api/room'
 import { MarkdownContent } from './MarkdownContent'
 import { RiDeleteBin7Line } from 'react-icons/ri'
 import { MdDone } from 'react-icons/md'
 import { WALLET_KEY } from '../wallet/CoinsSummary'
+import { useCurrentRoom } from '../../hooks/use-current-room'
 
 function buildErrorMessage(
   error,
@@ -85,9 +86,10 @@ function getTaskPermissions(task, memberInfo) {
 }
 
 function useMember() {
+  const room = useCurrentRoom()
   const { data, isFetching, isError } = useQuery(
-    ['members'],
-    () => getMember(GLOBAL_ROOM_ID),
+    ['members', room.id],
+    () => getMember(room.id),
     {
       retry: false,
       staleTime: 60 * 1000 // 1 min

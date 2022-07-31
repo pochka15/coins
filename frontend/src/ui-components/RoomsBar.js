@@ -12,12 +12,13 @@ function RoomsBar() {
 
   const {
     data: rooms,
-    isFetching,
+    isLoading,
     isError,
     error
   } = useQuery(['availableRooms'], getAvailableRooms, {
     refetchOnWindowFocus: true,
-    retry: false
+    retry: false,
+    keepPreviousData: true
   })
 
   if (isError) {
@@ -28,7 +29,7 @@ function RoomsBar() {
     )
   }
 
-  if (isFetching) {
+  if (isLoading) {
     return (
       <Spinner
         thickness="4px"
@@ -40,7 +41,7 @@ function RoomsBar() {
   }
 
   return (
-    <VStack borderRight="1px" w={24}>
+    <VStack borderRight="1px" w={32}>
       {rooms.map(
         /** @param {ApiRoom} x */
         x => {
