@@ -452,7 +452,7 @@ function TaskModifiersPanel({ task, disabled }) {
  */
 function TaskCard({ task }) {
   const [isHovering, setIsHovering] = useBoolean()
-  const hoverColor = useColorModeValue('blackAlpha.300', 'whiteAlpha.100')
+  const hoverColor = useColorModeValue('blackAlpha.50', 'whiteAlpha.100')
   const color = isHovering ? hoverColor : ''
 
   return (
@@ -475,7 +475,7 @@ function TaskCard({ task }) {
 
       <MarkdownContent value={task.content} />
 
-      <Flex marginTop={4} gap={4} align="center">
+      <Flex marginTop={2} gap={4} align="center">
         <Text w="11rem">Deadline: {task.deadline}</Text>
         <Text w="3xs">Author: {task.author}</Text>
         {task.status === 'Reviewing' ? (

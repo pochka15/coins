@@ -175,7 +175,7 @@ function ParticipantsDrawer({
 
 function ParticipantsPreview({ participants, onOpen }) {
   const [isHovering, setIsHovering] = useBoolean()
-  const hoverColor = useColorModeValue('blackAlpha.300', 'whiteAlpha.100')
+  const hoverColor = useColorModeValue('blackAlpha.50', 'whiteAlpha.100')
   const color = isHovering ? hoverColor : ''
 
   const [enabledParticipants, allDisabled] = useMemo(() => {

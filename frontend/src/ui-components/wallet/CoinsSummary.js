@@ -28,20 +28,18 @@ function CoinsAmount({ children }) {
 
 function CoinsSummary() {
   const room = useCurrentRoom()
-  const enabled = room !== null
 
   const {
     data: wallet,
     isLoading,
     isError
-  } = useQuery([WALLET_KEY, room.id], () => getWallet(room.id), {
+  } = useQuery([WALLET_KEY, room?.id], () => getWallet(room.id), {
     retry: false,
-    enabled,
     refetchOnWindowFocus: true,
     keepPreviousData: true
   })
 
-  if (!enabled) return null
+  if (!room) return null
 
   return (
     !isLoading &&
