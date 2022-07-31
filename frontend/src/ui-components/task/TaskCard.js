@@ -469,7 +469,7 @@ function TaskCard({ task }) {
       onMouseLeave={setIsHovering.off}
     >
       <Flex justifyContent="space-between">
-        <Heading as="h3" size="lg" noOfLines={1} maxWidth={'xs'}>
+        <Heading as="h3" size="lg" noOfLines={1} maxWidth={'lg'}>
           {`${task.title}`}
         </Heading>
         <TaskModifiersPanel task={task} disabled={!isHovering} />

@@ -30,13 +30,13 @@ function TaskForm({ onSubmit, isLoading }) {
 
   // noinspection JSValidateTypes
   return (
-    <Container maxW='md'>
+    <Container maxW="md">
       <form onSubmit={handleSubmit(onSubmit)}>
         <FormControl mb={8} isInvalid={formErrors.title}>
-          <FormLabel htmlFor='title'>Title</FormLabel>
+          <FormLabel htmlFor="title">Title</FormLabel>
           <Input
-            id='title'
-            type='text'
+            id="title"
+            type="text"
             {...register('title', { minLength: 1, required: true })}
           />
           <FormErrorMessage>Title is required</FormErrorMessage>
@@ -70,7 +70,9 @@ function TaskForm({ onSubmit, isLoading }) {
             <NumberInputField
               id="budget"
               {...register('budget', {
-                min: 0,
+                validate: value => {
+                  return !isNaN(value) && value >= 0
+                },
                 required: true,
                 setValueAs: parseInt
               })}
