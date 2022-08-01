@@ -58,7 +58,7 @@ function NewTask({ isOpen, onClose, onNotification }) {
   const room = useCurrentRoom()
 
   const mutation = useMutation(
-    /** @param {TNewTask} task */task => {
+    /** @param {TNewTask} task */ task => {
       onClose()
       onNotification({
         type: 'loading',
@@ -68,13 +68,15 @@ function NewTask({ isOpen, onClose, onNotification }) {
     },
     {
       onSuccess: task => {
-        onNotification({
-          type: 'success',
-          payload: { message: `Created task '${task.title}'` }
-        })
         queryClient
           .invalidateQueries(TASKS_QUERY_KEY)
           .then(() => queryClient.invalidateQueries(WALLET_KEY))
+          .then(() =>
+            onNotification({
+              type: 'success',
+              payload: { message: `Created task '${task.title}'` }
+            })
+          )
       },
       onError: e => {
         const validationErrors = extractValidationErrors(e) || []

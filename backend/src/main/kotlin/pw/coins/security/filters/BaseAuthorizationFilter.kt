@@ -36,17 +36,6 @@ class BaseAuthorizationFilter(private val jwtService: JwtService) : OncePerReque
                 return
             }
 
-//            TODO This is a temporary solution which will be removed later
-            if (token.issuedAt == null) {
-                response.contentType = APPLICATION_JSON_VALUE
-                response.status = HttpStatus.FORBIDDEN.value()
-                ObjectMapper().writeValue(
-                    response.outputStream,
-                    mapOf("message" to "Your JWT is expired")
-                )
-                return
-            }
-
             val authorities = token.extractAuthorities()
             val principal = CustomUserDetails(token, authorities)
 
