@@ -10,7 +10,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 class CorsConfig : WebMvcConfigurer {
     override fun addCorsMappings(registry: CorsRegistry) {
         registry.addMapping("/**")
-            .allowedOrigins("http://localhost:3000", "https://coins-frontend.herokuapp.com")
+            .allowedOrigins("http://localhost:3000", "https://coins-nu.vercel.app/")
             .allowedMethods("*")
             .exposedHeaders(
                 "Access-Control-Allow-Origin",
