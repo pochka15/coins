@@ -7,11 +7,14 @@ import com.github.scribejava.core.model.OAuthRequest
 import com.github.scribejava.core.model.Verb
 import com.github.scribejava.core.oauth.OAuth10aService
 import org.springframework.stereotype.Component
+import pw.coins.sys.logger
 import pw.coins.usos.model.ApiCourseEdition
 import pw.coins.usos.model.ApiUsosUser
 
 @Component
 class UsosApi(val oAuthService: OAuth10aService) {
+    val log = logger<UsosApi>()
+
     fun getUser(token: OAuth1AccessToken): ApiUsosUser {
         val request = OAuthRequest(
             Verb.GET,
@@ -35,6 +38,8 @@ class UsosApi(val oAuthService: OAuth10aService) {
         oAuthService.signRequest(token, request)
         val response = oAuthService.execute(request)
         val body = response.body
+
+        log.info("Response from USOS: code: ${response.code}, message: ${response.message}, body: $body")
 
         if (response.isSuccessful) {
             return try {
