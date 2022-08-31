@@ -11,6 +11,8 @@ import pw.coins.sys.logger
 import pw.coins.usos.model.ApiCourseEdition
 import pw.coins.usos.model.ApiUsosUser
 
+private const val api = "https://apps.usos.pw.edu.pl/services"
+
 @Component
 class UsosApi(val oAuthService: OAuth10aService) {
     val log = logger<UsosApi>()
@@ -18,7 +20,7 @@ class UsosApi(val oAuthService: OAuth10aService) {
     fun getUser(token: OAuth1AccessToken): ApiUsosUser {
         val request = OAuthRequest(
             Verb.GET,
-            "https://apps.usos.pw.edu.pl/services/users/user?fields=id|first_name|last_name|email"
+            "$api/users/user?fields=id|first_name|last_name|email"
         )
         oAuthService.signRequest(token, request)
         val body = oAuthService.execute(request).body
@@ -26,14 +28,10 @@ class UsosApi(val oAuthService: OAuth10aService) {
     }
 
     fun getCourseEdition(token: OAuth1AccessToken, courseId: String, termId: String): ApiCourseEdition {
-        val request = OAuthRequest(
-            Verb.POST,
-            "https://apps.usos.pw.edu.pl/services/courses/course_edition",
-        )
+        val request = OAuthRequest(Verb.POST, "$api/groups/group")
         with(request) {
             addBodyParameter("course_id", courseId)
             addBodyParameter("term_id", termId)
-            addBodyParameter("format", "json")
         }
         oAuthService.signRequest(token, request)
         val response = oAuthService.execute(request)

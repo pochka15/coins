@@ -55,10 +55,10 @@ data class CourseEditionData(
 
 fun ApiCourseEdition.toData(): CourseEditionData {
     val lecturers = userGroups.flatMap { it.lecturers }
-        .toSet().map { ParticipantData(it.id, it.firstName, it.lastName) }
+        .distinct().map { ParticipantData(it.id, it.firstName, it.lastName) }
 
     val participants = userGroups.flatMap { it.participants }
-        .toSet().map { ParticipantData(it.id, it.firstName, it.lastName) }
+        .distinct().map { ParticipantData(it.id, it.firstName, it.lastName) }
 
     return CourseEditionData(courseId, courseName.pl, participants, lecturers)
 }
