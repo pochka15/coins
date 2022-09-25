@@ -27,7 +27,7 @@ function HomeLayout({
         <HStack>
           <InputGroup>
             <Input
-              width={['3xs', 'sm', 'md', 'xl']}
+              width={[36, 'sm', 'md', 'xl']}
               boxShadow="base"
               placeholder="Find task by name"
               value={searchbarValue}

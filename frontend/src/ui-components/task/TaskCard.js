@@ -23,6 +23,7 @@ import {
   PopoverCloseButton,
   PopoverContent,
   PopoverTrigger,
+  Show,
   Spinner,
   Text,
   Tooltip,
@@ -493,7 +494,7 @@ function TaskCard({ task }) {
   return (
     <Box
       p={8}
-      w={['1xl', '2xl', '3xl']}
+      w={[72, 'md', '3xl']}
       borderWidth="1px"
       borderRadius="lg"
       overflow="hidden"
@@ -522,10 +523,16 @@ function TaskCard({ task }) {
       )}
 
       <Flex marginTop={6} gap={4} align="center">
-        <Text w="11rem">
-          {task.deadline ? `Deadline: ${task.deadline}` : ''}
-        </Text>
-        <Text w="3xs">Author: {task.author}</Text>
+        <Show above="sm">
+          <Text w={44}>
+            {task.deadline ? `Deadline: ${task.deadline}` : ''}
+          </Text>
+        </Show>
+
+        <Show above="sm">
+          <Text w="3xs">Author: {task.author}</Text>
+        </Show>
+
         {task.status === 'Reviewing' ? (
           <Text>Reviewing</Text>
         ) : task.status === 'Closed' ? (
