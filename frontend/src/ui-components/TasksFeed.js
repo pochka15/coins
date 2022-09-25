@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { Alert, AlertIcon, Spinner, VStack } from '@chakra-ui/react'
 import TaskCard from './task/TaskCard'
 import { useQuery } from 'react-query'
@@ -6,11 +6,14 @@ import { extractErrorMessage } from '../api/api-utils'
 import { getRoomTasks } from '../api/room'
 import auth from '../security/auth'
 import { useCurrentRoom } from '../hooks/use-current-room'
+import { SearchbarContext } from '../App'
 
 export const TASKS_QUERY_KEY = 'tasks'
 
 function TasksFeed() {
   const room = useCurrentRoom()
+  const searchbarContext = useContext(SearchbarContext)
+
   const {
     data: tasks,
     isLoading,
@@ -37,20 +40,23 @@ function TasksFeed() {
     )
   }
 
-  if (error)
+  if (error) {
     return (
       <Alert status="error" maxW="2xl">
         <AlertIcon />
         {extractErrorMessage(error) || `There was an error when fetching tasks`}
       </Alert>
     )
+  }
 
   // noinspection JSValidateTypes
   return (
     <VStack>
-      {tasks.map(task => (
-        <TaskCard key={task.id} task={task} />
-      ))}
+      {tasks
+        .filter(x => x.title.includes(searchbarContext))
+        .map(task => (
+          <TaskCard key={task.id} task={task} />
+        ))}
     </VStack>
   )
 }

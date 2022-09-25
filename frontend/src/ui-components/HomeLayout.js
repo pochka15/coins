@@ -1,22 +1,44 @@
 import React from 'react'
-import { Flex, HStack, IconButton, Input } from '@chakra-ui/react'
+import {
+  CloseButton,
+  Flex,
+  HStack,
+  IconButton,
+  Input,
+  InputGroup,
+  InputRightElement
+} from '@chakra-ui/react'
 import { AddIcon } from '@chakra-ui/icons'
 import { ColorModeSwitcher } from './ColorModeSwitcher'
 import { FiLogIn, FiLogOut } from 'react-icons/fi'
 import auth from '../security/auth'
 import { useCurrentRoom } from '../hooks/use-current-room'
 
-function HomeLayout({ onAddNewTask, children }) {
+function HomeLayout({
+  onAddNewTask,
+  children,
+  searchbarValue,
+  onSearchbarValueChange
+}) {
   const room = useCurrentRoom()
   return (
     <>
       <Flex marginTop={4} alignItems="center" justify="center">
         <HStack>
-          <Input
-            width={['3xs', 'sm', 'md', 'xl']}
-            boxShadow="base"
-            placeholder="Find anything"
-          />
+          <InputGroup>
+            <Input
+              width={['3xs', 'sm', 'md', 'xl']}
+              boxShadow="base"
+              placeholder="Find task by name"
+              value={searchbarValue}
+              onChange={x => onSearchbarValueChange(x.target.value)}
+            />
+
+            <InputRightElement hidden={searchbarValue === ''}>
+              <CloseButton onClick={() => onSearchbarValueChange('')} />
+            </InputRightElement>
+          </InputGroup>
+
           {auth.isLogged() ? (
             <>
               <IconButton
