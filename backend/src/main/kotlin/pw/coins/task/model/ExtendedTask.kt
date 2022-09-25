@@ -9,7 +9,7 @@ data class ExtendedTask(
     val id: UUID,
     val title: String,
     val content: String,
-    val deadline: LocalDate,
+    val deadline: LocalDate?,
     val creationDate: OffsetDateTime,
     val budget: Int,
     val status: TaskStatus,
@@ -18,6 +18,7 @@ data class ExtendedTask(
     val assigneeMemberId: UUID?,
     val authorName: String,
     val assigneeName: String?,
+    val solutionNote: String?,
 )
 
 fun Task.toExtended(authorName: String, assigneeName: String? = null): ExtendedTask {
@@ -34,5 +35,6 @@ fun Task.toExtended(authorName: String, assigneeName: String? = null): ExtendedT
         assigneeMemberId = assigneeMemberId,
         authorName = authorName,
         assigneeName = assigneeName,
+        solutionNote = solutionNote,
     )
 }

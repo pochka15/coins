@@ -39,7 +39,7 @@ function toApiTask(task, room) {
   return {
     title: task.title,
     content: task.content,
-    deadline: formatDeadline(task.deadline),
+    deadline: task.deadline ? formatDeadline(task.deadline) : null,
     budget: task.budget,
     roomId: room.id
   }

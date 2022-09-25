@@ -5,7 +5,7 @@ import javax.validation.ConstraintValidator
 import javax.validation.ConstraintValidatorContext
 
 class TaskDeadlineValidator : ConstraintValidator<TaskDeadline, LocalDate> {
-    override fun isValid(deadline: LocalDate, cxt: ConstraintValidatorContext): Boolean {
-        return deadline.isAfter(LocalDate.now().minusDays(1))
+    override fun isValid(deadline: LocalDate?, cxt: ConstraintValidatorContext): Boolean {
+        return deadline?.isAfter(LocalDate.now().minusDays(1)) ?: true
     }
 }

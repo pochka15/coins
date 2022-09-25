@@ -306,7 +306,30 @@ class TasksControllerTest(
         }
     }
 
-    fun postTask(roomId: String, deadline: LocalDate = LocalDate.now()): ResultActionsDsl {
+    @Test
+    fun `create task without a deadline EXPECT correct dto returned`() {
+        val member = with(room()) { member(me()).wallet(100) }
+        postTask(member.roomId.toString(), null)
+            .andExpect {
+                content {
+                    jsonPath("$.id", notNullValue())
+                    jsonPath("$.title", equalTo("Test task"))
+                    jsonPath("$.content", equalTo("Test content"))
+                    jsonPath("$.deadline", nullValue())
+                    jsonPath("$.creationDate", containsString(LocalDate.now().toString()))
+                    jsonPath("$.budget", equalTo(10))
+                    jsonPath("$.status", equalTo("New"))
+                    jsonPath("$.author", equalTo("Test user"))
+                    jsonPath("$.authorMemberId", equalTo(member.id.toString()))
+                    jsonPath("$.assignee", nullValue())
+                    jsonPath("$.assigneeMemberId", nullValue())
+                }
+            }
+    }
+
+
+    fun postTask(roomId: String, deadline: LocalDate? = LocalDate.now()): ResultActionsDsl {
+        val deadlineField = if (deadline == null) "" else "\"deadline\": \"$deadline\","
         return mockMvc.post("/tasks") {
             contentType = MediaType.APPLICATION_JSON
             accept = MediaType.APPLICATION_JSON
@@ -314,7 +337,7 @@ class TasksControllerTest(
                             {
                               "title": "Test task",
                               "content": "Test content",
-                              "deadline": "$deadline",
+                              $deadlineField
                               "budget": 10,
                               "roomId": "$roomId"
                             }

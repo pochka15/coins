@@ -478,7 +478,9 @@ function TaskCard({ task }) {
       <MarkdownContent value={task.content} />
 
       <Flex marginTop={2} gap={4} align="center">
-        <Text w="11rem">Deadline: {task.deadline}</Text>
+        <Text w="11rem">
+          {task.deadline ? `Deadline: ${task.deadline}` : ''}
+        </Text>
         <Text w="3xs">Author: {task.author}</Text>
         {task.status === 'Reviewing' ? (
           <Text>Reviewing</Text>

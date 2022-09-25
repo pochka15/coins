@@ -174,7 +174,7 @@ data class TaskData(
     val id: UUID,
     val title: String,
     val content: String,
-    val deadline: String,
+    val deadline: String?,
     val creationDate: String,
     val budget: Int,
     val status: String,
@@ -182,6 +182,7 @@ data class TaskData(
     val authorMemberId: UUID,
     val assignee: String?,
     val assigneeMemberId: UUID?,
+    val solutionNote: String?,
 )
 
 fun ExtendedTask.toData(): TaskData {
@@ -189,14 +190,15 @@ fun ExtendedTask.toData(): TaskData {
         id = id,
         title = title,
         content = content,
-        deadline = deadline.toString(),
+        deadline = deadline?.toString(),
         creationDate = creationDate.toString(),
         budget = budget,
         status = status.formatted,
         author = authorName,
         authorMemberId = authorMemberId,
         assignee = assigneeName,
-        assigneeMemberId = assigneeMemberId
+        assigneeMemberId = assigneeMemberId,
+        solutionNote = solutionNote,
     )
 }
 
@@ -206,7 +208,7 @@ data class NewTaskPayload(
     @field:Length(max = 1000, message = "Maximum 1000 characters is allowed in the content")
     val content: String?,
     @field:TaskDeadline
-    val deadline: LocalDate,
+    val deadline: LocalDate?,
     @field:Min(1) @field:Max(1000_000, message = "Too big budget")
     val budget: Int,
     val roomId: UUID,

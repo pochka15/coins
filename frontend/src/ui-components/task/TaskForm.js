@@ -47,23 +47,6 @@ function TaskForm({ onSubmit, isLoading }) {
           <Textarea id="content" placeholder="" {...register('content')} />
         </FormControl>
 
-        <FormControl mb={8} isInvalid={formErrors.deadline}>
-          <FormLabel htmlFor="deadline">Deadline</FormLabel>
-          <Controller
-            control={control}
-            name="deadline"
-            defaultValue={new Date()}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <CustomDatePicker
-                onChange={x => onChange(x)}
-                onBlur={onBlur}
-                selectedDate={value}
-              />
-            )}
-          />
-          <FormErrorMessage>{formErrors.deadline?.message}</FormErrorMessage>
-        </FormControl>
-
         <FormControl mb={8} isInvalid={formErrors.budget}>
           <FormLabel htmlFor="budget">Budget</FormLabel>
           <NumberInput>
@@ -81,6 +64,23 @@ function TaskForm({ onSubmit, isLoading }) {
           <FormErrorMessage>
             {formErrors.budget && 'Budget must be a non-negative value'}
           </FormErrorMessage>
+        </FormControl>
+
+        <FormControl mb={8} isInvalid={formErrors.deadline}>
+          <FormLabel htmlFor="deadline">Deadline (optional)</FormLabel>
+          <Controller
+            control={control}
+            name="deadline"
+            defaultValue={null}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <CustomDatePicker
+                onChange={x => onChange(x)}
+                onBlur={onBlur}
+                selectedDate={value}
+              />
+            )}
+          />
+          <FormErrorMessage>{formErrors.deadline?.message}</FormErrorMessage>
         </FormControl>
 
         <Button mt={4} type="submit" isLoading={isLoading}>

@@ -50,6 +50,7 @@ class TaskService(
             newTask.roomId,
             member.id,
             null,
+            null
         )
         dsl.transaction { c: Configuration ->
             with(c.dsl()) { executeInsert(newRecord(TASKS, task)) }
@@ -212,7 +213,7 @@ class TaskService(
 data class NewTask(
     val title: String,
     val content: String?,
-    val deadline: LocalDate,
+    val deadline: LocalDate?,
     val budget: Int,
     val roomId: UUID,
     val userId: UUID,

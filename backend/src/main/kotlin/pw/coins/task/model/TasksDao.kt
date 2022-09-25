@@ -76,6 +76,7 @@ class TasksDao(
             assigneeMemberId = task.assigneeMemberId,
             authorName = authorName,
             assigneeName = assigneeName,
+            solutionNote = task.solutionNote,
         )
     }
 }

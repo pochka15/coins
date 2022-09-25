@@ -1,7 +1,7 @@
 interface TNewTask {
   title: string
   content: string
-  deadline: Date
+  deadline?: Date
   budget: number
 }
 
