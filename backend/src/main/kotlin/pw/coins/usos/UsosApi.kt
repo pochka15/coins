@@ -13,6 +13,7 @@ import pw.coins.usos.model.ApiUsosUser
 
 private const val api = "https://apps.usos.pw.edu.pl/services"
 
+// USOS API ver. 6.8.0.0-3, 0cdab6f1, dirty (2022-09-16)
 @Component
 class UsosApi(val oAuthService: OAuth10aService) {
     val log = logger<UsosApi>()
@@ -28,10 +29,14 @@ class UsosApi(val oAuthService: OAuth10aService) {
     }
 
     fun getCourseEdition(token: OAuth1AccessToken, courseId: String, termId: String): ApiCourseEdition {
-        val request = OAuthRequest(Verb.POST, "$api/groups/group")
+        val request = OAuthRequest(
+            Verb.POST,
+            "https://apps.usos.pw.edu.pl/services/courses/course_edition",
+        )
         with(request) {
             addBodyParameter("course_id", courseId)
             addBodyParameter("term_id", termId)
+            addBodyParameter("format", "json")
         }
         oAuthService.signRequest(token, request)
         val response = oAuthService.execute(request)
