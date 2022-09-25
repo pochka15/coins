@@ -9,6 +9,7 @@ import {
   HStack,
   Icon,
   IconButton,
+  Input,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -40,13 +41,21 @@ import {
   unassignTask
 } from '../../api/tasks'
 import { TASKS_QUERY_KEY } from '../TasksFeed'
-import { extractErrorMessage } from '../../api/api-utils'
+import {
+  extractErrorMessage,
+  extractValidationErrors,
+  toErrorMessage
+} from '../../api/api-utils'
 import { getMember } from '../../api/room'
 import { MarkdownContent } from './MarkdownContent'
 import { RiDeleteBin7Line } from 'react-icons/ri'
 import { MdDone } from 'react-icons/md'
 import { WALLET_KEY } from '../wallet/CoinsSummary'
 import { useCurrentRoom } from '../../hooks/use-current-room'
+
+function formatSolutionNote(note) {
+  return note ? note : 'empty'
+}
 
 function buildErrorMessage(
   error,
@@ -291,41 +300,13 @@ function Assignee({ task }) {
   )
 }
 
-function SolveTaskButton({ task }) {
-  const queryClient = useQueryClient()
-  const [errorMessage, setErrorMessage] = useState('')
-
-  const mutation = useMutation(() => solveTask(task.id), {
-    onSuccess: () => {
-      queryClient.invalidateQueries(TASKS_QUERY_KEY).then()
-      setErrorMessage('')
-    },
-    onError: e => {
-      setErrorMessage(
-        buildErrorMessage(
-          e,
-          `You don't have permissions to solve this task`,
-          'An error occurred when solving the task'
-        )
-      )
-    }
-  })
-
-  if (errorMessage) {
-    return (
-      <Alert status="error" marginLeft={8}>
-        <AlertIcon />
-        {errorMessage}
-      </Alert>
-    )
-  }
-
+function SolveTaskButton({ onClick }) {
   return (
     <Tooltip label="Solve task">
       <IconButton
         aria-label="Solve task"
         icon={<MdDone />}
-        onClick={mutation.mutate}
+        onClick={onClick}
         variant="ghost"
       />
     </Tooltip>
@@ -366,12 +347,8 @@ function AcceptTaskButton({ task }) {
 
   return (
     <Tooltip label="Accept task">
-      <Button
-        onClick={mutation.mutate}
-        aria-label="Accept task"
-        variant="ghost"
-      >
-        👍
+      <Button onClick={mutation.mutate} aria-label="Accept task">
+        Accept
       </Button>
     </Tooltip>
   )
@@ -408,18 +385,14 @@ function RejectTaskButton({ task }) {
 
   return (
     <Tooltip label="Reject task">
-      <Button
-        onClick={mutation.mutate}
-        aria-label="Reject task"
-        variant="ghost"
-      >
-        👎
+      <Button onClick={mutation.mutate} aria-label="Reject task">
+        Reject
       </Button>
     </Tooltip>
   )
 }
 
-function TaskModifiersPanel({ task, disabled }) {
+function TaskModifiersPanel({ task, disabled, onSolveTaskClick }) {
   const { data: member } = useMember()
   const { isOpen, onOpen, onClose } = useDisclosure()
   const me = getInfoAboutMember(task, member)
@@ -428,8 +401,8 @@ function TaskModifiersPanel({ task, disabled }) {
   if (disabled) return null
 
   return (
-    <Flex justifyContent="start">
-      {permissions.canSolve && <SolveTaskButton task={task} />}
+    <Flex justifyContent="start" h={4}>
+      {permissions.canSolve && <SolveTaskButton onClick={onSolveTaskClick} />}
       {permissions.canAccept && <AcceptTaskButton task={task} />}
       {permissions.canReject && <RejectTaskButton task={task} />}
 
@@ -446,6 +419,65 @@ function TaskModifiersPanel({ task, disabled }) {
   )
 }
 
+function SolveTaskModal({ isOpen, onClose, task }) {
+  const queryClient = useQueryClient()
+  const [errorMessage, setErrorMessage] = useState('')
+  const [solutionNote, setSolutionNote] = useState('')
+
+  const mutation = useMutation(() => solveTask(task.id, solutionNote), {
+    onSuccess: () => {
+      queryClient.invalidateQueries(TASKS_QUERY_KEY).then()
+      setErrorMessage('')
+      onClose()
+    },
+    onError: e => {
+      const validationErrors = extractValidationErrors(e) || []
+      const message =
+        toErrorMessage(validationErrors) ||
+        extractErrorMessage(e) ||
+        `An error occurred when solving the task`
+      setErrorMessage(message)
+    }
+  })
+
+  const handleSolveTask = () => {
+    mutation.mutate()
+    onClose()
+  }
+
+  return (
+    <>
+      {errorMessage && (
+        <Alert status="error" marginLeft={8}>
+          <AlertIcon />
+          {errorMessage}
+        </Alert>
+      )}
+
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Leave a note</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Input
+              id="title"
+              type="text"
+              onChange={e => setSolutionNote(e.target.value)}
+              value={solutionNote}
+            />
+
+            <Button mt={4} onClick={handleSolveTask}>
+              Solve task
+            </Button>
+          </ModalBody>
+          <ModalFooter />
+        </ModalContent>
+      </Modal>
+    </>
+  )
+}
+
 /**
  * Card representing task
  * @param {ApiTask} task
@@ -454,6 +486,7 @@ function TaskModifiersPanel({ task, disabled }) {
  */
 function TaskCard({ task }) {
   const [isHovering, setIsHovering] = useBoolean()
+  const [isSolveTaskModalOpen, setIsSolveTaskModalOpen] = useBoolean()
   const hoverColor = useColorModeValue('blackAlpha.50', 'whiteAlpha.100')
   const color = isHovering ? hoverColor : ''
 
@@ -472,12 +505,23 @@ function TaskCard({ task }) {
         <Heading as="h3" size="lg" noOfLines={1} maxWidth={'lg'}>
           {`${task.title}`}
         </Heading>
-        <TaskModifiersPanel task={task} disabled={!isHovering} />
+        <TaskModifiersPanel
+          task={task}
+          disabled={!isHovering}
+          onSolveTaskClick={setIsSolveTaskModalOpen.on}
+        />
       </Flex>
 
-      <MarkdownContent value={task.content} />
+      <MarkdownContent value={task.content} mt={2} />
 
-      <Flex marginTop={2} gap={4} align="center">
+      {task.status === 'Reviewing' && task.solutionNote && (
+        <MarkdownContent
+          value={`Note: ${formatSolutionNote(task.solutionNote)}`}
+          mt={2}
+        />
+      )}
+
+      <Flex marginTop={6} gap={4} align="center">
         <Text w="11rem">
           {task.deadline ? `Deadline: ${task.deadline}` : ''}
         </Text>
@@ -494,6 +538,12 @@ function TaskCard({ task }) {
           <Icon as={GiTwoCoins} />
         </HStack>
       </Flex>
+
+      <SolveTaskModal
+        isOpen={isSolveTaskModalOpen}
+        onClose={setIsSolveTaskModalOpen.off}
+        task={task}
+      />
     </Box>
   )
 }

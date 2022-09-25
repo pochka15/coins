@@ -52,12 +52,13 @@ export async function deleteTask(taskId) {
 /**
  * Solve task
  * @param {string} taskId
+ * @param {string} solutionNote
  * @return {Promise<ApiTask>}
  */
-export async function solveTask(taskId) {
+export async function solveTask(taskId, solutionNote) {
   return auth
     .getClient()
-    .post(`/tasks/${taskId}/solve`)
+    .post(`/tasks/${taskId}/solve`, { solutionNote })
     .then(r => r.data)
 }
 

@@ -27,10 +27,10 @@ function splitContent(content) {
   return out
 }
 
-export function MarkdownContent({ value }) {
+export function MarkdownContent({ value, ...restProps }) {
   const parts = useMemo(() => splitContent(value), [value])
   return (
-    <Text noOfLines={3}>
+    <Text noOfLines={2} {...restProps}>
       {parts.map((part, ind) => {
         return part.url ? (
           <Link href={part.url} isExternal key={ind} color="teal.500">

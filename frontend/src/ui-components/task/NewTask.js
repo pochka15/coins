@@ -59,11 +59,11 @@ function NewTask({ isOpen, onClose, onNotification }) {
 
   const mutation = useMutation(
     /** @param {TNewTask} task */ task => {
-      onClose()
       onNotification({
         type: 'loading',
         payload: { message: `Uploading ${task.title}` }
       })
+      onClose()
       return createTask(toApiTask(task, room))
     },
     {

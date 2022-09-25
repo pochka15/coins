@@ -16,6 +16,7 @@ import pw.coins.db.generated.Tables
 import pw.coins.db.generated.tables.pojos.Member
 import pw.coins.db.generated.tables.pojos.Room
 import pw.coins.db.generated.tables.pojos.User
+import pw.coins.db.generated.tables.pojos.Wallet
 import pw.coins.room.NewMember
 import pw.coins.room.NewRoom
 import pw.coins.room.RoomService
@@ -43,7 +44,7 @@ class TasksControllerTest(
 ) {
     @Test
     fun `create task EXPECT correct dto returned`() {
-        val member = with(room()) { member(me()).wallet(100) }
+        val member = with(room()) { member(me()) { wallet(100) } }
         postTask(member.roomId.toString(), LocalDate.of(2024, 1, 1))
             .andExpect {
                 content {
@@ -75,8 +76,7 @@ class TasksControllerTest(
     fun `get task of another member EXPECT success`() {
         val task = with(room()) {
             member(me())
-            member("Member")
-                .wallet(100)
+            member("Member") { wallet(100) }
                 .task(id)
         }
 
@@ -89,8 +89,7 @@ class TasksControllerTest(
     @Test
     fun `get task EXPECT correct author and assignee given`() {
         val task = with(room()) {
-            member(me())
-                .wallet(100)
+            member(me()) { wallet(100) }
                 .task(id)
         }
         mockMvc.get("/tasks/${task.id}") {
@@ -106,7 +105,7 @@ class TasksControllerTest(
     @Test
     fun `create with deadline one day before today EXPECT bad request`() {
         val room = with(room()) {
-            member(me()).wallet(100)
+            member(me()) { wallet(100) }
             this
         }
         postTask(room.id.toString(), LocalDate.now().minusDays(1))
@@ -122,8 +121,7 @@ class TasksControllerTest(
     @Test
     fun `create two tasks and expect tasks are sorted by creation date descending`() {
         val room = with(room()) {
-            val member = member(me())
-                .wallet(100)
+            val member = member(me()) { wallet(100) }
             member.task(id, "Task 1")
             member.task(id, "Task 2")
             this
@@ -141,7 +139,7 @@ class TasksControllerTest(
     @Test
     fun `get task task from another room then EXPECT forbidden`() {
         val task = with(room()) {
-            member("Member").wallet(100)
+            member("Member") { wallet(100) }
                 .task(id, "Task 1")
         }
         mockMvc.get("/tasks/${task.id}") {
@@ -153,8 +151,7 @@ class TasksControllerTest(
     fun `create two members then assign task EXPECT task has correct status and assignee`() {
         val (member, task) = with(room()) {
             val mem = member(me())
-            val task = member("Member")
-                .wallet(10)
+            val task = member("Member") { wallet(100) }
                 .task(id)
             mem to task
         }
@@ -170,7 +167,7 @@ class TasksControllerTest(
     @Test
     fun `create a task with not enough money EXPECT bad request and task is not stored into the db`() {
         val member = with(room()) {
-            member(me()).wallet(0)
+            member(me()) { wallet(0) }
         }
         postTask(member.roomId.toString(), LocalDate.of(2024, 1, 1))
             .andExpect { status { isBadRequest() } }
@@ -206,13 +203,16 @@ class TasksControllerTest(
     fun `assign and solve task EXPECT status is reviewing`() {
         val (me, task) = with(room()) {
             val me = member(me())
-            me to member("Test")
-                .wallet(100)
+            me to member("Test") { wallet(100) }
                 .task(id)
         }
         postAssign(task.id, me.id)
         mockMvc.post("/tasks/${task.id}/solve") {
             accept = MediaType.APPLICATION_JSON
+            contentType = MediaType.APPLICATION_JSON
+            content = /* language=JSON */ """
+                            { "solutionNote": "" }
+                        """.trimIndent()
         }.andExpect {
             content {
                 jsonPath("$.status", equalTo("Reviewing"))
@@ -226,8 +226,7 @@ class TasksControllerTest(
     fun `solve task EXPECT bad request`() {
         val task = with(room()) {
             member(me())
-            member("Test")
-                .wallet(100)
+            member("Test") { wallet(100) }
                 .task(id)
         }
         mockMvc.post("/tasks/${task.id}/solve") {
@@ -240,11 +239,11 @@ class TasksControllerTest(
     @Test
     fun `accept task EXPECT coins transaction is committed`() {
         val room = room()
-        val me = room.member(me()).wallet(100)
-        val him = room.member("Test").wallet(100)
+        val me = room.member(me()) { wallet(100) }
+        val him = room.member("Test") { wallet(100) }
         val task = me.task(room.id)
         taskService.assign(task.id, him.id, him.userId)
-        taskService.solveTask(task.id, him.userId)
+        taskService.solveTask(task.id, him.userId, "")
 
         mockMvc.post("/tasks/${task.id}/accept") {
             accept = MediaType.APPLICATION_JSON
@@ -264,7 +263,7 @@ class TasksControllerTest(
     @Test
     fun `accept new task EXPECT bad request`() {
         val room = room()
-        val me = room.member(me()).wallet(100)
+        val me = room.member(me()) { wallet(100) }
         val task = me.task(room.id)
 
         mockMvc.post("/tasks/${task.id}/accept") {
@@ -278,7 +277,7 @@ class TasksControllerTest(
     @Test
     fun `reject assigned task expect bad request`() {
         val room = room()
-        val me = room.member(me()).wallet(100)
+        val me = room.member(me()) { wallet(100) }
         val him = room.member("Him")
         val task = me.task(room.id).assign(him)
 
@@ -292,7 +291,7 @@ class TasksControllerTest(
     @Test
     fun `reject task expect task now has status assigned`() {
         val room = room()
-        val me = room.member(me()).wallet(100)
+        val me = room.member(me()) { wallet(100) }
         val him = room.member("Him")
         val task = me.task(room.id).assign(him).solve(him)
 
@@ -308,7 +307,7 @@ class TasksControllerTest(
 
     @Test
     fun `create task without a deadline EXPECT correct dto returned`() {
-        val member = with(room()) { member(me()).wallet(100) }
+        val member = with(room()) { member(me()) { wallet(100) } }
         postTask(member.roomId.toString(), null)
             .andExpect {
                 content {
@@ -325,6 +324,28 @@ class TasksControllerTest(
                     jsonPath("$.assigneeMemberId", nullValue())
                 }
             }
+    }
+
+    @Test
+    fun `solve task EXPECT note is stored `() {
+        val room = room()
+        val me = room.member(me()) { wallet(100) }
+        val him = room.member("Him") { wallet(100) }
+        val task = him.task(room.id).assign(me)
+
+        mockMvc.post("/tasks/${task.id}/solve") {
+            accept = MediaType.APPLICATION_JSON
+            contentType = MediaType.APPLICATION_JSON
+            content = /* language=JSON */ """
+                            { "solutionNote": "Checkout this link" }
+                        """.trimIndent()
+        }.andExpect {
+            content {
+                jsonPath("$.status", equalTo("Reviewing"))
+                jsonPath("$.solutionNote", equalTo("Checkout this link"))
+                jsonPath("$.assigneeMemberId", equalTo(me.id.toString()))
+            }
+        }
     }
 
 
@@ -361,29 +382,30 @@ class TasksControllerTest(
         }
     }
 
-    private fun room() = roomService.create(NewRoom("Test room"))
+    private fun room(): Room = roomService.create(NewRoom("Test room"))
 
-    private fun me() = userService.getUserByEmail("test-email@gmail.com")!!
+    private fun me(): User = userService.getUserByEmail("test-email@gmail.com")!!
 
-    private fun Room.member(user: User): Member {
-        return roomService.addMember(NewMember(user.id, id))
+    private fun Room.member(user: User, init: Member.() -> Unit = {}): Member {
+        return roomService.addMember(NewMember(user.id, id)).also { it.init() }
     }
 
-    private fun Room.member(userName: String): Member {
+    private fun Room.member(userName: String, init: Member.() -> Unit = {}): Member {
         val user = userService.createUser(userName)
         return roomService.addMember(NewMember(user.id, id))
+            .also { it.init() }
     }
 
-    private fun Member.wallet(coinsAmount: Int): Member {
-        return apply { walletService.createWallet(NewWallet(coinsAmount, id)) }
+    private fun Member.wallet(coinsAmount: Int): Wallet {
+        return walletService.createWallet(NewWallet(coinsAmount, id))
     }
 
     private fun ExtendedTask.assign(member: Member): ExtendedTask {
         return apply { taskService.assign(id, member.id, member.userId) }
     }
 
-    private fun ExtendedTask.solve(member: Member): ExtendedTask {
-        return apply { taskService.solveTask(id, member.userId) }
+    private fun ExtendedTask.solve(member: Member, solutionNote: String = ""): ExtendedTask {
+        return apply { taskService.solveTask(id, member.userId, solutionNote) }
     }
 
     private fun Member.task(roomId: UUID, title: String = "Test task"): ExtendedTask {

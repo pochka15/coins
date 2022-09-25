@@ -120,10 +120,11 @@ class TasksController(
     @PostMapping("/{taskId}/solve")
     fun solveTask(
         @PathVariable("taskId") taskId: UUID,
-        @PrincipalContext user: User
+        @PrincipalContext user: User,
+        @Valid @RequestBody payload: SolveTaskPayload,
     ): TaskData {
         return try {
-            taskService.solveTask(taskId, user.id).toData()
+            taskService.solveTask(taskId, user.id, payload.solutionNote).toData()
         } catch (e: TaskNotFoundException) {
             throw ResponseStatusException(NOT_FOUND, e.message)
         } catch (e: MemberNotFoundException) {
@@ -215,3 +216,8 @@ data class NewTaskPayload(
 )
 
 data class AssignTaskPayload(val assigneeMemberId: UUID)
+
+data class SolveTaskPayload(
+    @field:Length(max = 1000, message = "Maximum 1000 characters is allowed in the content")
+    val solutionNote: String
+)

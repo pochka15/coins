@@ -68,7 +68,7 @@ class TaskService(
         return tasksDao.fetchExtendedTasksByRoomId(roomId)
     }
 
-    fun solveTask(taskId: UUID, requestedUserId: UUID): ExtendedTask {
+    fun solveTask(taskId: UUID, requestedUserId: UUID, solutionNote: String): ExtendedTask {
         val task = findTask(taskId)
             ?: throw TaskNotFoundException("Couldn't find a task to solve")
 
@@ -84,6 +84,7 @@ class TaskService(
         }
 
         task.status = TaskStatus.REVIEWING.name
+        task.solutionNote = solutionNote
         tasksDao.update(task)
         return getExtendedTask(taskId)!!
     }
