@@ -3,6 +3,7 @@ import { useDisclosure } from '@chakra-ui/react'
 import Home from './ui-components/Home'
 import HomeLayout from './ui-components/HomeLayout'
 import NewTask from './ui-components/task/NewTask'
+import ContributionMessage from './ui-components/ContributionMessage'
 
 export const SearchbarContext = createContext('')
 
@@ -26,6 +27,8 @@ function App() {
           onNotification={setNotification}
         />
       </HomeLayout>
+
+      <ContributionMessage />
     </SearchbarContext.Provider>
   )
 }
